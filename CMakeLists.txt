@@ -13,4 +13,7 @@ endif()
 include (CheckIncludeFiles)
 include (GenerateExportHeader)
 
+set (SEE_OBJ_LIB see_object)
+
 add_subdirectory(src)
+add_subdirectory(test)
