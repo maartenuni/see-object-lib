@@ -10,6 +10,8 @@ else()
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W -Wextra -Wall -pedantic")
 endif()
 
+#find_package(Threads REQUIRED)
+
 include (CheckIncludeFiles)
 include (GenerateExportHeader)
 
