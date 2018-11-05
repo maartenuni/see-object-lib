@@ -27,7 +27,7 @@ static void create_see_object()
     SeeObject* obj = NULL;
     obj = see_object_create();
     CU_ASSERT_PTR_NOT_NULL(obj);
-    see_object_destroy(obj);
+    see_object_decref(obj);
 }
 
 static void repr()
@@ -40,7 +40,7 @@ static void repr()
     int n = see_object_repr(obj, buffer, BUFSIZ);
     CU_ASSERT_STRING_EQUAL(bufcmp, buffer);
     CU_ASSERT_EQUAL(n, (int)strlen(bufcmp));
-    see_object_destroy(obj);
+    see_object_decref(obj);
 }
 
 
