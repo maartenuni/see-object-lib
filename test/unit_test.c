@@ -20,6 +20,8 @@
 #include <CUnit/CUnit.h>
 #include <CUnit/Basic.h>
 
+#include "suites.h"
+
 int add_suites()
 {
     int res = add_see_object_suite();
@@ -30,6 +32,9 @@ int add_suites()
 }
 
 int main(int argc, char** argv) {
+    
+    (void) argc; (void) argv; // prevent compiler warnings.
+
     if (CU_initialize_registry() != CUE_SUCCESS)
         return EXIT_FAILURE;
 

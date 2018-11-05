@@ -36,7 +36,7 @@ static void repr()
     obj = see_object_create();
     char bufcmp[BUFSIZ] = {0};
     char buffer[BUFSIZ] = {0};
-    snprintf(bufcmp, BUFSIZ, "See object at %p", obj);
+    snprintf(bufcmp, BUFSIZ, "See object at %p", (void*) obj);
     int n = see_object_repr(obj, buffer, BUFSIZ);
     CU_ASSERT_STRING_EQUAL(bufcmp, buffer);
     CU_ASSERT_EQUAL(n, (int)strlen(bufcmp));

@@ -23,12 +23,13 @@
 
 static int representation_func(const SeeObject* obj, char* out, size_t size)
 {
-    return snprintf(out, size, "See object at %p", obj);
+    return snprintf(out, size, "See object at %p", (void*) obj);
 }
 
 static int init_func(SeeObject* obj, SeeObjectClass* cls)
 {
     assert(obj);
+    assert(cls);
     //TODO  make guaranteed atomic
     obj->refcount = 1;
     obj->cls = cls;
