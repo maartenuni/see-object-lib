@@ -16,10 +16,10 @@
  */
 
 #include "SeeObject.h"
-#include "stdlib.h"
-#include "stdio.h"
-#include "string.h"
-#include "assert.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <assert.h>
 #include "atomic_operations.h"
 
 static int representation_func(const SeeObject* obj, char* out, size_t size)
@@ -36,7 +36,7 @@ static int init_func(SeeObject* obj, SeeObjectClass* cls)
     return 0;
 }
 
-static SeeObject*
+static void*
 object_ref(SeeObject* obj)
 {
     assert(obj);
