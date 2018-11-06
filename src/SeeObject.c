@@ -15,6 +15,7 @@
  * along with see-objects.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "see_object_config.h"
 #include "SeeObject.h"
 #include <stdlib.h>
 #include <stdio.h>

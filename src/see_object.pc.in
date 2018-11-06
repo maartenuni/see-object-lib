@@ -1,0 +1,17 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib/@SEE_OBJ_LIB@
+sharedlibdir=${exec_prefix}/lib
+includedir=${prefix}/include/@SEE_OBJ_LIB@
+version_major=@SEE_OBJECTS_VERSION_MAJOR@
+version_minor=@SEE_OBJECTS_VERSION_MINOR@
+version=@SEE_OBJECTS_VERSION@
+
+Name: see-ojects
+Description: a utility to help with OO style programming in C
+Version: ${version}
+#Doesn't require anything at the moment
+Requires:
+Libs: -L${libdir} -l@SEE_OBJ_LIB@
+Cflags: -I ${includedir}
+
