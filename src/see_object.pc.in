@@ -3,11 +3,11 @@ exec_prefix=${prefix}
 libdir=${exec_prefix}/lib/@SEE_OBJ_LIB@
 sharedlibdir=${exec_prefix}/lib
 includedir=${prefix}/include/@SEE_OBJ_LIB@
-version_major=@SEE_OBJECTS_VERSION_MAJOR@
-version_minor=@SEE_OBJECTS_VERSION_MINOR@
-version=@SEE_OBJECTS_VERSION@
+version_major=@SEE_OBJECT_VERSION_MAJOR@
+version_minor=@SEE_OBJECT_VERSION_MINOR@
+version=@SEE_OBJECT_VERSION@
 
-Name: see-ojects
+Name: see-object
 Description: a utility to help with OO style programming in C
 Version: ${version}
 #Doesn't require anything at the moment

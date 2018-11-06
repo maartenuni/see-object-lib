@@ -1,4 +1,4 @@
-# see-objects
+# see-object
 A small library that uses C in an object oriented manner
 
 # Purpose: Using C in an object oriented manner.
