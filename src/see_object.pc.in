@@ -13,5 +13,5 @@ Version: ${version}
 #Doesn't require anything at the moment
 Requires:
 Libs: -L${libdir} -l@SEE_OBJ_LIB@
-Cflags: -I ${includedir}
+Cflags: -I${includedir}
 
