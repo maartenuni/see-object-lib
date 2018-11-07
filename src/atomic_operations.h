@@ -20,6 +20,7 @@
 #define SeeAtomicOperations_H
 
 #include <stdlib.h>
+#include "see_export.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,7 +35,7 @@ extern "C" {
  *
  * @return *val + 1
  */
-int see_atomic_increment(int* val);
+SEE_EXPORT int see_atomic_increment(int* val);
 
 /**
  * Decrements the integer pointed to by val with 1 and returns the value
@@ -45,7 +46,7 @@ int see_atomic_increment(int* val);
  *
  * @return *val - 1
  */
-int see_atomic_decrement(int* val);
+SEE_EXPORT int see_atomic_decrement(int* val);
 
 /**
  * Increments the integer pointed to by val with 1 and returns the value
@@ -56,7 +57,7 @@ int see_atomic_decrement(int* val);
  *
  * @return *val + 1
  */
-int see_atomic_increment_by(int* val, int n);
+SEE_EXPORT int see_atomic_increment_by(int* val, int n);
  
 /**
  * Decrements the integer pointed to by val with 1 and returns the value
@@ -66,7 +67,7 @@ int see_atomic_increment_by(int* val, int n);
  * is returned to the user
  * @return *val - 1
  */
-int see_atomic_decrement_by(int* val, int n);
+SEE_EXPORT int see_atomic_decrement_by(int* val, int n);
 
 
 #ifdef __cplusplus

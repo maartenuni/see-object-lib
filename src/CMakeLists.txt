@@ -25,7 +25,7 @@ set (SEE_OBJ_HDR
 
 add_library(${SEE_OBJ_LIB} SHARED ${SEE_OBJ_SRC} ${SEE_OBJ_HDR})
 
-generate_export_header(${SEE_OBJ_LIB})
+generate_export_header(${SEE_OBJ_LIB} BASE_NAME SEE)
 
 #enable compiling with C99 standard
 set_property(TARGET ${SEE_OBJ_LIB} PROPERTY C_STANDARD 11)
@@ -43,7 +43,7 @@ install (TARGETS ${SEE_OBJ_LIB}
             LIBRARY DESTINATION "lib/${SEE_OBJ_LIB}/"
             )
 install (FILES ${SEE_OBJ_HDR} DESTINATION "include/${SEE_OBJ_LIB}")
-install (FILES "${CMAKE_CURRENT_BINARY_DIR}/${SEE_OBJ_LIB}_export.h"
+install (FILES "${CMAKE_CURRENT_BINARY_DIR}/see_export.h"
          DESTINATION "include/${SEE_OBJ_LIB}"
         )
 install (FILES "${CMAKE_CURRENT_BINARY_DIR}/${SEE_OBJ_LIB}.pc"

@@ -21,6 +21,8 @@
 
 #include <stdlib.h>
 
+#include "see_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -54,14 +56,14 @@ struct _SeeObjectClass {
 };
 
 // Allocates a new instance for class cls.
-SeeObject* see_object_new(SeeObjectClass* cls);
-SeeObject* see_object_create();
-SeeObjectClass* see_object_class();
+SEE_EXPORT SeeObject* see_object_new(SeeObjectClass* cls);
+SEE_EXPORT SeeObject* see_object_create();
+SEE_EXPORT SeeObjectClass* see_object_class();
 
 /**
  * Atomically increment the reference count of a see object
  */
-void* see_object_ref(SeeObject* obj);
+SEE_EXPORT void* see_object_ref(SeeObject* obj);
 
 /**
  * Atomically decrement the reference count of a see object.
@@ -73,12 +75,14 @@ void* see_object_ref(SeeObject* obj);
  *
  * \param[in] A pointer to a valid instance of a SeeObject.
  */
-void see_object_decref(SeeObject* obj);
+SEE_EXPORT void see_object_decref(SeeObject* obj);
 
 
 // A short standard representation of an object.
-int see_object_repr(const SeeObject* obj, char* out, size_t size);
+SEE_EXPORT int see_object_repr(const SeeObject* obj, char* out, size_t size);
 
+/*** class management ***/
+SEE_EXPORT int see_object_class_init();
 
 #ifdef __cplusplus
 }
