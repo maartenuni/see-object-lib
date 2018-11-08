@@ -23,18 +23,24 @@
 #include <assert.h>
 #include "atomic_operations.h"
 
-static int representation_func(const SeeObject* obj, char* out, size_t size)
+static int object_representation(const SeeObject* obj, char* out, size_t size)
 {
     return snprintf(out, size, "See object at %p", (void*) obj);
 }
 
-static int init_func(SeeObject* obj, SeeObjectClass* cls)
+static int object_init(SeeObject* obj, SeeObjectClass* cls)
 {
     assert(obj);
     assert(cls);
     obj->refcount = 1;
     obj->cls = cls;
     return 0;
+}
+
+static SeeObjectClass*
+object_get_class(const SeeObject* obj)
+{
+    return obj->cls;
 }
 
 static void*
@@ -55,7 +61,7 @@ object_decref(SeeObject* obj)
     }
 }
 
-static void destroy_func(SeeObject* obj)
+static void object_destroy(SeeObject* obj)
 {
     free(obj);
 }
@@ -68,9 +74,10 @@ SeeObjectClass see_object_class_instance = {
     },
     NULL,
     sizeof(SeeObject),
-    init_func,
-    destroy_func,
-    representation_func,
+    object_init,
+    object_destroy,
+    object_representation,
+    object_get_class,
     object_ref,
     object_decref
 };
@@ -102,6 +109,16 @@ int see_object_repr(const SeeObject* obj, char* out, size_t size)
 {
     SeeObjectClass* cls = obj->cls;
     return cls->repr(obj, out, size);
+}
+
+SeeObjectClass* see_object_get_class(const SeeObject* obj)
+{
+    assert(obj);
+    SeeObjectClass* cls = obj->cls;
+    if (!obj)
+        return NULL;
+    else
+        return cls->get_class(obj);
 }
 
 void* see_object_ref(SeeObject* obj)
