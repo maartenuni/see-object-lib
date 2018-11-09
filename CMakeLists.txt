@@ -1,6 +1,5 @@
 
 cmake_minimum_required(VERSION 3.5)
-project (SeeObject C CXX)
 
 set (SEE_OBJECT_VERSION_MAJOR  "0")
 set (SEE_OBJECT_VERSION_MINOR  "0")
@@ -13,6 +12,11 @@ string (CONCAT SEE_OBJECT_VERSION_STRING
                 "${SEE_OBJECT_VERSION_MINOR}."
                 "${SEE_OBJECT_VERSION_MICRO}"
                 )
+
+project (SeeObject
+        VERSION     ${SEE_OBJECT_VERSION_MAJOR}.${SEE_OBJECT_VERSION_MINOR}
+        LANGUAGES C CXX
+        )
 
 if (MSVC)
     set (CMAKE_C_FLAGS "${CMAKE_CC_FLAGS} /W4")
@@ -27,6 +31,7 @@ endif()
 include (CheckIncludeFiles)
 include (GenerateExportHeader)
 include (InstallRequiredSystemLibraries)
+include (GNUInstallDirs)
 
 check_include_files(stdio.h     HAVE_STDIO_H)
 check_include_files(stdlib.h    HAVE_STDLIB_H)

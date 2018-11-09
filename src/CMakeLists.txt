@@ -14,40 +14,49 @@ set (SEE_OBJ_SRC
     #priv/see_mutex.cpp
     )
 
-set (SEE_OBJ_HDR
-    #see_class.h
+set (SEE_OBJ_HDR_PUBLIC
     SeeObject.h
     atomic_operations.h
-    #see_object_class.h
+    ${CMAKE_CURRENT_BINARY_DIR}/see_export.h
+    )
 
+set (SEE_OBJ_HDR_PRIVATE
     #priv/see_mutex.h
     )
 
+set (SEE_OBJ_HDR ${SEE_OBJ_HDR_PUBLIC} ${SEE_OBJ_HDR_PRIVATE})
+
 add_library(${SEE_OBJ_LIB} SHARED ${SEE_OBJ_SRC} ${SEE_OBJ_HDR})
+
 
 generate_export_header(${SEE_OBJ_LIB} BASE_NAME SEE)
 
 #enable compiling with C99 standard
-set_property(TARGET ${SEE_OBJ_LIB} PROPERTY C_STANDARD 11)
+set_property(TARGET ${SEE_OBJ_LIB} PROPERTY C_STANDARD 99)
 set_property(TARGET ${SEE_OBJ_LIB} PROPERTY CXX_STANDARD 11)
 
 set_property(TARGET ${SEE_OBJ_LIB} PROPERTY C_STANDARD_REQUIRED ON)
 set_property(TARGET ${SEE_OBJ_LIB} PROPERTY CXX_STANDARD_REQUIRED ON)
 
 set_target_properties(${SEE_OBJ_LIB} PROPERTIES LINKER_LANGUAGE C)
+set_target_properties(${SEE_OBJ_LIB} PROPERTIES
+        VERSION     ${PROJECT_VERSION}
+        SOVERSION   ${PROJECT_VERSION}
+        )
+set_target_properties(${SEE_OBJ_LIB} PROPERTIES 
+        PUBLIC_HEADER "${SEE_OBJ_HDR_PUBLIC}"
+        )
 
-# make sure the configure file can be found.
+# make sure the config header file can be found.
 target_include_directories(${SEE_OBJ_LIB} PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
 install (TARGETS ${SEE_OBJ_LIB}
-            LIBRARY DESTINATION "lib/${SEE_OBJ_LIB}/"
+            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
             )
-install (FILES ${SEE_OBJ_HDR} DESTINATION "include/${SEE_OBJ_LIB}")
-install (FILES "${CMAKE_CURRENT_BINARY_DIR}/see_export.h"
-         DESTINATION "include/${SEE_OBJ_LIB}"
-        )
+
 install (FILES "${CMAKE_CURRENT_BINARY_DIR}/${SEE_OBJ_LIB}.pc"
-         DESTINATION "share/pkgconfig"
+         DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/pkgconfig"
         )
 
 #target_link_libraries(${SEE_OBJ_LIB} Threads::Threads)
