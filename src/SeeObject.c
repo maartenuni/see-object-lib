@@ -88,6 +88,15 @@ see_object_class()
     return &see_object_class_instance;
 }
 
+int
+see_object_class_init()
+{
+//  The see object class is allways initialized.
+//    if (&see_object_class_instance != NULL)
+//        return 0;
+    return 0;
+}
+
 SeeObject* see_object_new(SeeObjectClass* cls)
 {
     assert(cls != NULL);
