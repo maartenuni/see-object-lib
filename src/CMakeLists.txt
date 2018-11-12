@@ -25,6 +25,7 @@ set (SEE_OBJ_HDR_PUBLIC
     init.h
     MetaClass.h
     SeeObject.h
+    Array.h
     atomic_operations.h
     ${CMAKE_CURRENT_BINARY_DIR}/see_export.h
     )

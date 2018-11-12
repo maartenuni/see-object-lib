@@ -34,11 +34,63 @@ typedef struct _SeeArrayClass SeeArrayClass;
 struct _SeeArray {
      SeeObj     obj;
      size_t     element_size;
-     size_t     capacity;
      size_t     size;
-     void       (*set)(SeeArray* array, void* element);
+     size_t     capacity;
+     char*      elements;
      void       (*free_element)(void* element);
+     void*      (*copy_element)(void* element);
 };
+
+struct _SeeArrayClass {
+    SeeObjectClass parent;
+
+    /** the equivalent of the array[i] = element. */
+    void       (*set)(SeeArray* array, size_t pos, const void* element);
+
+    /** the equivalent of the element = array[i]. */
+    void*      (*get)(const SeeArray* array, size_t pos);
+
+    /**
+     * pushes one element to the back of the array, size is incremented with 1
+     */
+    int        (*add)(SeeArray* array, void* element);
+
+    /**
+     * Get the last element from the array and store it in element.
+     * Decreases the size with 1.
+     */
+    int        (*pop_back)(SeeArray* array, void *element);
+
+    /**
+     * Resizes the array to count
+     *
+     * If count is smaller than array, the array is shrunken to size and the
+     * elements of which the index is >= count will be freed.
+     */
+    int        (*resize)(SeeArray* array, size_t count);
+
+    /**
+     * Insert a new number of elements into the array.
+     *
+     * The array size is larger then grow array till the given size is reached.
+     * If the new array size is smaller shrink the array freeing all member at
+     * an index greater than the new size.
+     */
+    int        (*insert)(
+                   SeeArray* array,
+                   size_t pos,
+                   void* elements,
+                   size_t n
+                   );
+
+    // private  use resize instead.
+    void       (*shrink)(SeeArray* array, size_t nelements);
+    int        (*grow)(SeeArray* array, size_t nelements);
+};
+
+SeeArray* see_array_create(see_copy_func cf, see_free_func ff);
+void      see_array_set(SeeArray* array, size_t pos, const void* element)
+
 
 #ifdef __cplusplus
 }
