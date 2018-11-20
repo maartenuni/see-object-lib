@@ -32,14 +32,16 @@ typedef struct _SeeObject SeeObject;
 struct _SeeObjectClass;
 typedef struct _SeeObjectClass SeeObjectClass;
 
+struct _SeeClass;
+
 /**
  * The definition of a SeeObject.
  *
  * This object mainly contains the data of a SeeObject.
  */
 struct _SeeObject {
-    SeeObjectClass *cls;
-    int             refcount;
+    const SeeObjectClass*   cls;
+    int                     refcount;
 };
 
 /**
