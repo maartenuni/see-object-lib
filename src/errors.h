@@ -16,17 +16,21 @@
  */
 
 
-#include "SeeClass.h"
+#ifndef errors_H
+#define errors_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-static const SeeClass g_class_instance = {
-    {&g_class_instance, 1},
-    "SeeClass",
-    sizeof(SeeClass),
-    see_class_new_instance,
-    see_class_init,
-    see_class_destroy
+enum see_error {
+    SEE_SUCCESS = 0,         /**< Everything looks dandy! */
+    SEE_INVALID_ARGUMENT,    /**< Inspect arguments given to function*/
+    SEE_RUNTIME_ERROR,       /**< Inspect errno for clue.*/
 };
 
-static const SeeClass* g_class_ptr = &g_class_instance;
+#ifdef __cplusplus
+}
+#endif
 
+#endif //ifndef errors_H

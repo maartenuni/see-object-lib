@@ -8,15 +8,16 @@ configure_file(
         @ONLY)
 
 set (SEE_OBJ_SRC
+    MetaClass.c
     SeeObject.c
-    SeeClass.c
     atomic_operations.c
     #priv/see_mutex.cpp
     )
 
 set (SEE_OBJ_HDR_PUBLIC
+    errors.h
+    MetaClass.c
     SeeObject.h
-    SeeClass.h
     atomic_operations.h
     ${CMAKE_CURRENT_BINARY_DIR}/see_export.h
     )
