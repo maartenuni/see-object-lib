@@ -10,6 +10,7 @@ if (BUILD_UNIT_TESTS)
     set(UNIT_TEST unit-test)
     set(UNIT_TEST_SOURCES
         unit_test.c
+        meta_test.c
         see_object_test.c
         )
     set(UNIT_TEST_HEADERS suites.h)

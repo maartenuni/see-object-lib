@@ -39,7 +39,7 @@ typedef struct _SeeMetaClass SeeMetaClass;
  * When a new class is created the function pointers point to
  * the same functions as the parents "vtable", this function
  * allows to specialize the derived class.
- * The function should return SEE_SUCCES when it intialized the class
+ * The function should return SEE_SUCCESS when it initialized the class
  * succesfully, otherwise, the meta class will think initialization failed
  * and it will destroy the newly allocated class.
  */
@@ -51,7 +51,7 @@ typedef int (*see_class_init_func)(
  * \brief allocate and initialize a new class instance.
  */
 typedef int (*see_new_class_instance_func) (
-    SeeMetaClass*           meta,
+    const SeeMetaClass*     meta,
     SeeObjectClass**        out,
     size_t                  class_instance_size,
     size_t                  instance_size,
@@ -65,14 +65,31 @@ struct _SeeMetaClass {
     see_new_class_instance_func new_cls_instance;
 };
 
-int see_meta_class_new_class(
-    SeeMetaClass*           meta,
+
+
+SEE_EXPORT int
+see_meta_class_new_class(
+    const SeeMetaClass*     meta,
     SeeObjectClass**        out,
+    size_t                  class_instance_size,
     size_t                  instance_size,
     const SeeObjectClass*   parent,
     size_t                  parent_cls_size,
     see_class_init_func     init_func
     );
+
+SEE_EXPORT int
+see_meta_class_init();
+
+SEE_EXPORT void
+see_meta_class_uninit();
+
+/**
+ * @brief get the meta class' class instance.
+ * @return the instance to the SeeMetaClass instance.
+ */
+SEE_EXPORT const SeeMetaClass*
+see_meta_class_class();
 
 #ifdef __cplusplus
 }

@@ -22,7 +22,7 @@
 
 static int
 new_cls(
-    SeeMetaClass*           meta,
+    const SeeMetaClass*     meta,
     SeeObjectClass**        out,
     size_t                  class_instance_size,
     size_t                  instance_size,
@@ -69,8 +69,50 @@ new_cls(
 
 SeeMetaClass* g_see_meta_class_instance;
 
-int see_meta_init()
+const SeeMetaClass*
+see_meta_class_class()
 {
+    return g_see_meta_class_instance;
+}
+
+int see_meta_class_new_class(
+    const SeeMetaClass*     meta,
+    SeeObjectClass**        out,
+    size_t                  class_instance_size,
+    size_t                  instance_size,
+    const SeeObjectClass*   parent,
+    size_t                  parent_cls_size,
+    see_class_init_func     init_func
+    )
+{
+    if (!meta)
+        return SEE_INVALID_ARGUMENT;
+
+    if (!out || *out)
+        return SEE_INVALID_ARGUMENT;
+
+    if (!parent)
+        return SEE_INVALID_ARGUMENT;
+
+    if (!init_func)
+        return SEE_INVALID_ARGUMENT;
+
+    return meta->new_cls_instance(
+        meta,
+        out,
+        class_instance_size,
+        instance_size,
+        parent,
+        parent_cls_size,
+        init_func
+        );
+}
+
+int see_meta_class_init()
+{
+    if (g_see_meta_class_instance)
+        return SEE_SUCCESS;
+
     g_see_meta_class_instance = calloc(1, sizeof(SeeMetaClass));
     if (!g_see_meta_class_instance)
         return SEE_RUNTIME_ERROR;
@@ -88,4 +130,10 @@ int see_meta_init()
     g_see_meta_class_instance->new_cls_instance = new_cls;
 
     return SEE_SUCCESS;
+}
+
+void see_meta_class_uninit()
+{
+    see_object_decref((SeeObject*) g_see_meta_class_instance);
+    g_see_meta_class_instance = NULL;
 }
