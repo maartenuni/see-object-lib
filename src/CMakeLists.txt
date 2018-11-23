@@ -14,6 +14,7 @@ configure_file(
 
 set (SEE_OBJ_SRC
     init.c
+    Array.c
     MetaClass.c
     SeeObject.c
     atomic_operations.c
@@ -23,9 +24,9 @@ set (SEE_OBJ_SRC
 set (SEE_OBJ_HDR_PUBLIC
     errors.h
     init.h
+    Array.h
     MetaClass.h
     SeeObject.h
-    Array.h
     atomic_operations.h
     ${CMAKE_CURRENT_BINARY_DIR}/see_export.h
     )
