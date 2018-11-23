@@ -18,7 +18,7 @@ set (SEE_OBJ_SRC
 set (SEE_OBJ_HDR_PUBLIC
     errors.h
     init.h
-    MetaClass.c
+    MetaClass.h
     SeeObject.h
     atomic_operations.h
     ${CMAKE_CURRENT_BINARY_DIR}/see_export.h
