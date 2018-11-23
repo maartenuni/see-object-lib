@@ -82,7 +82,7 @@ SEE_EXPORT int
 see_meta_class_init();
 
 SEE_EXPORT void
-see_meta_class_uninit();
+see_meta_class_deinit();
 
 /**
  * @brief get the meta class' class instance.

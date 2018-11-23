@@ -132,7 +132,7 @@ int see_meta_class_init()
     return SEE_SUCCESS;
 }
 
-void see_meta_class_uninit()
+void see_meta_class_deinit()
 {
     see_object_decref((SeeObject*) g_see_meta_class_instance);
     g_see_meta_class_instance = NULL;
