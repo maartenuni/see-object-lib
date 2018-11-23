@@ -52,7 +52,10 @@ set_repr(SeeCustomRepr* obj, const char* repr)
 
 static int post_init_class(SeeObjectClass* cls)
 {
+    // overwrite repr of SeeObjectClass
     cls->repr = custom_repr;
+
+    // Initialize our own derivable function.
     SeeCustomReprClass* custom_cls = (SeeCustomReprClass*) cls;
     custom_cls->set_repr = set_repr;
     return SEE_SUCCESS;
@@ -80,18 +83,46 @@ static void meta_create()
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
     CU_ASSERT_NOT_EQUAL(g_custom_class_instance, NULL);
 
-    CU_ASSERT_EQUAL(g_custom_class_instance->set_repr, &custom_repr);
+    SeeObjectClass* cls = (SeeObjectClass*) g_custom_class_instance;
+
+    CU_ASSERT_EQUAL(g_custom_class_instance->set_repr, &set_repr);
+    CU_ASSERT_EQUAL(cls->repr, &custom_repr);
+
+    CU_ASSERT_EQUAL(cls->inst_size, sizeof(SeeCustomRepr));
 
 }
 
 static void meta_use()
 {
+    SeeCustomRepr* obj = NULL;
+    char buffer[BUFSIZ];
+    int ret;
+    const char* msg = "Hi from a custom class instance.";
 
+    ret = see_object_new(
+        (SeeObjectClass*)g_custom_class_instance,
+        (SeeObject**) &obj
+        );
+    // Can we successfully create a new instance.
+    CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
+    // Is it an instance of the right class.
+    CU_ASSERT_EQUAL(obj->obj.cls, g_custom_class_instance);
+
+    // Does the instance do what we think it does.
+    g_custom_class_instance->set_repr(obj, msg);
+    ret = g_custom_class_instance->parent.repr((SeeObject*) obj, buffer, BUFSIZ);
+
+    CU_ASSERT_EQUAL(ret, strlen(msg));
+    CU_ASSERT_STRING_EQUAL(msg, buffer);
+    see_object_decref((SeeObject*) obj);
 }
 
 static void meta_destroy()
 {
-
+    // this doesn't test/assert anything but does free memory, hence
+    // it is still important.
+    see_object_decref((SeeObject*) g_custom_class_instance);
+    g_custom_class_instance = NULL;
 }
 
 int add_meta_suite()
