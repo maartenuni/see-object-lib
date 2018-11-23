@@ -60,13 +60,35 @@ typedef int (*see_new_class_instance_func) (
     see_class_init_func     init_func
     );
 
+/**
+ * \brief An instance of the metaclass. This class instance is used to generate
+ * new classes that derive from another class.
+ */
 struct _SeeMetaClass {
     SeeObjectClass  cls;
     see_new_class_instance_func new_cls_instance;
 };
 
 
-
+/**
+ * @brief Ask from the meta class to generate a new class.
+ * @param [in]  meta                A valid pointer to the meta class
+ *                                  (use eg see_meta_class_class())
+ * @param [out] out                 A pointer to an uninitialized class in such way
+ *                                  that *out should be NULL, but out isn't.
+ * @param [in]  class_instance_size The size of the class.
+ * @param [in]  instance_size       The size of the instance the class makes.
+ * @param [in]  parent              A pointer to the Initialized parent class.
+ * @param [in]  parent_cls_size     The size of the parent class.
+ * @param init_func                 A function that will initialize the
+ *                                  virtual functions/members of the parent.
+ *                                  Also new members not part of the parent
+ *                                  should be initialized by this function. This
+ *                                  function specializes the newly generated
+ *                                  class.
+ *
+ * @return SEE_SUCCESS or another values indicating an error that has occurred.
+ */
 SEE_EXPORT int
 see_meta_class_new_class(
     const SeeMetaClass*     meta,
@@ -78,9 +100,18 @@ see_meta_class_new_class(
     see_class_init_func     init_func
     );
 
+/**
+ * \brief initialize the meta class. Generally this function is already called
+ * by see_init.
+ * @return SEE_SUCCESS or another error indicating some status.
+ */
 SEE_EXPORT int
 see_meta_class_init();
 
+/**
+ * \brief Deinitialize the meta class, after this call no new classes can
+ * be made anymore.
+ */
 SEE_EXPORT void
 see_meta_class_deinit();
 
