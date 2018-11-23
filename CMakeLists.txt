@@ -5,13 +5,13 @@ set (SEE_OBJECT_VERSION_MAJOR  "0")
 set (SEE_OBJECT_VERSION_MINOR  "0")
 set (SEE_OBJECT_VERSION_MICRO  "0")
 string (CONCAT SEE_OBJECT_VERSION
-                "${SEE_OBJECT_VERSION_MAJOR}.${SEE_OBJECT_VERSION_MINOR}"
-                )
+        "${SEE_OBJECT_VERSION_MAJOR}.${SEE_OBJECT_VERSION_MINOR}"
+        )
 string (CONCAT SEE_OBJECT_VERSION_STRING
-                "SeeObject-${SEE_OBJECT_VERSION_MAJOR}."
-                "${SEE_OBJECT_VERSION_MINOR}."
-                "${SEE_OBJECT_VERSION_MICRO}"
-                )
+        "SeeObject-${SEE_OBJECT_VERSION_MAJOR}."
+        "${SEE_OBJECT_VERSION_MINOR}."
+        "${SEE_OBJECT_VERSION_MICRO}"
+        )
 
 project (SeeObject
         VERSION     ${SEE_OBJECT_VERSION_MAJOR}.${SEE_OBJECT_VERSION_MINOR}

@@ -1,4 +1,9 @@
 
+set (HEADER_INSTALL_DIR
+    "${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}-${SEE_OBJECT_VERSION_MAJOR}"
+    )
+set (HEADER_INSTALL_DIR "${HEADER_INSTALL_DIR}.${SEE_OBJECT_VERSION_MINOR}")
+
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/see_object_config.h.in"
                "${CMAKE_CURRENT_BINARY_DIR}/see_object_config.h"
                )
@@ -58,9 +63,10 @@ set_target_properties(${SEE_OBJ_LIB} PROPERTIES
 # make sure the config header file can be found.
 target_include_directories(${SEE_OBJ_LIB} PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
+
 install (TARGETS ${SEE_OBJ_LIB}
             LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+            PUBLIC_HEADER DESTINATION ${HEADER_INSTALL_DIR}
             )
 
 install (FILES "${CMAKE_CURRENT_BINARY_DIR}/${SEE_OBJ_LIB}.pc"
