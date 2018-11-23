@@ -46,8 +46,6 @@ static int object_new(const SeeObjectClass* cls, SeeObject** out, size_t size)
 
     assert(cls);
     assert(out);
-    if (*out)
-        return SEE_INVALID_ARGUMENT;
 
     if (size)
         new_instance = calloc(1, size);
@@ -114,26 +112,30 @@ see_object_class()
 int
 see_object_class_init()
 {
-//  The see object class is allways initialized.
+//  The see object class is always initialized.
 //    if (&see_object_class_instance != NULL)
 //        return 0;
-    return 0;
+
+    return SEE_SUCCESS;
 }
 
-SeeObject* see_object_new(const SeeObjectClass* cls)
+int see_object_new(const SeeObjectClass* cls, SeeObject** out)
 {
-    assert(cls != NULL);
-    size_t obj_sz = cls->inst_size;
-    SeeObject* obj = malloc(obj_sz);
-    if (!obj)
-        return obj;
-    cls->init(obj, cls);
-    return obj;
+    if (!cls)
+        return SEE_INVALID_ARGUMENT;
+    if (!out || *out)
+        return SEE_INVALID_ARGUMENT;
+
+    return cls->new(cls, out, 0);
 }
 
 SeeObject* see_object_create()
 {
-    SeeObject* obj = see_object_new(see_object_class_instance);
+    SeeObject* obj = NULL;
+    int ret = see_object_new(see_object_class_instance, &obj);
+    if (ret) {
+        return NULL;
+    }
     return obj;
 }
 

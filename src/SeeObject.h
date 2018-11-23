@@ -92,7 +92,7 @@ struct _SeeObjectClass {
 /**
  * Creates a new object for any SeeObject derived class.
  */
-SEE_EXPORT SeeObject* see_object_new(const SeeObjectClass* cls);
+SEE_EXPORT int see_object_new(const SeeObjectClass* cls, SeeObject** out);
 
 /**
  * Allocates a new SeeObject instance.
