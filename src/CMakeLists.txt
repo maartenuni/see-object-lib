@@ -8,13 +8,17 @@ configure_file(
         @ONLY)
 
 set (SEE_OBJ_SRC
-    #see_class.c
+    init.c
+    MetaClass.c
     SeeObject.c
     atomic_operations.c
     #priv/see_mutex.cpp
     )
 
 set (SEE_OBJ_HDR_PUBLIC
+    errors.h
+    init.h
+    MetaClass.c
     SeeObject.h
     atomic_operations.h
     ${CMAKE_CURRENT_BINARY_DIR}/see_export.h
@@ -26,7 +30,11 @@ set (SEE_OBJ_HDR_PRIVATE
 
 set (SEE_OBJ_HDR ${SEE_OBJ_HDR_PUBLIC} ${SEE_OBJ_HDR_PRIVATE})
 
-add_library(${SEE_OBJ_LIB} SHARED ${SEE_OBJ_SRC} ${SEE_OBJ_HDR})
+add_library(${SEE_OBJ_LIB}
+        SHARED ${SEE_OBJ_SRC}
+        ${SEE_OBJ_HDR_PUBLIC}
+        ${SEE_OBJ_HDR_PRIVATE}
+        )
 
 
 generate_export_header(${SEE_OBJ_LIB} BASE_NAME SEE)

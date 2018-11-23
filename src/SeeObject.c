@@ -22,25 +22,41 @@
 #include <string.h>
 #include <assert.h>
 #include "atomic_operations.h"
+#include "errors.h"
+
+/* **** implementation of SeeObjects **** */
 
 static int object_representation(const SeeObject* obj, char* out, size_t size)
 {
     return snprintf(out, size, "See object at %p", (void*) obj);
 }
 
-static int object_init(SeeObject* obj, SeeObjectClass* cls)
+static int object_init(SeeObject* obj, const SeeObjectClass* cls)
 {
     assert(obj);
     assert(cls);
     obj->refcount = 1;
     obj->cls = cls;
-    return 0;
+    return SEE_SUCCESS;
 }
 
-static SeeObjectClass*
-object_get_class(const SeeObject* obj)
+static int object_new(const SeeObjectClass* cls, SeeObject** out, size_t size)
 {
-    return obj->cls;
+    SeeObject* new_instance = NULL;
+
+    assert(cls);
+    assert(out);
+
+    if (size)
+        new_instance = calloc(1, size);
+    else
+        new_instance = calloc(1, cls->inst_size);
+
+    if (! new_instance)
+        return SEE_RUNTIME_ERROR;
+
+    *out = new_instance;
+    return cls->init(new_instance, cls);
 }
 
 static void*
@@ -63,80 +79,88 @@ object_decref(SeeObject* obj)
 
 static void object_destroy(SeeObject* obj)
 {
+    assert(obj);
     free(obj);
 }
 
-SeeObjectClass see_object_class_instance = {
+/* **** Initialization of the SeeObjectClass **** */
+
+static const SeeObjectClass g_class = {
     // SeeObject
     {
-        NULL,
+        &g_class,
         1
     },
     NULL,
     sizeof(SeeObject),
+    object_new,
     object_init,
     object_destroy,
     object_representation,
-    object_get_class,
     object_ref,
     object_decref
 };
 
-SeeObjectClass* 
+static const SeeObjectClass* see_object_class_instance = &g_class;
+
+const SeeObjectClass*
 see_object_class()
 {
-    return &see_object_class_instance;
+    return see_object_class_instance;
 }
 
 int
 see_object_class_init()
 {
-//  The see object class is allways initialized.
+//  The see object class is always initialized.
 //    if (&see_object_class_instance != NULL)
 //        return 0;
-    return 0;
+
+    return SEE_SUCCESS;
 }
 
-SeeObject* see_object_new(SeeObjectClass* cls)
+int see_object_new(const SeeObjectClass* cls, SeeObject** out)
 {
-    assert(cls != NULL);
-    size_t obj_sz = cls->inst_size;
-    SeeObject* obj = malloc(obj_sz);
-    if (!obj)
-        return obj;
-    cls->init(obj, cls);
-    return obj;
+    if (!cls)
+        return SEE_INVALID_ARGUMENT;
+    if (!out || *out)
+        return SEE_INVALID_ARGUMENT;
+
+    return cls->new(cls, out, 0);
 }
 
 SeeObject* see_object_create()
 {
-    SeeObject* obj = see_object_new(&see_object_class_instance);
+    SeeObject* obj = NULL;
+    int ret = see_object_new(see_object_class_instance, &obj);
+    if (ret) {
+        return NULL;
+    }
     return obj;
 }
 
 int see_object_repr(const SeeObject* obj, char* out, size_t size)
 {
-    SeeObjectClass* cls = obj->cls;
+    const SeeObjectClass* cls = obj->cls;
     return cls->repr(obj, out, size);
 }
 
-SeeObjectClass* see_object_get_class(const SeeObject* obj)
+const SeeObjectClass*
+see_object_get_class(const SeeObject* obj)
 {
-    assert(obj);
-    SeeObjectClass* cls = obj->cls;
-    if (!obj)
-        return NULL;
+    if (obj)
+        return obj->cls;
     else
-        return cls->get_class(obj);
+        return NULL;
 }
 
 void* see_object_ref(SeeObject* obj)
 {
-    return see_object_class_instance.incref(obj);
+    return see_object_class(obj)->incref(obj);
 }
 
 void see_object_decref(SeeObject* obj)
 {
-    SeeObjectClass* cls = obj->cls;
+    const SeeObjectClass* cls = see_object_class(obj);
     cls->decref(obj);
 }

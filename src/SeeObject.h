@@ -20,8 +20,10 @@
 #define SeeObject_H
 
 #include <stdlib.h>
+#include <stdarg.h>
 
 #include "see_export.h"
+#include "errors.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,14 +34,16 @@ typedef struct _SeeObject SeeObject;
 struct _SeeObjectClass;
 typedef struct _SeeObjectClass SeeObjectClass;
 
+struct _SeeClass;
+
 /**
  * The definition of a SeeObject.
  *
  * This object mainly contains the data of a SeeObject.
  */
 struct _SeeObject {
-    SeeObjectClass *cls;
-    int             refcount;
+    const SeeObjectClass*   cls;
+    int                     refcount;
 };
 
 /**
@@ -59,18 +63,24 @@ struct _SeeObjectClass {
     /** The size of an instance */
     size_t inst_size;  ///< size of an instance
 
+    /**
+     * \brief create a new object instance.
+     * @param[in]  cls The class for which we want to generate an instance
+     * @param[out] obj The new uninitialized object will be stored in out.
+     * @param[in]  instance_size Unless you are creating a new class use 0,
+     *                           this indicates cls->inst_size should be used
+     * @return  SEE_SUCCESS, SEE_INVALID_ARGUMENT or SEE_RUNTIME_ERROR
+     */
+    int (*new)(const SeeObjectClass* cls, SeeObject** obj, size_t instance_size);
 
     /** Initialize an instance. */
-    int (*init)(SeeObject* obj, SeeObjectClass* cls);
+    int (*init)(SeeObject* obj, const SeeObjectClass* cls);
 
     /** A function that destroys and frees instance */
     void (*destroy)(SeeObject* obj);
 
     /** representation of an object.*/
     int (*repr)(const SeeObject* obj, char* out, size_t size);
-
-    /** Get your own class. */
-    SeeObjectClass* (*get_class)(const SeeObject* ojb);
 
     /** Reference increment function.*/
     void* (*incref)(SeeObject* obj);
@@ -82,7 +92,7 @@ struct _SeeObjectClass {
 /**
  * Creates a new object for any SeeObject derived class.
  */
-SEE_EXPORT SeeObject* see_object_new(SeeObjectClass* cls);
+SEE_EXPORT int see_object_new(const SeeObjectClass* cls, SeeObject** out);
 
 /**
  * Allocates a new SeeObject instance.
@@ -107,7 +117,7 @@ SEE_EXPORT SeeObject* see_object_create();
  * \returns The class of the current object. If necessary the return value of
  * this function needs to be cast to the proper SeeObjectClass derived class.
  */
-SeeObjectClass* see_object_get_class(const SeeObject* obj);
+const SeeObjectClass* see_object_get_class(const SeeObject* obj);
 
 /**
  * Atomically increment the reference count of a see object
@@ -141,7 +151,7 @@ SEE_EXPORT int see_object_class_init();
 /**
  * Get the class thé SeeObject.
  */
-SEE_EXPORT SeeObjectClass* see_object_class();
+SEE_EXPORT const SeeObjectClass* see_object_class();
 
 #ifdef __cplusplus
 }

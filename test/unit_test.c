@@ -21,10 +21,15 @@
 #include <CUnit/Basic.h>
 
 #include "suites.h"
+#include "../src/init.h"
 
 int add_suites()
 {
     int res = add_see_object_suite();
+    if (res)
+        return res;
+
+    res = add_meta_suite();
     if (res)
         return res;
     
@@ -38,6 +43,8 @@ int main(int argc, char** argv) {
     if (CU_initialize_registry() != CUE_SUCCESS)
         return EXIT_FAILURE;
 
+    see_init();
+
     add_suites();
 
     if(CU_basic_run_tests() != CUE_SUCCESS) {
@@ -45,9 +52,9 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
+    see_deinit();
+
     CU_cleanup_registry();
 
     return 0;
-
-
 }

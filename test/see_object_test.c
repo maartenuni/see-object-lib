@@ -20,7 +20,7 @@
 
 #include "../src/SeeObject.h"
 
-const char* SUITE_NAME = "SeeObject suite";
+static const char* SUITE_NAME = "SeeObject suite";
 
 static void create_see_object()
 {
