@@ -30,5 +30,5 @@ void see_deinit()
 {
 
 
-    see_meta_class_uninit();
+    see_meta_class_deinit();
 }
