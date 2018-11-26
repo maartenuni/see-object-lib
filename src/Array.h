@@ -21,6 +21,7 @@
 
 #include "see_export.h"
 #include "SeeObject.h"
+#include "see_functions.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,12 +33,24 @@ struct _SeeArrayClass;
 typedef struct _SeeArrayClass SeeArrayClass;
 
 struct _SeeArray {
-     SeeObj     obj;
+     SeeObject  obj;
      size_t     element_size;
      size_t     size;
      size_t     capacity;
-     char*      elements;
+     void*      elements;
+
+     /**
+      * \brief is called whenever the array feels that an item must be removed.
+      * @param element A pointer to the item that is removed from the array.
+      */
      void       (*free_element)(void* element);
+
+     /**
+      * @brief This function is used to copy a new item into the array.
+      * @param element a pointer to the element that should be copied into the
+      *                array.
+      * @return a pointer to the copy.
+      */
      void*      (*copy_element)(void* element);
 };
 
@@ -88,8 +101,25 @@ struct _SeeArrayClass {
     int        (*grow)(SeeArray* array, size_t nelements);
 };
 
-SeeArray* see_array_create(see_copy_func cf, see_free_func ff);
-void      see_array_set(SeeArray* array, size_t pos, const void* element)
+
+/**
+ * \brief create a new dynamic array that grows and shrinks when it is needed.
+ *
+ * @param [in] element_size The bytes of each element in the array
+ * @param [in] cf           The function used to copy new items in the array.
+ *                          may be NULL, then memcpy will be used to copy
+ *                          new items into the array.
+ * @param [in] ff           May be NULL, this is a function used to
+ *                          free members from the array, this function can be
+ *                          handy when eg pointers to objects are used.
+ * @return A freshly generated dynamic array or NULL when there is no memory
+ *         for it.
+ */
+SeeArray*
+see_array_create(size_t element_size, see_copy_func cf, see_free_func ff);
+
+void
+see_array_set(SeeArray* array, size_t pos, const void* element);
 
 
 #ifdef __cplusplus

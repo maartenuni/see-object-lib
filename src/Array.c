@@ -15,18 +15,21 @@
  * along with see-object.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Array.h"
-#include <SeeObject.h>
 #include <stdlib.h>
+#include <assert.h>
+#include <string.h>
+#include "Array.h"
+#include "SeeObject.h"
+#include "MetaClass.h"
 
 static void
 array_set(SeeArray* array, void* element)
 {
-#pragma warning implement
+#warning implement
 }
 
 static void*
-array_get(const *SeeArray array, size_t pos)
+array_get(const SeeArray* array, size_t pos)
 {
 #pragma warning implement
 }
@@ -46,19 +49,25 @@ array_resize(SeeArray* array, size_t pos)
 {
 }
 
+static int
+array_insert(SeeArray* array, size_t pos, void* source, size_t n_elements)
+{
+
+}
+
 static void
 array_shrink(SeeArray array, size_t pos)
 {
 }
 
 static int
-array_resize(SeeArray* array, size_t pos)
+array_grow(SeeArray* array, size_t pos)
 {
 }
 
 /* *** initialization of class *** */
 
-SeeArrayClass* g_array_class* = NULL;
+SeeArrayClass* g_array_class = NULL;
 
 SeeArrayClass* see_array_class_init()
 {
@@ -77,7 +86,7 @@ SeeArrayClass* see_array_class_init()
     memcpy(g_array_class, parent, sizeof(parent));
 
     // override virtual functions and attributes.
-    parent->psuper       = see_object_get_class();
+    parent->psuper       = see_object_class();
     parent->inst_size    = sizeof(SeeArray);
     
     // Populate with own members
@@ -90,11 +99,40 @@ SeeArrayClass* see_array_class_init()
     g_array_class->grow     = array_grow;
 }
 
+int see_array_init()
+{
+    int ret;
+    const SeeMetaClass* meta = see_meta_class_class();
+    assert(meta != NULL);
+
+    ret = see_meta_class_new_class(
+        meta,
+        (SeeObjectClass**)&g_array_class,
+        sizeof(SeeArrayClass),
+        sizeof(SeeArray),
+        see_object_class(),
+        sizeof(SeeObjectClass),
+        see_array_class_init()
+        );
+
+    if (ret)
+        return ret;
+
+}
+
 /* *** public interface *** */ 
 
 SeeArray*
-see_array_create(see_copy_func cf, see_free_func)
+see_array_create(size_t element_size, see_copy_func cf, see_free_func ff)
 {
-    SeeArray* ret = see_object_new(g_array_class);
+    SeeArray* out = NULL;
+
+    if (!cf)
+        cf = memcpy;
+
+    SeeArray* ret = see_object_new(
+        (SeeObjectClass*) g_array_class,
+        (SeeObject*) &out
+        );
     return ret;
 }
