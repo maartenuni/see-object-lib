@@ -13,7 +13,7 @@ configure_file(
         @ONLY)
 
 set (SEE_OBJ_SRC
-    init.c
+    see_init.c
     MetaClass.c
     SeeObject.c
     atomic_operations.c
@@ -22,7 +22,7 @@ set (SEE_OBJ_SRC
 
 set (SEE_OBJ_HDR_PUBLIC
     errors.h
-    init.h
+    see_init.h
     MetaClass.h
     SeeObject.h
     atomic_operations.h
