@@ -21,7 +21,7 @@
 #include <CUnit/Basic.h>
 
 #include "suites.h"
-#include "../src/init.h"
+#include "../src/see_init.h"
 
 int add_suites()
 {
