@@ -16,6 +16,7 @@
  */
 
 #include "MetaClass.h"
+#include "see_init.h"
 
 int see_init()
 {

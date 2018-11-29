@@ -144,7 +144,7 @@ SEE_EXPORT SeeObject* see_object_create();
  * \returns The class of the current object. If necessary the return value of
  * this function needs to be cast to the proper SeeObjectClass derived class.
  */
-const SeeObjectClass* see_object_get_class(const SeeObject* obj);
+SEE_EXPORT const SeeObjectClass* see_object_get_class(const SeeObject* obj);
 
 /**
  * Atomically increment the reference count of a see object
