@@ -40,12 +40,72 @@ typedef struct _SeeMetaClass SeeMetaClass;
  * the same functions as the parents "vtable", this function
  * allows to specialize the derived class.
  * The function should return SEE_SUCCESS when it initialized the class
- * succesfully, otherwise, the meta class will think initialization failed
+ * successfully, otherwise, the meta class will think initialization failed
  * and it will destroy the newly allocated class.
  */
 typedef int (*see_class_init_func)(
     SeeObjectClass* new_class
     );
+
+/**
+ * Values that tell the metaclass->new function everything about the
+ * the new class to instantiate.
+ */
+enum see_meta_new_args {
+    /**
+     * \brief Tells the meta class how many bytes to allocate for the
+     * class instance.
+     */
+    SEE_META_NEW_CLASS_SIZE = SEE_OBJECT_INIT_SENTINAL,
+    SEE_META_NEW_SENTINAL,
+};
+
+/**
+ * Describes the init list Helps with initializing the new class.
+ *
+ * This uses SEE_META_NEW_SENTINAL as base, so there is no confusion between
+ * the arguments see_meta_new_args and see_meta_init_args
+ */
+enum see_meta_init_args {
+    /**
+     * size of the instances the class is going to make.
+     * Expects size_t argument
+     */
+     SEE_META_INIT_INSTANCE_SIZE = SEE_META_NEW_SENTINAL,
+
+     /**
+      * The init func will initialize the virtual functions and the functions
+      * that extend the parent class. Expects a function pointer to the
+      * function that is going to initialize the class.
+      */
+     SEE_META_INIT_CLS_INIT_FUNC,
+
+     /**
+      * This parameter is used to copy the derived function pointers from the
+      * parent to the deriving class, expects a size_t argument.
+      */
+      SEE_META_INIT_PARENT_CLS_SIZE,
+
+      /**
+       * Next argument is a pointer to the parent class
+       */
+      SEE_META_INIT_PARENT,
+
+      /**
+       * Marks that the meta class init func should not expect any other
+       * arguments and this one doesn't take any.
+       */
+       SEE_META_INIT_FINISHED,
+
+      /**
+       * Final item in the list
+       */
+      SEE_META_INIT_SENTINAL
+};
+
+struct _SeeMetaClass {
+    SeeObjectClass cls;
+};
 
 /**
  * \brief allocate and initialize a new class instance.
@@ -59,15 +119,6 @@ typedef int (*see_new_class_instance_func) (
     size_t                  parent_cls_size,
     see_class_init_func     init_func
     );
-
-/**
- * \brief An instance of the metaclass. This class instance is used to generate
- * new classes that derive from another class.
- */
-struct _SeeMetaClass {
-    SeeObjectClass  cls;
-    see_new_class_instance_func new_cls_instance;
-};
 
 
 /**

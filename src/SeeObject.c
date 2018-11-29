@@ -31,32 +31,46 @@ static int object_representation(const SeeObject* obj, char* out, size_t size)
     return snprintf(out, size, "See object at %p", (void*) obj);
 }
 
-static int object_init(SeeObject* obj, const SeeObjectClass* cls)
+static int object_init(const SeeObjectClass* cls, SeeObject* obj, va_list args)
 {
+    (void) args; // not needed, but other see_object_init type functions might.
     assert(obj);
     assert(cls);
-    obj->refcount = 1;
     obj->cls = cls;
+    obj->refcount = 1;
     return SEE_SUCCESS;
 }
 
-static int object_new(const SeeObjectClass* cls, SeeObject** out, size_t size)
+static int object_new(const SeeObjectClass* cls, SeeObject** out, ...)
 {
     SeeObject* new_instance = NULL;
+    int ret;
 
     assert(cls);
     assert(out);
+    assert(*out == NULL);
 
-    if (size)
-        new_instance = calloc(1, size);
-    else
-        new_instance = calloc(1, cls->inst_size);
+    new_instance = calloc(1, cls->inst_size);
 
     if (! new_instance)
         return SEE_RUNTIME_ERROR;
 
+    // set class.
+    new_instance->cls =  cls;
+
+    va_list args;
+    va_start(args, out);
+    ret = cls->init(cls, new_instance, args);
+    va_end(args);
+
+    // free allocated memory and mark out as invalid.
+    if (ret != SEE_SUCCESS) {
+        see_object_decref(new_instance);
+        new_instance = NULL;
+    }
+
     *out = new_instance;
-    return cls->init(new_instance, cls);
+    return ret;
 }
 
 static void*
@@ -113,9 +127,6 @@ int
 see_object_class_init()
 {
 //  The see object class is always initialized.
-//    if (&see_object_class_instance != NULL)
-//        return 0;
-
     return SEE_SUCCESS;
 }
 

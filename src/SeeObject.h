@@ -46,6 +46,20 @@ struct _SeeObject {
     int                     refcount;
 };
 
+enum see_object_init_args {
+    /**
+     * \brief Used to indicate that no more arguments are expected.
+     * To initialize the see object, expects no argument.
+     */
+    SEE_OBJECT_INIT_FINAL,
+
+    /**
+     * Mainly here to dictate what is the end and is used by children
+     * of the See object class to see what is their first initializer value.
+     */
+    SEE_OBJECT_INIT_SENTINAL
+};
+
 /**
  * Table with all the class attributes of a SeeObject.
  *
@@ -58,7 +72,7 @@ struct _SeeObjectClass {
     SeeObject obj;
 
     /** Classes except for SeeObject class have a parent/super class.*/
-    SeeObjectClass *psuper;
+    const SeeObjectClass *psuper;
 
     /** The size of an instance */
     size_t inst_size;  ///< size of an instance
@@ -67,14 +81,27 @@ struct _SeeObjectClass {
      * \brief create a new object instance.
      * @param[in]  cls The class for which we want to generate an instance
      * @param[out] obj The new uninitialized object will be stored in out.
-     * @param[in]  instance_size Unless you are creating a new class use 0,
-     *                           this indicates cls->inst_size should be used
+     * @param ...   instance specific arguments.
      * @return  SEE_SUCCESS, SEE_INVALID_ARGUMENT or SEE_RUNTIME_ERROR
      */
-    int (*new)(const SeeObjectClass* cls, SeeObject** obj, size_t instance_size);
+    int (*new)(
+        const SeeObjectClass*   cls,
+        SeeObject**             obj,
+        ...
+        );
 
-    /** Initialize an instance. */
-    int (*init)(SeeObject* obj, const SeeObjectClass* cls);
+    /**
+     * \brief initialize a new instance.
+     * @param [in] cls The class that is initializing this new object.
+     * @param [in] obj The new instance to be initialized
+     * @param list instance specific arguments.
+     * @return  SEE_SUCCESS when everything is alright.
+     */
+    int (*init)(
+        const SeeObjectClass* cls,
+        SeeObject* obj,
+        va_list list
+        );
 
     /** A function that destroys and frees instance */
     void (*destroy)(SeeObject* obj);

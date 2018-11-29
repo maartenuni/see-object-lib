@@ -106,13 +106,13 @@ static void meta_use()
     // Can we successfully create a new instance.
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
     // Is it an instance of the right class.
-    CU_ASSERT_EQUAL(obj->obj.cls, g_custom_class_instance);
+    CU_ASSERT_EQUAL((const SeeCustomReprClass*) obj->obj.cls, g_custom_class_instance);
 
     // Does the instance do what we think it does.
     g_custom_class_instance->set_repr(obj, msg);
     ret = g_custom_class_instance->parent.repr((SeeObject*) obj, buffer, BUFSIZ);
 
-    CU_ASSERT_EQUAL(ret, strlen(msg));
+    CU_ASSERT_EQUAL((size_t) ret, strlen(msg));
     CU_ASSERT_STRING_EQUAL(msg, buffer);
     see_object_decref((SeeObject*) obj);
 }
