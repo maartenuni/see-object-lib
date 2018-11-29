@@ -167,7 +167,7 @@ see_object_get_class(const SeeObject* obj)
 
 void* see_object_ref(SeeObject* obj)
 {
-    return see_object_class(obj)->incref(obj);
+    return see_object_get_class(obj)->incref(obj);
 }
 
 void see_object_decref(SeeObject* obj)
