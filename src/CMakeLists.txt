@@ -40,6 +40,7 @@ add_library(${SEE_OBJ_LIB}
         ${SEE_OBJ_HDR_PUBLIC}
         ${SEE_OBJ_HDR_PRIVATE}
         )
+add_library(${SEE_OJB_LIB}::${SEE_OBJ_LIB} ALIAS ${SEE_OBJ_LIB})
 
 
 generate_export_header(${SEE_OBJ_LIB} BASE_NAME SEE)
