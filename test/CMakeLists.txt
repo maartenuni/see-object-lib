@@ -40,5 +40,13 @@ if (BUILD_UNIT_TESTS)
             )
     endif()
     
+    set_target_properties(
+            ${UNIT_TEST}
+        PROPERTIES
+            ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+            LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+        )
+    
 endif()
 

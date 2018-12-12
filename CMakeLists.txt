@@ -26,8 +26,6 @@ else()
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W -Wextra -Wall -pedantic")
 endif()
 
-#find_package(Threads REQUIRED)
-
 include (CheckIncludeFiles)
 include (GenerateExportHeader)
 include (InstallRequiredSystemLibraries)
@@ -50,3 +48,10 @@ set (SEE_OBJ_LIB see_object)
 add_subdirectory(src)
 add_subdirectory(test)
 
+set_target_properties(
+        ${SEE_OBJ_LIB}
+    PROPERTIES
+        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+    )
