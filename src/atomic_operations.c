@@ -41,7 +41,7 @@ int see_atomic_increment_by(int* val, int n)
 #elif defined(__GNUC__)
     return __sync_add_and_fetch(val, n);
 #elif defined(_WIN32) || defined(_WIN64)
-	return InterlockedAdd(*val, n);
+	return InterlockedAdd(val, n);
 #else
 #error Unable to impletent atomic increment
 #endif
@@ -54,7 +54,7 @@ int see_atomic_decrement_by(int* val, int n)
 #elif defined(__GNUC__)
     return __sync_sub_and_fetch(val, n);
 #elif defined(_WIN32) || defined(_WIN64)
-	return InterlockedAdd(*val, -n);
+	return InterlockedAdd(val, -n);
 #else
 #error Unable to impletent atomic decrement
 #endif
