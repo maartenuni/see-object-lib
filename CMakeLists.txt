@@ -1,12 +1,14 @@
 
 cmake_minimum_required(VERSION 3.5)
 
-set (SEE_OBJECT_VERSION_MAJOR  "0")
-set (SEE_OBJECT_VERSION_MINOR  "0")
-set (SEE_OBJECT_VERSION_MICRO  "0")
+set (SEE_OBJECT_VERSION_MAJOR  "0") # allow breaks in API/ABI
+set (SEE_OBJECT_VERSION_MINOR  "0") # add new features
+set (SEE_OBJECT_VERSION_MICRO  "0") # patch
+
 string (CONCAT SEE_OBJECT_VERSION
         "${SEE_OBJECT_VERSION_MAJOR}.${SEE_OBJECT_VERSION_MINOR}"
         )
+
 string (CONCAT SEE_OBJECT_VERSION_STRING
         "SeeObject-${SEE_OBJECT_VERSION_MAJOR}."
         "${SEE_OBJECT_VERSION_MINOR}."
@@ -15,21 +17,14 @@ string (CONCAT SEE_OBJECT_VERSION_STRING
 
 project (SeeObject
         VERSION     ${SEE_OBJECT_VERSION_MAJOR}.${SEE_OBJECT_VERSION_MINOR}
-        LANGUAGES C CXX
+        LANGUAGES   C CXX
         )
-
-if (MSVC)
-    set (CMAKE_C_FLAGS "${CMAKE_CC_FLAGS} /W4")
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
-else()
-    set (CMAKE_C_FLAGS "${CMAKE_CC_FLAGS} -W -Wextra -Wall -pedantic")
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W -Wextra -Wall -pedantic")
-endif()
 
 include (CheckIncludeFiles)
 include (GenerateExportHeader)
 include (InstallRequiredSystemLibraries)
 include (GNUInstallDirs)
+include (CMakePackageConfigHelpers)
 
 check_include_files(stdio.h     HAVE_STDIO_H)
 check_include_files(stdlib.h    HAVE_STDLIB_H)
@@ -41,6 +36,7 @@ set (CPACK_PACKAGE_VERSION_MAJOR "${SEE_OBJECT_VERSION_MAJOR}")
 set (CPACK_PACKAGE_VERSION_MINOR "${SEE_OBJECT_VERSION_MINOR}")
 set (CPACK_PACKAGE_MAINTAINER    "MD")
 set (CPACK_DEBIAN_PACKAGE_MAINTAINER    "MD")
+
 include (CPack)
 
 set (SEE_OBJ_LIB see_object)
@@ -48,10 +44,4 @@ set (SEE_OBJ_LIB see_object)
 add_subdirectory(src)
 add_subdirectory(test)
 
-set_target_properties(
-        ${SEE_OBJ_LIB}
-    PROPERTIES
-        ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
-        RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-    )
+

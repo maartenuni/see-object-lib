@@ -5,6 +5,7 @@ option(BUILD_UNIT_TESTS
     )
 
 if (BUILD_UNIT_TESTS)
+    #find_package(${SEE_OBJ_LIB})
     #option(CUnit_DIR CACHE PATH)
     #find_package(CUnit)
     find_library(LIB_CUINIT cunit)
@@ -29,6 +30,7 @@ if (BUILD_UNIT_TESTS)
 
     target_link_libraries(${UNIT_TEST} PRIVATE ${LIB_CUINIT})
     target_link_libraries(${UNIT_TEST} PRIVATE ${SEE_OBJ_LIB})
+    target_include_directories(${UNIT_TEST} PRIVATE "${CMAKE_BINARY_DIR}/src" )
     
     if (MSVC)
         # Specify the include directory from which the include files are found
@@ -47,6 +49,15 @@ if (BUILD_UNIT_TESTS)
             LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
         )
-    
+    # Add compiler warnings
+    if (NOT MSVC)
+        target_compile_options(${UNIT_TEST}
+            PRIVATE -W -Wall -Wextra -pedantic
+            )
+    else()
+        target_compile_options(
+            ${UNIT_TEST} PRIVATE /w4
+            )
+    endif()
 endif()
 
