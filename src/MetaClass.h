@@ -131,7 +131,7 @@ typedef int (*see_new_class_instance_func) (
  * @param [in]  instance_size       The size of the instance the class makes.
  * @param [in]  parent              A pointer to the Initialized parent class.
  * @param [in]  parent_cls_size     The size of the parent class.
- * @param init_func                 A function that will initialize the
+ * @param [in]  init_func           A function that will initialize the
  *                                  virtual functions/members of the parent.
  *                                  Also new members not part of the parent
  *                                  should be initialized by this function. This
