@@ -163,7 +163,7 @@ init(const SeeObjectClass* cls, SeeObject* obj, va_list args)
 
 /* **** initialization of the class **** */
 
-{CamelCaseName}* g_{CamelCaseName}Class = NULL;
+{CamelCaseName}Class* g_{CamelCaseName}Class = NULL;
 
 static int {function_name}_class_init(SeeObjectClass* new_cls) {{
     int ret = SEE_SUCCESS;

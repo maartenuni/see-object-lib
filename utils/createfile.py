@@ -47,22 +47,27 @@ FILE_EXIST_MSG = "The file {} seems to exists cowardly refusing to overwrite."
 
 NSPACE = "See"
 
-def write_header(filename, classname, parentname, force=False):
+def write_header(filename, classname, parentname, force=False, lic_only=False):
     """Writes the file header."""
     if path.exists(filename) and not force:
         print(FILE_EXIST_MSG.format(filename), file=sys.stderr)
         return
     with open(filename, "w") as f:
-        content = file_contents.header_content(
-            classname,
-            parentname,
-            namespace=NSPACE
-            )
+        content = None
+        if not lic_only:
+            content = file_contents.header_content(
+                classname,
+                parentname,
+                namespace=NSPACE
+                )
+        else:
+            content = file_contents.LIC_STR
+
         f.write(content)
 
 
-def write_cfile(filename, classname, parentname, force=False):
-    """ Writes the class implementation file"""
+def write_cfile(filename, classname, parentname, force=False, lic_only=False):
+    """Writes the class implementation file"""
     if path.exists(filename) and not force:
         print(
             FILE_EXIST_MSG.format(filename),
@@ -70,19 +75,23 @@ def write_cfile(filename, classname, parentname, force=False):
             )
         return
     with open(filename, "w") as f:
-        f.write(
-            file_contents.implementation_content(
-                classname,
-                parentname,
-                NSPACE
-                )
+        if not lic_only:
+            f.write(
+                file_contents.implementation_content(
+                    classname,
+                    parentname,
+                    NSPACE
+                    )
             )
+        else:
+            f.write(file_contents.LIC_STR)
 
 
 # Parsing commandline
 parser = ap.ArgumentParser(
     description=globals()["__doc__"],
-    epilog="Enjoy creating See Objects")
+    epilog="Enjoy creating See Objects"
+    )
 parser.add_argument(
     "classname",
     help=(
@@ -120,6 +129,12 @@ parser.add_argument(
     help="Overwrite existing classes",
     action='store_true'
     )
+parser.add_argument(
+    "-l",
+    "--licence-only",
+    help="Only write the license header, purposefully omit the boiler plate code",
+    action='store_true'
+    )
 args = parser.parse_args()
 
 # Set constants for the remainder
@@ -129,12 +144,13 @@ PARENTNAME = args.parentname
 FILENAME_HDR = SRC_DIR + args.classname + ".h"
 FILENAME_C = SRC_DIR + args.classname + ".c"
 FORCE = args.force
+LICENCE_ONLY = args.licence_only
 
 # Write files
 if args.header:     # Write the header only
-    write_header(FILENAME_HDR, CLASSNAME, PARENTNAME, FORCE)
+    write_header(FILENAME_HDR, CLASSNAME, PARENTNAME, FORCE, LICENCE_ONLY)
 elif args.object:   # Write the c file only
-    write_cfile(FILENAME_C, CLASSNAME, PARENTNAME, FORCE)
+    write_cfile(FILENAME_C, CLASSNAME, PARENTNAME, FORCE, LICENCE_ONLY)
 else:               # write both
-    write_header(FILENAME_HDR, CLASSNAME, PARENTNAME, FORCE)
-    write_cfile(FILENAME_C, CLASSNAME, PARENTNAME, FORCE)
+    write_header(FILENAME_HDR, CLASSNAME, PARENTNAME, FORCE, LICENCE_ONLY)
+    write_cfile(FILENAME_C, CLASSNAME, PARENTNAME, FORCE, LICENCE_ONLY)
