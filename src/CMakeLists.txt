@@ -16,6 +16,7 @@ configure_file(
 
 set (SEE_OBJ_SRC
     see_init.c
+    Error.c
     MetaClass.c
     SeeObject.c
     atomic_operations.c
@@ -24,6 +25,7 @@ set (SEE_OBJ_SRC
 
 set (SEE_OBJ_HDR_PUBLIC
     errors.h
+    Error.h
     see_init.h
     MetaClass.h
     SeeObject.h

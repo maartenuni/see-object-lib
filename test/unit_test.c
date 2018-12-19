@@ -32,6 +32,10 @@ int add_suites()
     res = add_meta_suite();
     if (res)
         return res;
+
+    res = add_error_suite();
+    if (res)
+        return res;
     
     return res;
 }

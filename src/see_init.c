@@ -17,11 +17,18 @@
 
 #include "MetaClass.h"
 #include "see_init.h"
+#include "Error.h"
 
 int see_init()
 {
+    // The meta class must be initialized first, otherwise the rest
+    // will fail.
     int ret = see_meta_class_init();
     if (ret)
+        return ret;
+
+    // Initialize the other objects.
+    if ((ret = see_error_init()))
         return ret;
 
     return ret;
@@ -29,7 +36,7 @@ int see_init()
 
 void see_deinit()
 {
-
+    see_error_deinit();
 
     see_meta_class_deinit();
 }
