@@ -175,6 +175,7 @@ int see_meta_class_new_class(
         (const SeeObjectClass*)meta,
         (SeeObject**)out,
         SEE_META_NEW_CLASS_SIZE, class_instance_size,
+        SEE_OBJECT_INIT_FINAL,
         SEE_META_INIT_INSTANCE_SIZE, instance_size,
         SEE_META_INIT_PARENT, parent,
         SEE_META_INIT_PARENT_CLS_SIZE, parent_cls_size,

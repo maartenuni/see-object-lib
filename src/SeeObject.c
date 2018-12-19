@@ -34,8 +34,18 @@ static int object_representation(const SeeObject* obj, char* out, size_t size)
 static int object_init(const SeeObjectClass* cls, SeeObject* obj, va_list args)
 {
     (void) args; // not needed, but other see_object_init type functions might.
+    int selector;
     assert(obj);
     assert(cls);
+
+    while ((selector = va_arg(args, int)) != SEE_OBJECT_INIT_FINAL) {
+        switch(selector) {
+            // See object hasn't anything to initialize publically.
+            default:
+                return SEE_INVALID_ARGUMENT;
+        }
+    }
+
     obj->cls = cls;
     obj->refcount = 1;
     return SEE_SUCCESS;
