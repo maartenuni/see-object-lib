@@ -28,71 +28,41 @@ that the code is correct!
 # TODO automagically update the CMakeList.txt files.
 
 
+# system modules
 import argparse as ap
 import os.path as path
 import sys
-import re
 from sys import argv
 
+# Custom modules
+import file_contents
 
-# Contants
+# Constants
 
-#the root folder of see-object
-ROOTDIR = path.abspath(path.dirname(argv[0]) + "/../")
+# The root folder of see-object
+ROOT_DIR = path.abspath(path.dirname(argv[0]) + "/../")
 
-# Licence to be placed on top of every sourcefile
-LIC_STR = """/*
- * This file is part of see-object.
- *
- * see-object is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * see-object is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with see-object.  If not, see <http://www.gnu.org/licenses/>.
- */
-"""
-
-HEADER_INIT = LIC_STR + """
-
-#ifndef CLASS_NAME_H
-#define CLASS_NAME_H
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif //ifndef CLASS_NAME_H
-"""
-
+# Message for when the comment exists.
 FILE_EXIST_MSG = "The file {} seems to exists cowardly refusing to overwrite."
 
-#functions
+NSPACE = "See"
 
-
-def write_header(filename, classname, force=False):
-    '''Writes the file header.'''
+def write_header(filename, classname, parentname, force=False):
+    """Writes the file header."""
     if path.exists(filename) and not force:
         print(FILE_EXIST_MSG.format(filename), file=sys.stderr)
         return
     with open(filename, "w") as f:
-        content = HEADER_INIT
-        content = re.sub("CLASS_NAME", classname, content)
+        content = file_contents.header_content(
+            classname,
+            parentname,
+            namespace=NSPACE
+            )
         f.write(content)
 
 
-def write_cfile(filename, classname, force=False):
-    ''' Writes the class implementation file'''
+def write_cfile(filename, classname, parentname, force=False):
+    """ Writes the class implementation file"""
     if path.exists(filename) and not force:
         print(
             FILE_EXIST_MSG.format(filename),
@@ -100,10 +70,16 @@ def write_cfile(filename, classname, force=False):
             )
         return
     with open(filename, "w") as f:
-        f.write(LIC_STR)
+        f.write(
+            file_contents.implementation_content(
+                classname,
+                parentname,
+                NSPACE
+                )
+            )
 
 
-#parsing commmandline
+# Parsing commandline
 parser = ap.ArgumentParser(
     description=globals()["__doc__"],
     epilog="Enjoy creating See Objects")
@@ -115,10 +91,16 @@ parser.add_argument(
         )
     )
 parser.add_argument(
+    "-p",
+    "--parentname",
+    default="Object",
+    help="The name of the parent class."
+    )
+parser.add_argument(
     "-s",
     "--source",
     help="Directory to place the new file(s) in",
-    default=ROOTDIR + "/src/"
+    default=ROOT_DIR + "/src/"
     )
 parser.add_argument(
     "-H",
@@ -143,15 +125,16 @@ args = parser.parse_args()
 # Set constants for the remainder
 SRC_DIR = args.source
 CLASSNAME = args.classname
-FILENAME_HDR = SRC_DIR +  args.classname + ".h"
-FILENAME_C = SRC_DIR +  args.classname + ".c"
+PARENTNAME = args.parentname
+FILENAME_HDR = SRC_DIR + args.classname + ".h"
+FILENAME_C = SRC_DIR + args.classname + ".c"
 FORCE = args.force
 
 # Write files
 if args.header:     # Write the header only
-    write_header(FILENAME_HDR, CLASSNAME, FORCE)
+    write_header(FILENAME_HDR, CLASSNAME, PARENTNAME, FORCE)
 elif args.object:   # Write the c file only
-    write_cfile(FILENAME_C, CLASSNAME, FORCE)
+    write_cfile(FILENAME_C, CLASSNAME, PARENTNAME, FORCE)
 else:               # write both
-    write_header(FILENAME_HDR, CLASSNAME, FORCE)
-    write_cfile(FILENAME_C, CLASSNAME, FORCE)
+    write_header(FILENAME_HDR, CLASSNAME, PARENTNAME, FORCE)
+    write_cfile(FILENAME_C, CLASSNAME, PARENTNAME, FORCE)
