@@ -31,16 +31,16 @@ static int object_representation(const SeeObject* obj, char* out, size_t size)
     return snprintf(out, size, "See object at %p", (void*) obj);
 }
 
-static int object_init(const SeeObjectClass* cls, SeeObject* obj, va_list args)
+static int object_init(const SeeObjectClass* cls, SeeObject* obj, va_list* args)
 {
     (void) args; // not needed, but other see_object_init type functions might.
     int selector;
     assert(obj);
     assert(cls);
 
-    while ((selector = va_arg(args, int)) != SEE_OBJECT_INIT_FINAL) {
+    while ((selector = va_arg(*args, int)) != SEE_OBJECT_INIT_FINAL) {
         switch(selector) {
-            // See object hasn't anything to initialize publically.
+            // See object hasn't anything to initialize publicly.
             default:
                 return SEE_INVALID_ARGUMENT;
         }
@@ -70,7 +70,7 @@ static int object_new(const SeeObjectClass* cls, SeeObject** out, ...)
 
     va_list args;
     va_start(args, out);
-    ret = cls->init(cls, new_instance, args);
+    ret = cls->init(cls, new_instance, &args);
     va_end(args);
 
     // free allocated memory and mark out as invalid.

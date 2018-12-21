@@ -23,7 +23,7 @@
 /* **** functions that implement SeeError or override SeeObject **** */
 
 static int
-init(const SeeObjectClass* cls, SeeObject* obj, va_list args)
+init(const SeeObjectClass* cls, SeeObject* obj, va_list* args)
 {
     int ret, selector;
     const SeeObjectClass* super = cls->psuper;
@@ -37,11 +37,11 @@ init(const SeeObjectClass* cls, SeeObject* obj, va_list args)
     if (ret != SEE_SUCCESS)
         return ret;
     
-    while ((selector = va_arg(args, int)) != SEE_ERROR_INIT_FINAL) {
+    while ((selector = va_arg(*args, int)) != SEE_ERROR_INIT_FINAL) {
         switch (selector) {
             // handle your cases here and remove this comment.
             case SEE_ERROR_INIT_MSG:
-                msg = va_arg(args, const char*);
+                msg = va_arg(*args, const char*);
                 break;
             default:
                 return SEE_INVALID_ARGUMENT;        
