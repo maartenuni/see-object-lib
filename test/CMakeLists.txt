@@ -46,6 +46,13 @@ if (BUILD_UNIT_TESTS)
     set_target_properties(
             ${UNIT_TEST}
         PROPERTIES
+            LINKER_LANGUAGE C
+        )
+    
+    # Set the desired output directories
+    set_target_properties(
+            ${UNIT_TEST}
+        PROPERTIES
             ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
             LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
@@ -57,7 +64,7 @@ if (BUILD_UNIT_TESTS)
             )
     else()
         target_compile_options(
-            ${UNIT_TEST} PRIVATE /w4
+            ${UNIT_TEST} PRIVATE "/W4"
             )
     endif()
 endif()

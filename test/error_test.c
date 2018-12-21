@@ -15,13 +15,14 @@
  * along with see-object.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <stdio.h>
 #include <CUnit/CUnit.h>
 
 #include "../src/Error.h"
 
 static const char* SUITE_NAME = "SeeErrorClass suite";
 
-static void error_create()
+static void error_create(void)
 {
     int ret;
     SeeError* error = NULL;
@@ -37,7 +38,7 @@ static void error_create()
 }
 
 
-static void error_create_msg()
+static void error_create_msg(void)
 {
     int ret;
     SeeError* error = NULL;
@@ -55,7 +56,7 @@ static void error_create_msg()
 }
 
 
-static void error_set_msg()
+static void error_set_msg(void)
 {
     int ret;
     const char* msg = "Hello, World!";
@@ -70,10 +71,10 @@ static void error_set_msg()
     see_object_decref((SeeObject*) error);
 }
 
-static void error_expected_failures()
+static void error_expected_failures(void)
 {
     int ret;
-    SeeError* error = (SeeError*) 0xdeadbeef;
+    SeeError* error = (SeeError*) (long) 0xdeadbeef;
     const char* msg = "blahh";
 
     ret = see_error_new(NULL);
@@ -82,7 +83,7 @@ static void error_expected_failures()
     ret = see_error_new(&error);
     CU_ASSERT_EQUAL(ret, SEE_INVALID_ARGUMENT);
 
-    error = (SeeError*) 0xdeadbeef;
+    error = (SeeError*) (long) 0xdeadbeef;
     ret = see_error_new_msg(NULL, msg);
     CU_ASSERT_EQUAL(ret, SEE_INVALID_ARGUMENT);
 
@@ -95,7 +96,7 @@ static void error_expected_failures()
 }
 
 
-int add_error_suite()
+int add_error_suite(void)
 {
     CU_pSuite suite = CU_add_suite(SUITE_NAME, NULL, NULL);
     if (!suite) {
