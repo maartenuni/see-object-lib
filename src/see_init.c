@@ -28,7 +28,8 @@ int see_init()
         return ret;
 
     // Initialize the other objects.
-    if ((ret = see_error_init()))
+	ret = see_error_init();
+    if (ret)
         return ret;
 
     return ret;
