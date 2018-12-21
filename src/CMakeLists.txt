@@ -88,8 +88,8 @@ if (NOT MSVC)
         PRIVATE -W -Wall -Wextra -pedantic
         )
 else()
-    target_compile_options(${SEE_OJB_LIB}
-        PRIVATE /w4
+    target_compile_options(${SEE_OBJ_LIB}
+        PRIVATE "/W4"
         )
 endif()
 
