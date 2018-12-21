@@ -94,13 +94,13 @@ struct _SeeObjectClass {
      * \brief initialize a new instance.
      * @param [in] cls The class that is initializing this new object.
      * @param [in] obj The new instance to be initialized
-     * @param list instance specific arguments.
+     * @param list a variable number instance specific arguments.
      * @return  SEE_SUCCESS when everything is alright.
      */
     int (*init)(
         const SeeObjectClass* cls,
         SeeObject* obj,
-        va_list list
+        va_list* list
         );
 
     /** A function that destroys and frees instance */

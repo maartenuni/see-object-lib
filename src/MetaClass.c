@@ -25,7 +25,7 @@
 static int new_class_init(
     const SeeObjectClass* meta,
     SeeObject* new_cls,
-    va_list args
+    va_list* args
     )
 {
     int selector = 0;
@@ -42,19 +42,19 @@ static int new_class_init(
     size_t parent_size = 0, instance_size = 0;
     see_class_init_func cls_init = NULL;
 
-    while ((selector = va_arg(args, int)) != SEE_META_INIT_FINISHED) {
+    while ((selector = va_arg(*args, int)) != SEE_META_INIT_FINISHED) {
         switch (selector) {
             case SEE_META_INIT_INSTANCE_SIZE:
-                instance_size = va_arg(args, size_t);
+                instance_size = va_arg(*args, size_t);
                 break;
             case SEE_META_INIT_PARENT_CLS_SIZE:
-                parent_size = va_arg(args, size_t);
+                parent_size = va_arg(*args, size_t);
                 break;
             case SEE_META_INIT_PARENT:
-                parent = va_arg(args, SeeObjectClass*);
+                parent = va_arg(*args, SeeObjectClass*);
                 break;
             case SEE_META_INIT_CLS_INIT_FUNC:
-                cls_init = va_arg(args, see_class_init_func);
+                cls_init = va_arg(*args, see_class_init_func);
                 break;
             default:
                 /* TODO this is still quite harsh, perhaps ignore unknowns.
@@ -120,7 +120,7 @@ new_cls(
     ret = cls->init(
         meta,
         (SeeObject*) new_cls,
-        args
+        &args
         );
     if (ret != SEE_SUCCESS)
         goto new_cls_error;
