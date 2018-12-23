@@ -54,6 +54,7 @@ struct _SeeDynamicArrayClass {
 
     /**
      * \brief Set the element at index pos to the value of element
+     *
      * @param array [in, out]   Non NULL pointer to array in which we would like
      *                          to set element[pos] to the value of element.
      * @param pos[in]           The index of the value we want to set to the
@@ -64,33 +65,76 @@ struct _SeeDynamicArrayClass {
      *                          creating the array will be used to copy the
      *                          member into the array.
      */
-    void       (*set)(SeeArray* array, size_t pos, const void* element);
+    void       (*set)(SeeDynamicArray* array, size_t pos, const void* element);
 
     /**
-     * \brief Ob
+     * \brief Get a pointer to the item at pos
+     *
+     * @param array [in]    A non NULL pointer to the array from which we would
+     *                      like to obtain an element
+     * @param pos[IN]       The index of the item to which we would like to
+     *                      retrieve a pointer
+     *
+     * @return              The pointer to the element stored inside of the
+     *                      array. Note that you'll still have to dereference
+     *                      the item in order to use it.
+     */
+    void*      (*get)(const SeeDynamicArray* array, size_t pos);
+
+    /**
+     * \brief Add a new item to the back of the array.
+     *
+     * This function adds one element to the end of the array. This can usually
+     * be done very quickly. Sometimes the capacity of the array must be changed
+     * as well, than the performance is a bit slower. If the function succeeds
+     * The last item of the array will be the one inserted and the size will
+     * be increased by one. If it was necessary, the capacity has increased.
+     *
+     * @param array[in, out]    A non NULL pointer to a array to which we would
+     *                          like to copy a new item.
+     * @param element[in]       The item that is going to be appended to the
+     *                          end of the array.
+     *
+     * @return  see_success when the item can be successfully appended
+     *          to the end of the array.
+     */
+    int        (*add)(SeeDynamicArray* array, void* element);
+
+    /**
+     * \brief   pop an array from the back of the array and store the value
+     *          in element.
+     *
+     * One can append, but also shrink arrays. When the array is not empty
+     * the size of the array will be decreased by one. Optionally, the
+     * item that is popped from the array, can be saved at the pointer of element.
+     * When the size of the array shrinks to half of the capacity the
+     * preallocated space, the array shrinks to size.
+     *
+     * @param array[in, out]    A non NULL pointer to a SeeDynamicArray
+     * @param element[out]      A pointer to store the element in that is
+     *                          popped from the array.
+     * @return 0 when the operation was successful.
+     */
+    int        (*pop_back)(SeeDynamicArray* array, void *element);
+
+    /**
+     * \brief grow or shrink to the size specified by count
      * @param array
-     * @param pos
+     * @param count
      * @return
      */
-
-    void*      (*get)(const SeeArray* array, size_t pos);
-
-    int        (*add)(SeeArray* array, void* element);
-
-    int        (*pop_back)(SeeArray* array, void *element);
-
-    int        (*resize)(SeeArray* array, size_t count);
+    int        (*resize)(SeeDynamicArray* array, size_t count);
 
     int        (*insert)(
-        SeeArray* array,
+        SeeDynamicArray* array,
         size_t pos,
         void* elements,
         size_t n
     );
 
     // private  use resize instead.
-    void       (*shrink)(SeeArray* array, size_t nelements);
-    int        (*grow)(SeeArray* array, size_t nelements);
+    void       (*shrink)(SeeDynamicArray* array, size_t nelements);
+    int        (*grow)(SeeDynamicArray* array, size_t nelements);
 };
 
 
