@@ -25,6 +25,7 @@ extern "C" {
 
 int add_see_object_suite();
 int add_meta_suite();
+int add_error_suite();
 
 #ifdef __cplusplus
 }

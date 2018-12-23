@@ -16,54 +16,127 @@
  */
 
 #include "MetaClass.h"
+#include <stdarg.h>
 #include <string.h>
 #include <stdlib.h>
+#include <assert.h>
 
+
+static int new_class_init(
+    const SeeObjectClass* meta,
+    SeeObject* new_cls,
+    va_list* args
+    )
+{
+    int selector = 0;
+
+    /* call supers initializer. */
+    const SeeObjectClass* meta_super = meta->psuper;
+    int ret = meta_super->init(meta, new_cls, args);
+    if (ret != SEE_SUCCESS)
+        return ret;
+
+    SeeObjectClass* cls = (SeeObjectClass*) new_cls;
+    SeeObjectClass* parent = NULL;
+
+    size_t parent_size = 0, instance_size = 0;
+    see_class_init_func cls_init = NULL;
+
+    while ((selector = va_arg(*args, int)) != SEE_META_INIT_FINISHED) {
+        switch (selector) {
+            case SEE_META_INIT_INSTANCE_SIZE:
+                instance_size = va_arg(*args, size_t);
+                break;
+            case SEE_META_INIT_PARENT_CLS_SIZE:
+                parent_size = va_arg(*args, size_t);
+                break;
+            case SEE_META_INIT_PARENT:
+                parent = va_arg(*args, SeeObjectClass*);
+                break;
+            case SEE_META_INIT_CLS_INIT_FUNC:
+                cls_init = va_arg(*args, see_class_init_func);
+                break;
+            default:
+                /* TODO this is still quite harsh, perhaps ignore unknowns.
+                 * But then how do we establish the the size of
+                 * the second argument, or do we break out of the loop and
+                 * hope the calling class has made a copy??
+                 */
+                return SEE_INVALID_ARGUMENT;
+        }
+    }
+
+    assert(parent != NULL);
+    assert(cls != NULL);
+    assert(instance_size != 0);
+    assert(parent_size != 0);
+    assert(cls_init != NULL);
+    if (parent == NULL || cls == NULL ||
+        instance_size == 0 || parent_size == 0 ||
+        cls_init == 0
+        )
+        return SEE_INVALID_ARGUMENT;
+
+    // copies pointers from parent to the child.
+    memcpy(cls, parent, parent_size);
+    cls->psuper     = parent;
+    cls->inst_size  = instance_size;
+
+    return cls_init((SeeObjectClass*)new_cls);
+}
 
 static int
 new_cls(
-    const SeeMetaClass*     meta,
-    SeeObjectClass**        out,
-    size_t                  class_instance_size,
-    size_t                  instance_size,
-    const SeeObjectClass*   parent,
-    size_t                  parent_cls_size,
-    see_class_init_func     init_func
+    const SeeObjectClass*   meta,
+    SeeObject**             out,
+    ...
     )
 {
     int ret;
     SeeObjectClass* new_cls = NULL;
+
     if (!out || *out)
         return SEE_INVALID_ARGUMENT;
 
-    if (!parent)
-        return SEE_INVALID_ARGUMENT;
 
-    if (!init_func)
-        return SEE_INVALID_ARGUMENT;
+    va_list args;
+    va_start(args, out);
 
-    const SeeObjectClass* cls = (SeeObjectClass*) meta;
-    ret = cls->new(
-        (SeeObjectClass*) meta,
-        (SeeObject**) &new_cls,
-        class_instance_size
-        );
-
-    if (ret)
-        return ret;
-
-    // Derive all members from our parent.
-    memcpy(new_cls, parent, parent_cls_size);
-
-    new_cls->inst_size = instance_size;
-    ret = init_func(new_cls);
-
-    if (ret) {
-        cls->destroy((SeeObject*) new_cls);
-        new_cls = NULL;
+    int arg = va_arg(args, int);
+    if (arg != SEE_META_NEW_CLASS_SIZE) {
+        ret = SEE_INVALID_ARGUMENT;
+        goto new_cls_error;
     }
 
-    *out = new_cls;
+    size_t cls_size = va_arg(args, size_t);
+
+    new_cls = calloc(1, cls_size);
+    if (!new_cls) {
+        ret = SEE_RUNTIME_ERROR;
+        goto  new_cls_error;
+    }
+
+    const SeeObjectClass* cls = (SeeObjectClass*) meta;
+    ret = cls->init(
+        meta,
+        (SeeObject*) new_cls,
+        &args
+        );
+    if (ret != SEE_SUCCESS)
+        goto new_cls_error;
+
+    *out = (SeeObject*) new_cls;
+
+    va_end(args);
+    return ret;
+
+new_cls_error:
+
+    if (new_cls)
+        see_object_decref((SeeObject*)new_cls);
+
+    va_end(args);
+
     return ret;
 }
 
@@ -85,6 +158,7 @@ int see_meta_class_new_class(
     see_class_init_func     init_func
     )
 {
+    const SeeObjectClass* cls = (SeeObjectClass*) meta;
     if (!meta)
         return SEE_INVALID_ARGUMENT;
 
@@ -97,14 +171,16 @@ int see_meta_class_new_class(
     if (!init_func)
         return SEE_INVALID_ARGUMENT;
 
-    return meta->new_cls_instance(
-        meta,
-        out,
-        class_instance_size,
-        instance_size,
-        parent,
-        parent_cls_size,
-        init_func
+    return cls->new(
+        (const SeeObjectClass*)meta,
+        (SeeObject**)out,
+        SEE_META_NEW_CLASS_SIZE, class_instance_size,
+        SEE_OBJECT_INIT_FINAL,
+        SEE_META_INIT_INSTANCE_SIZE, instance_size,
+        SEE_META_INIT_PARENT, parent,
+        SEE_META_INIT_PARENT_CLS_SIZE, parent_cls_size,
+        SEE_META_INIT_CLS_INIT_FUNC, init_func,
+        SEE_META_INIT_FINISHED
         );
 }
 
@@ -127,7 +203,10 @@ int see_meta_class_init()
     obj->cls        = (SeeObjectClass*) g_see_meta_class_instance;
     obj->refcount   = 1;
 
-    g_see_meta_class_instance->new_cls_instance = new_cls;
+    SeeObjectClass* see_obj_cls = (SeeObjectClass*) g_see_meta_class_instance;
+    see_obj_cls->new    = new_cls;
+    see_obj_cls->init   = new_class_init;
+    see_obj_cls->psuper = see_object_class();
 
     return SEE_SUCCESS;
 }

@@ -26,7 +26,7 @@ extern "C" {
 #endif
 
 SEE_EXPORT int see_init();
-SEE_EXPORT int see_deinit();
+SEE_EXPORT void see_deinit();
 
 #ifdef __cplusplus
 }

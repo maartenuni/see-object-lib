@@ -22,7 +22,7 @@
 
 static const char* SUITE_NAME = "SeeObject suite";
 
-static void create_see_object()
+static void create_see_object(void)
 {
     SeeObject* obj = NULL;
     obj = see_object_create();
@@ -30,7 +30,7 @@ static void create_see_object()
     see_object_decref(obj);
 }
 
-static void repr()
+static void repr(void)
 {
     SeeObject* obj = NULL;
     obj = see_object_create();
@@ -44,8 +44,8 @@ static void repr()
 }
 
 
-int add_see_object_suite() {
-
+int add_see_object_suite(void)
+{
     CU_pSuite suite = CU_add_suite(SUITE_NAME, NULL, NULL);
     if (!suite) {
         fprintf(stderr,

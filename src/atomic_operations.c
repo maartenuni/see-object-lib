@@ -17,6 +17,13 @@
 
 #include "atomic_operations.h"
 
+#if defined(_WIN32) || defined(WIN32)
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h> // for Interlocked Increment
+#include <WinBase.h>
+
+#endif
+
 int see_atomic_increment(int* val)
 {
     return see_atomic_increment_by(val, 1);
@@ -34,7 +41,7 @@ int see_atomic_increment_by(int* val, int n)
 #elif defined(__GNUC__)
     return __sync_add_and_fetch(val, n);
 #elif defined(_WIN32) || defined(_WIN64)
-    return interlocked_increment(*val, int n)
+	return InterlockedAdd(val, n);
 #else
 #error Unable to impletent atomic increment
 #endif
@@ -47,7 +54,7 @@ int see_atomic_decrement_by(int* val, int n)
 #elif defined(__GNUC__)
     return __sync_sub_and_fetch(val, n);
 #elif defined(_WIN32) || defined(_WIN64)
-    return interlocked_decrement(*val, int n)
+	return InterlockedAdd(val, -n);
 #else
 #error Unable to impletent atomic decrement
 #endif

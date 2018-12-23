@@ -69,7 +69,7 @@ void set_custom_repr_set_repr(SeeCustomRepr* obj, const char* repr)
     cls->set_repr(obj, repr);
 }
 
-static void meta_create()
+static void meta_create(void)
 {
     int ret = see_meta_class_new_class(
         see_meta_class_class(),
@@ -89,10 +89,9 @@ static void meta_create()
     CU_ASSERT_EQUAL(cls->repr, &custom_repr);
 
     CU_ASSERT_EQUAL(cls->inst_size, sizeof(SeeCustomRepr));
-
 }
 
-static void meta_use()
+static void meta_use(void)
 {
     SeeCustomRepr* obj = NULL;
     char buffer[BUFSIZ];
@@ -106,18 +105,18 @@ static void meta_use()
     // Can we successfully create a new instance.
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
     // Is it an instance of the right class.
-    CU_ASSERT_EQUAL(obj->obj.cls, g_custom_class_instance);
+    CU_ASSERT_EQUAL((const SeeCustomReprClass*) obj->obj.cls, g_custom_class_instance);
 
     // Does the instance do what we think it does.
     g_custom_class_instance->set_repr(obj, msg);
     ret = g_custom_class_instance->parent.repr((SeeObject*) obj, buffer, BUFSIZ);
 
-    CU_ASSERT_EQUAL(ret, strlen(msg));
+    CU_ASSERT_EQUAL((size_t) ret, strlen(msg));
     CU_ASSERT_STRING_EQUAL(msg, buffer);
     see_object_decref((SeeObject*) obj);
 }
 
-static void meta_destroy()
+static void meta_destroy(void)
 {
     // this doesn't test/assert anything but does free memory, hence
     // it is still important.
@@ -125,7 +124,7 @@ static void meta_destroy()
     g_custom_class_instance = NULL;
 }
 
-int add_meta_suite()
+int add_meta_suite(void)
 {
     CU_pSuite suite = CU_add_suite(SUITE_NAME, NULL, NULL);
     if (!suite) {
