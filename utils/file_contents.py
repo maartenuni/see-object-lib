@@ -133,7 +133,7 @@ IMPLEMENTATION_INIT = LIC_STR + r"""
 /* **** functions that implement {CamelCaseName} or override {ParentCamelCaseName} **** */
 
 static int
-init(const SeeObjectClass* cls, SeeObject* obj, va_list args)
+init(const SeeObjectClass* cls, SeeObject* obj, va_list* args)
 {{
     int ret, selector;
     const SeeObjectClass* super = cls->psuper;
@@ -146,7 +146,7 @@ init(const SeeObjectClass* cls, SeeObject* obj, va_list args)
     if (ret != SEE_SUCCESS)
         return ret;
     
-    while ((selector = va_arg(args, int)) != {CLASS_NAME_CAPS}_INIT_FINAL) {{
+    while ((selector = va_arg(*args, int)) != {CLASS_NAME_CAPS}_INIT_FINAL) {{
         switch (selector) {{
             // handle your cases here and remove this comment.
             default:
