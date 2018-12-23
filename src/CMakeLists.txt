@@ -18,6 +18,7 @@ set (SEE_OBJ_SRC
     see_functions.c
     Array.c
     see_init.c
+    DynamicArray.c
     Error.c
     MetaClass.c
     SeeObject.c
@@ -29,6 +30,7 @@ set (SEE_OBJ_HDR_PUBLIC
     errors.h
     see_functions.h
     Array.h
+    DynamicArray.h
     Error.h
     see_init.h
     MetaClass.h
