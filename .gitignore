@@ -56,3 +56,6 @@ dkms.conf
 
 # CLion InteliJ stuff
 .idea
+
+# python cache
+*__pycache__
