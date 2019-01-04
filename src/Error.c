@@ -27,13 +27,13 @@ init(const SeeObjectClass* cls, SeeObject* obj, va_list* args)
 {
     int ret, selector;
     const SeeObjectClass* super = cls->psuper;
-    //SeeErrorClass* own_class = (SeeErrorClass*) cls;
+    SeeErrorClass* own_class = (SeeErrorClass*) cls;
     
     // Generally you could set some default values here.
     // The init loop can still override them when necessary.
     const char* msg = "No error";
     
-    ret = super->init(cls, obj, args);
+    ret = super->init(super, obj, args);
     if (ret != SEE_SUCCESS)
         return ret;
     
@@ -50,7 +50,7 @@ init(const SeeObjectClass* cls, SeeObject* obj, va_list* args)
     
     // Do some extra initialization here (on demand).
     SeeError* error = (SeeError*)obj;
-    error->msg = msg;
+    own_class->set_msg(error, msg);
     
     return SEE_SUCCESS;
 }
