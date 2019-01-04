@@ -142,7 +142,7 @@ init(const SeeObjectClass* cls, SeeObject* obj, va_list* args)
     // Generally you could set some default values here.
     // The init loop can still override them when necessary.
     
-    ret = super->init(super, obj, args);
+    ret = super->init(cls, obj, args);
     if (ret != SEE_SUCCESS)
         return ret;
     
