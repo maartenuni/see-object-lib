@@ -186,6 +186,9 @@ void* see_object_ref(SeeObject* obj)
 
 void see_object_decref(SeeObject* obj)
 {
+    if (!obj)
+        return;
+    
     const SeeObjectClass* cls = see_object_get_class(obj);
     cls->decref(obj);
 }
