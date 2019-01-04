@@ -94,7 +94,11 @@ object_ref(SeeObject* obj)
 static void
 object_decref(SeeObject* obj)
 {
-    assert(obj);
+    if (!obj) {
+        assert(obj != NULL);
+        return;
+    }
+
     int refcount = see_atomic_decrement(&obj->refcount);
     if (refcount == 0) {
         obj->cls->destroy(obj);
