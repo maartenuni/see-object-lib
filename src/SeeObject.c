@@ -114,19 +114,18 @@ static void object_destroy(SeeObject* obj)
 /* **** Initialization of the SeeObjectClass **** */
 
 static const SeeObjectClass g_class = {
-    // SeeObject
-    {
-        &g_class,
-        1
+    .obj        = {
+        .cls        = &g_class,
+        .refcount   = 1
     },
-    NULL,
-    sizeof(SeeObject),
-    object_new,
-    object_init,
-    object_destroy,
-    object_representation,
-    object_ref,
-    object_decref
+    .psuper     = NULL,
+    .inst_size  = sizeof(SeeObject),
+    .new        = object_new,
+    .init       = object_init,
+    .destroy    = object_destroy,
+    .repr       = object_representation,
+    .incref     = object_ref,
+    .decref     = object_decref
 };
 
 static const SeeObjectClass* see_object_class_instance = &g_class;
@@ -188,7 +187,7 @@ void see_object_decref(SeeObject* obj)
 {
     if (!obj)
         return;
-    
+
     const SeeObjectClass* cls = see_object_get_class(obj);
     cls->decref(obj);
 }
