@@ -34,50 +34,20 @@
 /* **** functions that implement SeeDynamicArray or override SeeObject **** */
 
 static int
-dynamic_array_init(const SeeObjectClass* cls, SeeObject* obj, va_list* args)
+dynamic_array_init(
+    SeeDynamicArray* array,
+    const SeeDynamicArrayClass* cls,
+    size_t elem_size,
+    see_copy_func copy_func,
+    see_init_func init_func,
+    see_free_func free_func
+    )
 {
-    int ret, selector;
-    const SeeObjectClass* super = cls->psuper;
-    SeeDynamicArray* array = (SeeDynamicArray*) obj;
-    SeeDynamicArrayClass* own_class = (SeeDynamicArrayClass*) cls;
-    size_t elem_size = 0;
-    see_copy_func copy_func = memcpy;
-    see_init_func init_func = see_init_memset;
-    see_free_func free_func = free;
-    size_t capacity = 0;
+    const SeeObjectClass* obj_cls = (const SeeObjectClass*) cls;
+    obj_cls->object_init((SeeObject*) array, (const SeeObjectClass*) cls);
 
-    
     // Generally you could set some default values here.
     // The init loop can still override them when necessary.
-    
-    ret = super->init(cls, obj, args);
-    if (ret != SEE_SUCCESS)
-        return ret;
-    
-    while ((selector = va_arg(*args, int)) != SEE_DYNAMIC_ARRAY_INIT_FINAL) {
-        switch (selector) {
-            // handle your cases here and remove this comment.
-            case SEE_DYNAMIC_ARRAY_INIT_ELEMENT_SIZE:
-                elem_size = va_arg(*args, size_t);
-                break;
-            case SEE_DYNAMIC_ARRAY_INIT_COPY_FUNC:
-                copy_func = va_arg(*args, see_copy_func);
-                if (copy_func == NULL)
-                    copy_func = memcpy;
-                break;
-            case SEE_DYNAMIC_ARRAY_INIT_INIT_FUNC:
-                init_func = va_arg(*args, see_init_func);
-                break;
-            case SEE_DYNAMIC_ARRAY_INIT_FREE_FUNC:
-                free_func = va_arg(*args, see_free_func);
-                break;
-            case SEE_DYNAMIC_ARRAY_INIT_CAPACITY:
-                capacity = va_arg(*args, size_t);
-                break;
-            default:
-                return SEE_INVALID_ARGUMENT;        
-        }
-    }
 
     if (elem_size == 0)
         return SEE_INVALID_ARGUMENT;
@@ -90,10 +60,26 @@ dynamic_array_init(const SeeObjectClass* cls, SeeObject* obj, va_list* args)
     array->free_element = free_func;
     array->elements     = NULL;
 
-    if (capacity)
-        own_class->reserve(array, capacity);
-
     return SEE_SUCCESS;
+}
+
+static int
+init(const SeeObjectClass* cls, SeeObject* obj, va_list list)
+{
+    const SeeDynamicArrayClass* array_cls = (const SeeDynamicArrayClass*) cls;
+    SeeDynamicArray* array = (SeeDynamicArray*) obj;
+
+    size_t          elem_size = va_arg(list, size_t);
+    see_copy_func   copy_func = va_arg(list, see_copy_func);
+    see_init_func   init_func = va_arg(list, see_init_func);
+    see_free_func   free_func = va_arg(list, see_free_func);
+
+    if (copy_func == NULL)
+        copy_func = memcpy;
+
+    return array_cls->array_init(
+        array, array_cls, elem_size, copy_func, init_func, free_func
+        );
 }
 
 static void
@@ -276,26 +262,6 @@ see_dynamic_array_new(
     see_free_func       free_func
     )
 {
-    return see_dynamic_array_new_capacity(
-        array,
-        element_size,
-        copy_func,
-        init_func,
-        free_func,
-        0
-        );
-}
-
-int
-see_dynamic_array_new_capacity(
-    SeeDynamicArray**   array,
-    size_t              element_size,
-    see_copy_func       copy_func,
-    see_init_func       init_func,
-    see_free_func       free_func,
-    size_t              desired_capacity
-    )
-{
     const SeeObjectClass* cls =
         (const SeeObjectClass*) see_dynamic_array_class();
 
@@ -310,15 +276,48 @@ see_dynamic_array_new_capacity(
 
     return cls->new(
         cls,
+        0,
         (SeeObject**) array,
-        SEE_OBJECT_INIT_FINAL,
-        SEE_DYNAMIC_ARRAY_INIT_ELEMENT_SIZE, element_size,
-        SEE_DYNAMIC_ARRAY_INIT_COPY_FUNC, copy_func,
-        SEE_DYNAMIC_ARRAY_INIT_INIT_FUNC, init_func,
-        SEE_DYNAMIC_ARRAY_INIT_FREE_FUNC, free_func,
-        SEE_DYNAMIC_ARRAY_INIT_CAPACITY, desired_capacity,
-        SEE_DYNAMIC_ARRAY_INIT_FINAL
+        element_size,
+        copy_func,
+        init_func,
+        free_func
         );
+}
+
+int
+see_dynamic_array_new_capacity(
+    SeeDynamicArray**   array,
+    size_t              element_size,
+    see_copy_func       copy_func,
+    see_init_func       init_func,
+    see_free_func       free_func,
+    size_t              desired_capacity
+    )
+{
+    const SeeDynamicArrayClass* array_cls = NULL;
+    int ret = see_dynamic_array_new(
+        array,
+        element_size,
+        copy_func,
+        init_func,
+        free_func
+        );
+
+    if (ret != SEE_SUCCESS)
+        return ret;
+
+    array_cls = (const SeeDynamicArrayClass*) see_object_get_class(
+        (SeeObject*) *array
+        );
+
+    ret = array_cls->reserve(*array, desired_capacity);
+    if (ret != SEE_SUCCESS) {
+        see_object_decref((SeeObject *) *array);
+        *array = NULL;
+    }
+
+    return ret;
 }
 
 size_t
@@ -383,10 +382,11 @@ static int see_dynamic_array_class_init(SeeObjectClass* new_cls) {
     int ret = SEE_SUCCESS;
     
     /* Override the functions on the parent here */
-    new_cls->init   = dynamic_array_init;
+    new_cls->init   = init;
     new_cls->destroy= dynamic_array_destroy;
     /* Set the function pointers of the own class here */
     SeeDynamicArrayClass* cls = (SeeDynamicArrayClass*) new_cls;
+    cls->array_init = dynamic_array_init;
     cls->set        = array_set;
     cls->get        = array_get;
     cls->add        = array_add;

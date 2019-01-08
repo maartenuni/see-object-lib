@@ -67,6 +67,15 @@ struct _SeeDynamicArray {
 struct _SeeDynamicArrayClass {
     SeeObjectClass parent_cls;
 
+    int (*array_init)(
+        SeeDynamicArray*            array,
+        const SeeDynamicArrayClass* array_cls,
+        size_t                      element_size,
+        see_copy_func               copy_func,
+        see_init_func               init_func,
+        see_free_func               free_func
+        );
+
     /**
      * \brief Set the element at index pos to the value of element
      *
@@ -196,70 +205,6 @@ struct _SeeDynamicArrayClass {
         );
 };
 
-
-/*
- * See Objects are initialized with a var_args list. Typically,
- * The init func sees one of the values below and then expects the value
- * that initializes the class.
- */
-enum SeeDynamicArrayInitValues {
-
-    /**
-     * \brief SEE_DYNAMIC_ARRAY_INIT_FIRST document here what kind of member
-     * the initializer function should expect.
-     *
-     * NB remove this comment and member to replace it with your own!!!
-     */
-    SEE_DYNAMIC_ARRAY_INIT_FIRST = SEE_OBJECT_INIT_SENTINAL,
-
-    /**
-     * \brief SEE_DYNAMIC_ARRAY_INIT_ELEMENT_SIZE is used to tell the array
-     * the number of bytes it should allocate for new elements/member so
-     * each index of the array occupies SEE_DYNAMIC_ARRAY_INIT_ELEMENT_SIZE
-     * elements
-     * This expects an size_t argument in the see_object_new function.
-     */
-    SEE_DYNAMIC_ARRAY_INIT_ELEMENT_SIZE = SEE_OBJECT_INIT_SENTINAL,
-
-    /**
-     * \brief SEE_DYNAMIC_ARRAY_INIT_COPY_FUNC expect a see_copy_func
-     * pointer, this value may not be present or given, than memcpy
-     * will be used.
-     * This value expects a see_copy_func.
-     */
-    SEE_DYNAMIC_ARRAY_INIT_COPY_FUNC,
-
-    /**
-     * Takes a function pointer that initializes new elements, for example
-     * while growing the array with resize.
-     */
-    SEE_DYNAMIC_ARRAY_INIT_INIT_FUNC,
-
-    /**
-     * \brief SEE_DYNAMIC_ARRAY_INIT_FREE_FUNC expect a see_free_func
-     * pointer, this value may not be present or given, than free
-     * will be used.
-     * This value expects a see_free_func.
-     */
-    SEE_DYNAMIC_ARRAY_INIT_FREE_FUNC,
-
-    /**
-     *\brief set initial capacity
-     */
-    SEE_DYNAMIC_ARRAY_INIT_CAPACITY,
-
-    /**
-     * \brief SEE_DYNAMIC_ARRAY_INIT_FINALE init func expects no arguments
-     * it exists to tell the initializer function to stop expecting arguments
-     * for the current class.
-     */
-    SEE_DYNAMIC_ARRAY_INIT_FINAL,
-    
-    /**
-     * \brief Mainly used as a starting point for deriving classes.
-     */
-    SEE_DYNAMIC_ARRAY_INIT_SENTINAL
-}; 
 
 /* **** public functions **** */
 
