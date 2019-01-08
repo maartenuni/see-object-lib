@@ -30,6 +30,7 @@ typedef struct _SeeErrorClass SeeErrorClass;
 
 struct _SeeError {
     SeeObject parent_obj;
+
     /*expand SeeError data here*/
 
     /**
@@ -43,6 +44,18 @@ struct _SeeErrorClass {
     /* expand SeeError class with extra functions here.*/
 
     /**
+     * \brief initializes a new error instance
+     * @param error a pointer to the error instance
+     * @param cls   a pointer to the SeeErrorClass*
+     * @param msg   a message, this maybe NULL(not so useful though).
+     */
+    void (*error_init)(
+        SeeError*               error,
+        const SeeErrorClass*    cls,
+        const char*             msg
+        );
+
+    /**
      * Obtain the error message.
      * @return A const char* that describes the error that has occurred.
      */
@@ -53,35 +66,6 @@ struct _SeeErrorClass {
      */
     void (*set_msg)(SeeError* error, const char* msg);
 };
-
-
-/*
- * See Objects are initialized with a var_args list. Typically,
- * The init func sees one of the values below and then expects the value
- * that initializes the class.
- */
-enum SeeErrorInitValues {
-
-    /**
-     * \brief SEE_ERROR_INIT_MSG Expects const char* argument with a message
-     * to describing the error.
-     *
-     */
-    SEE_ERROR_INIT_MSG = SEE_OBJECT_INIT_SENTINAL,
-     
-
-    /**
-     * \brief SEE_ERROR_INIT_FINALE init func expects no arguments
-     * it exists to tell the initializer function to stop expecting arguments
-     * for the current class.
-     */
-    SEE_ERROR_INIT_FINAL,
-    
-    /**
-     * \brief Mainly used as a starting point for deriving classes.
-     */
-    SEE_ERROR_INIT_SENTINAL
-}; 
 
 /* **** public functions **** */
 

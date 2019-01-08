@@ -22,48 +22,42 @@
 
 /* **** functions that implement SeeError or override SeeObject **** */
 
-static int
-init(const SeeObjectClass* cls, SeeObject* obj, va_list* args)
+static void
+error_init(SeeError* obj, const SeeErrorClass* cls, const char* msg)
 {
-    int ret, selector;
-    const SeeObjectClass* super = cls->psuper;
-    //SeeErrorClass* own_class = (SeeErrorClass*) cls;
-    
-    // Generally you could set some default values here.
-    // The init loop can still override them when necessary.
-    const char* msg = "No error";
-    
-    ret = super->init(cls, obj, args);
-    if (ret != SEE_SUCCESS)
-        return ret;
-    
-    while ((selector = va_arg(*args, int)) != SEE_ERROR_INIT_FINAL) {
-        switch (selector) {
-            // handle your cases here and remove this comment.
-            case SEE_ERROR_INIT_MSG:
-                msg = va_arg(*args, const char*);
-                break;
-            default:
-                return SEE_INVALID_ARGUMENT;        
-        }
-    }
-    
+    const SeeObjectClass* obj_cls = (const SeeObjectClass*) cls;
+
+    obj_cls->object_init((SeeObject*)obj, obj_cls);
+
+    if (msg == NULL)
+        msg = "No error";
+
     // Do some extra initialization here (on demand).
     SeeError* error = (SeeError*)obj;
-    error->msg = msg;
-    
+
+    cls->set_msg(error, msg);
+}
+
+static int
+init(const SeeObjectClass* cls, SeeObject* obj, va_list list)
+{
+    const SeeErrorClass* error_cls = (const SeeErrorClass*) cls;
+    const char* msg = va_arg(list, const char*);
+
+    error_cls->error_init((SeeError*)obj, (const SeeErrorClass*) cls, msg);
+
     return SEE_SUCCESS;
 }
 
 static const char*
-msg(const SeeError* error)
+error_msg(const SeeError* error)
 {
     assert(error);
     return error->msg;
 }
 
 static void
-set_msg(SeeError* error, const char* msg)
+error_set_msg(SeeError* error, const char* msg)
 {
     assert(error);
     assert(msg);
@@ -85,12 +79,8 @@ int see_error_new(SeeError** out)
         return SEE_NOT_INITIALIZED;
 
     const SeeObjectClass* obj_cls = (const SeeObjectClass*) cls;
-    ret = obj_cls->new(
-        (const SeeObjectClass*) see_error_class(),
-        (SeeObject**) out,
-        SEE_OBJECT_INIT_FINAL,
-        SEE_ERROR_INIT_FINAL
-        );
+    ret = obj_cls->new(obj_cls, 0, (SeeObject**) out, NULL);
+
     return ret;
 }
 
@@ -108,13 +98,8 @@ int see_error_new_msg(SeeError** out, const char* msg)
         return SEE_NOT_INITIALIZED;
 
     const SeeObjectClass* obj_cls = (const SeeObjectClass*) cls;
-    ret = obj_cls->new(
-        (const SeeObjectClass*) see_error_class(),
-        (SeeObject**) out,
-        SEE_OBJECT_INIT_FINAL,  // no argument
-        SEE_ERROR_INIT_MSG,     msg,
-        SEE_ERROR_INIT_FINAL    // no argument
-        );
+    ret = obj_cls->new(obj_cls, 0, (SeeObject**) out, msg);
+
     return ret;
 }
 
@@ -149,8 +134,9 @@ see_error_class_init(SeeObjectClass* new_cls) {
     
     /* Set the function pointers of the own class here */
     SeeErrorClass* cls = (SeeErrorClass*) new_cls;
-    cls->msg = msg;
-    cls->set_msg = set_msg;
+    cls->error_init     = error_init;
+    cls->msg            = error_msg;
+    cls->set_msg        = error_set_msg;
     
     return ret;
 }
