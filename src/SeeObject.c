@@ -26,33 +26,35 @@
 
 /* **** implementation of SeeObjects **** */
 
-static int object_representation(const SeeObject* obj, char* out, size_t size)
+static int
+object_representation(const SeeObject* obj, char* out, size_t size)
 {
     return snprintf(out, size, "See object at %p", (void*) obj);
 }
 
-static int object_init(const SeeObjectClass* cls, SeeObject* obj, va_list* args)
+static void
+object_object_init(SeeObject* obj, const SeeObjectClass* cls)
 {
-    (void) args; // not needed, but other see_object_init type functions might.
-    int selector;
     assert(obj);
     assert(cls);
 
-    while ((selector = va_arg(*args, int)) != SEE_OBJECT_INIT_FINAL) {
-        switch(selector) {
-            // See object hasn't anything to initialize publicly.
-            default:
-                return SEE_INVALID_ARGUMENT;
-        }
-    }
-
     obj->cls = cls;
     obj->refcount = 1;
+}
+
+static int
+object_init(const SeeObjectClass* cls, SeeObject* object, va_list list)
+{
+    (void) list;
+    cls->object_init(object, cls);
+
     return SEE_SUCCESS;
 }
 
-static int object_new(const SeeObjectClass* cls, SeeObject** out, ...)
+static int
+object_new(const SeeObjectClass* cls, size_t cls_sz, SeeObject** out, ...)
 {
+    (void) cls_sz; // Not used for regular object instances(its for the metaclass).
     SeeObject* new_instance = NULL;
     int ret;
 
@@ -62,15 +64,15 @@ static int object_new(const SeeObjectClass* cls, SeeObject** out, ...)
 
     new_instance = calloc(1, cls->inst_size);
 
-    if (! new_instance)
+    if (!new_instance)
         return SEE_RUNTIME_ERROR;
 
     // set class.
-    new_instance->cls =  cls;
+    new_instance->cls = cls;
 
     va_list args;
     va_start(args, out);
-    ret = cls->init(cls, new_instance, &args);
+    ret = cls->init(cls, new_instance, args);
     va_end(args);
 
     // free allocated memory and mark out as invalid.
@@ -121,6 +123,7 @@ static const SeeObjectClass g_class = {
     .psuper     = NULL,
     .inst_size  = sizeof(SeeObject),
     .new        = object_new,
+    .object_init= object_object_init,
     .init       = object_init,
     .destroy    = object_destroy,
     .repr       = object_representation,
@@ -150,7 +153,7 @@ int see_object_new(const SeeObjectClass* cls, SeeObject** out)
     if (!out || *out)
         return SEE_INVALID_ARGUMENT;
 
-    return cls->new(cls, out, 0);
+    return cls->new(cls, 0, out);
 }
 
 SeeObject* see_object_create()

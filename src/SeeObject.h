@@ -46,20 +46,6 @@ struct _SeeObject {
     int                     refcount;
 };
 
-enum see_object_init_args {
-    /**
-     * \brief Used to indicate that no more arguments are expected.
-     * To initialize the see object, expects no argument.
-     */
-    SEE_OBJECT_INIT_FINAL,
-
-    /**
-     * Mainly here to dictate what is the end and is used by children
-     * of the See object class to see what is their first initializer value.
-     */
-    SEE_OBJECT_INIT_SENTINAL
-};
-
 /**
  * Table with all the class attributes of a SeeObject.
  *
@@ -79,28 +65,51 @@ struct _SeeObjectClass {
 
     /**
      * \brief create a new object instance.
+     *
+     * This function is used to allocate and initialize a new class instance.
+     * The first thing this function does is allocate a new member. If
+     * this succeeds, the cls->init function will be called and if that
+     * function succeeds, SEE_OK will be returned.
+     *
      * @param[in]  cls The class for which we want to generate an instance
-     * @param[out] obj The new uninitialized object will be stored in out.
-     * @param ...   instance specific arguments.
+     * @param[in]  sz  Generally this should be 0, then the class will
+     *                 be used to determine the size of the new instance.
+     *                 The meta class uses this parameter to instantiate
+     *                 new classes, which instance size is not determined
+     *                 by the metaclass, but sizeof(my_new_class).
+     * @param[out] obj The new initialized object will be stored in out.
+     *                 obj should not be NULL, but *obj should.
+     * @param ...      instance specific arguments that are use to initialize
+     *                 the new instance.
+     *
      * @return  SEE_SUCCESS, SEE_INVALID_ARGUMENT or SEE_RUNTIME_ERROR
      */
     int (*new)(
         const SeeObjectClass*   cls,
+        size_t                  sz,
         SeeObject**             obj,
         ...
         );
 
     /**
+     * \brief initializes the SeeObject* part of any SeeObject derived object.
+     * @param obj The object to initialize.
+     * @param cls The class of which object is an instance of.
+     * @return SEE_SUCCESS if everything is alright.
+     */
+    void (*object_init)(SeeObject* obj, const SeeObjectClass* cls);
+
+    /**
      * \brief initialize a new instance.
-     * @param [in] cls The class that is initializing this new object.
-     * @param [in] obj The new instance to be initialized
-     * @param list a variable number instance specific arguments.
+     * @param [in]      cls The class that is initializing this new object.
+     * @param [in, out] obj The new instance to be initialized
+     * @param [in]      list a variable number instance specific arguments.
      * @return  SEE_SUCCESS when everything is alright.
      */
     int (*init)(
         const SeeObjectClass* cls,
         SeeObject* obj,
-        va_list* list
+        va_list list
         );
 
     /** A function that destroys and frees instance */
