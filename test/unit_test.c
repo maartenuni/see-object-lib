@@ -33,6 +33,10 @@ int add_suites()
     if (res)
         return res;
 
+    res = add_dynamic_array_suite();
+    if (res)
+        return res;
+
     res = add_error_suite();
     if (res)
         return res;
