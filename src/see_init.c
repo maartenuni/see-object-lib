@@ -18,6 +18,7 @@
 #include "MetaClass.h"
 #include "see_init.h"
 #include "Error.h"
+#include "DynamicArray.h"
 
 int see_init()
 {
@@ -28,6 +29,11 @@ int see_init()
         return ret;
 
     // Initialize the other objects.
+
+    ret = see_dynamic_array_init();
+    if (ret)
+        return ret;
+
 	ret = see_error_init();
     if (ret)
         return ret;
@@ -37,6 +43,7 @@ int see_init()
 
 void see_deinit()
 {
+    see_dynamic_array_deinit();
     see_error_deinit();
 
     see_meta_class_deinit();

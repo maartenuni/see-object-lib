@@ -17,12 +17,24 @@
 
 
 #include <string.h>
+#include <stdint.h>
 #include "SeeObject.h"
 #include "see_functions.h"
 
 void* see_copy_by_ref(void* dest_seeobj, const void* src, size_t unused)
 {
+    (void) unused;
     memcpy(dest_seeobj, src, sizeof(SeeObject*));
     see_object_ref(dest_seeobj);
     return dest_seeobj;
+}
+
+int
+see_init_memset(void* obj, size_t nbytes, void* byte)
+{
+    int byte_value = 0;
+    if (byte)
+        byte_value = *((uint8_t*) byte);
+    memset(obj, byte_value, nbytes);
+    return SEE_SUCCESS;
 }

@@ -21,6 +21,7 @@
 
 #include <stdlib.h>
 #include "SeeObject.h"
+#include "see_functions.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,21 +33,35 @@ typedef struct _SeeDynamicArrayClass SeeDynamicArrayClass;
 struct _SeeDynamicArray {
     SeeObject   parent_obj;
     size_t      element_size;
+    size_t      size;
     size_t      capacity;
-    void*       elements;
+    char*       elements;
 
     /**
      * \private
      * \brief frees elements from the array.
      * \param element [in] The element to be freed from the array.
      */
-    void      (*free_element)(void* element);
+    void        (*free_element)(void* element);
+
+    /**
+     * \private
+     * \brief initializes new elements.
+     *
+     * @param element, the new element added to the array.
+     * @param nbytes, the number of bytes that need to be initialized.
+     * @param data a pointer to data that the init function needs to initialize.
+     *
+     * @return The function should return SEE_SUCCESS, any other value
+     *        will stop the resize function and resize will return this value.
+     */
+     int        (*init_element)(void* element, size_t nbytes, void* data);
 
     /**
      * \brief copies a element into the array.
      * @param element [in] a pointer to the element to be copied into the array.
      */
-    void      (*copy_element)(void* element);
+    void*       (*copy_element)(void* destination, const void* source, size_t n);
 };
 
 struct _SeeDynamicArrayClass {
@@ -98,7 +113,7 @@ struct _SeeDynamicArrayClass {
      * @return  see_success when the item can be successfully appended
      *          to the end of the array.
      */
-    int        (*add)(SeeDynamicArray* array, void* element);
+    int        (*add)(SeeDynamicArray* array, const void* element);
 
     /**
      * \brief   pop an array from the back of the array and store the value
@@ -119,11 +134,41 @@ struct _SeeDynamicArrayClass {
 
     /**
      * \brief grow or shrink to the size specified by count
-     * @param array
-     * @param count
+     * @param array the array that is going to be resized.
+     * @param count The desired number of elements after the resize operation
+     * @param initdata Data for the initialization function
+     *                 may be NULL, but depends on the init_data_func.
+     *                 and it is probably only used when the desired size
+     *                 is larger than the current size.
+     * @return SEE_SUCCESS when everything is alright, another value if not.
+     */
+    int        (*resize)(SeeDynamicArray* array, size_t count, void* initdata);
+
+    /**
+     * \brief allocate space for a number of elements.
+     * @param array [in,out] The new array to initialize.
+     * @param nelements      The number of elements to reserve room for.
+     *
      * @return
      */
-    int        (*resize)(SeeDynamicArray* array, size_t count);
+    int        (*reserve)(SeeDynamicArray* array, size_t nelements);
+
+    /**
+     * \brief tries to shrink the array when you think it reserves more
+     * memory than it needs.
+     *
+     * @return SEE_SUCCESS when the operation was successful.
+     */
+    int        (*shrink_to_fit)(SeeDynamicArray* array);
+
+    /**
+     * \brief insert new elements into the array at the nth index.
+     * @param array
+     * @param pos
+     * @param elements
+     * @param n
+     * @return
+     */
 
     int        (*insert)(
         SeeDynamicArray* array,
@@ -133,8 +178,22 @@ struct _SeeDynamicArrayClass {
     );
 
     // private  use resize instead.
-    void       (*shrink)(SeeDynamicArray* array, size_t nelements);
-    int        (*grow)(SeeDynamicArray* array, size_t nelements);
+    int        (*shrink)(SeeDynamicArray* array, size_t nelements);
+
+    /**
+     * \brief grows array to have n elements.
+     * \private
+     *
+     * @param array
+     * @param num_elements
+     * @param init_data
+     * @return
+     */
+    int        (*grow)(
+        SeeDynamicArray* array,
+        size_t num_elements,
+        void* init_data
+        );
 };
 
 
@@ -152,7 +211,42 @@ enum SeeDynamicArrayInitValues {
      * NB remove this comment and member to replace it with your own!!!
      */
     SEE_DYNAMIC_ARRAY_INIT_FIRST = SEE_OBJECT_INIT_SENTINAL,
-     
+
+    /**
+     * \brief SEE_DYNAMIC_ARRAY_INIT_ELEMENT_SIZE is used to tell the array
+     * the number of bytes it should allocate for new elements/member so
+     * each index of the array occupies SEE_DYNAMIC_ARRAY_INIT_ELEMENT_SIZE
+     * elements
+     * This expects an size_t argument in the see_object_new function.
+     */
+    SEE_DYNAMIC_ARRAY_INIT_ELEMENT_SIZE = SEE_OBJECT_INIT_SENTINAL,
+
+    /**
+     * \brief SEE_DYNAMIC_ARRAY_INIT_COPY_FUNC expect a see_copy_func
+     * pointer, this value may not be present or given, than memcpy
+     * will be used.
+     * This value expects a see_copy_func.
+     */
+    SEE_DYNAMIC_ARRAY_INIT_COPY_FUNC,
+
+    /**
+     * Takes a function pointer that initializes new elements, for example
+     * while growing the array with resize.
+     */
+    SEE_DYNAMIC_ARRAY_INIT_INIT_FUNC,
+
+    /**
+     * \brief SEE_DYNAMIC_ARRAY_INIT_FREE_FUNC expect a see_free_func
+     * pointer, this value may not be present or given, than free
+     * will be used.
+     * This value expects a see_free_func.
+     */
+    SEE_DYNAMIC_ARRAY_INIT_FREE_FUNC,
+
+    /**
+     *\brief set initial capacity
+     */
+    SEE_DYNAMIC_ARRAY_INIT_CAPACITY,
 
     /**
      * \brief SEE_DYNAMIC_ARRAY_INIT_FINALE init func expects no arguments
@@ -170,10 +264,123 @@ enum SeeDynamicArrayInitValues {
 /* **** public functions **** */
 
 /**
+ * \brief create a new empty dynamic array.
+ *
+ * @param [out] out A pointer to a pointer to array, *array should be NULL,
+ *                  but array shouldn't.
+ * @param [in] element_size The array isn't a C++ template, hence the array
+ *                          doesn't know in advance how large the elements are
+ *                          but it is important to know.
+ * @param [in] copy_func A copy function copies a element into the array
+ *                       This may be NULL, then memcpy will be used to
+ *                       copy a new element into the array.
+ * @param [in] init_func When the array is resized, not only the memory
+ *                       must be big enough to hold all members, but added
+ *                       members can also be initialized using this function
+ *                       as callback. This may be NULL, then no function
+ *                       will be called when the array is resized.
+ * @param [in] free_func When an element is removed from the array, it might
+ *                       be necessary to call a freeing function. If no
+ *                       free function is specified (NULL), no function
+ *                       will be called, otherwise this function will be used
+ *                       to free the resources of such element.
+ * @return SEE_SUCCESS if a new array is successfully created.
+ */
+SEE_EXPORT int
+see_dynamic_array_new(
+    SeeDynamicArray** out,
+    size_t          element_size,
+    see_copy_func   copy_func,
+    see_init_func   init_func,
+    see_free_func   free_func
+    );
+
+/**
+ * \brief create a new array with preallocated size.
+ *
+ * @param [out] out             see doc for "see_dynamic_array_new()"
+ * @param [in]  element_size    see doc for "see_dynamic_array_new()"
+ * @param [in]  copy_func       see doc for "see_dynamic_array_new()"
+ * @param [in]  init_func       see doc for "see_dynamic_array_new()"
+ * @param [in]  free_func       see doc for "see_dynamic_array_new()"
+ * @param [in]  capacity    This capacity is used to preallocate the size
+ *                          of the memory.
+ * @return SEE_SUCCES or another value indicating what went wrong.
+ */
+SEE_EXPORT int
+see_dynamic_array_new_capacity(
+    SeeDynamicArray**   out,
+    size_t              element_size,
+    see_copy_func       copy_func,
+    see_init_func       init_func,
+    see_free_func       free_func,
+    size_t              capacity
+    );
+
+/**
+ * \brief return the current size of the array.
+ * @param array
+ * @return the size of the array.
+ */
+SEE_EXPORT size_t
+see_dynamic_array_size(const SeeDynamicArray* array);
+
+/**
+ * \brief return the current capacity of the array.
+ *
+ * The capacity of the array is the number of elements that can be stored inside
+ * the array without allocating more memory.
+ *
+ * @param array
+ * @return the number of elements that are preallocated.
+ */
+SEE_EXPORT size_t
+see_dynamic_array_capacity(const SeeDynamicArray* array);
+
+/**
+ * \brief Append the array with an additional item.
+ *
+ * @param array The array to append to
+ * @param element The element that must be copied into the array.
+ *
+ * @return SEE_SUCCESS or an error value.
+ */
+SEE_EXPORT int
+see_dynamic_array_add(SeeDynamicArray* array, void* element);
+
+/**
+ * \brief Get a pointer to an element inside of the array.
+ *
+ * @param [in] array the array from which to get a pointer.
+ * @param [in] index a zero based index.
+ *
+ * @return A pointer into the array. So if index is 0 the first item
+ *         in the array is returned, if you cast that to a pointer
+ *         desired type, you can index it like a regular c-type array.
+ *         Note that the return value should be dereferenced before use.
+ */
+SEE_EXPORT void*
+see_dynamic_array_get(const SeeDynamicArray* array, size_t index);
+
+/**
+ * \brief set a element into the array.
+ *
+ * @param [in]array the array in witch we would like to set a new element.
+ * @param [in]index the index (0-based) into the array on which position
+ *                  we should set a new value. If the array has a free_function
+ *                  the element sitting at that index should be freed.
+ * @param element   the new element to be inserted.
+ * return SEE_SUCCESS if everything is alright.
+ */
+SEE_EXPORT int
+see_dynamic_array_set(SeeDynamicArray* array, size_t index, const void* element);
+
+/**
  * Gets the pointer to the SeeDynamicArrayClass table.
  */
 SEE_EXPORT const SeeDynamicArrayClass*
 see_dynamic_array_class();
+
 
 /* Expand the class with public functions here, don't forget the SEE_EXPORT
  * macro, because otherwise you'll run into troubles when exporting function

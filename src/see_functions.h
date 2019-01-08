@@ -34,13 +34,21 @@ extern "C" {
  * @param [out] dest  The location to which we are copying
  * @param [in]  src   The location from which we are copying
  * @param [in]  n     The number of bytes to copy.
+ *
+ * @return a pointer to dest.
  */
-typedef void* see_copy_func(void* dest, const void* src, size_t n);
+typedef void* (*see_copy_func)(void* dest, const void* src, size_t n);
 
 /**
  * typedef for a function that is designed to free a member.
  */
-typedef void see_free_func(void* free_me);
+typedef void (*see_free_func)(void* free_me);
+
+/**
+ * \brief initializes a new object. This function can be used for example
+ * when a array resizes to initizalize the newly allocated objects.
+ */
+typedef int (*see_init_func)(void* element, size_t num_bytes, void* data);
 
 /**
  * @brief Copy a seeobject by copying the pointer and increasing the reference
@@ -54,6 +62,20 @@ typedef void see_free_func(void* free_me);
  */
 SEE_EXPORT void*
 see_copy_by_ref(void* dest_seeobj, const void* src_seeobj, size_t unused);
+
+
+/**
+ * \brief initialize the bytes to a given bytes or 0.
+ *
+ * @param [in, out] the object to initialize
+ * @param [in]      nbytes
+ * @param [in]      bytes NULL, or a pointer to a byte, if NULL memset
+ *                  will initialize the bytes to '0'.
+ *
+ * @return SEE_SUCCESS.
+ */
+SEE_EXPORT int
+see_init_memset(void* object, size_t nbytes, void* byte);
 
 #ifdef __cplusplus
 }

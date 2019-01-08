@@ -28,6 +28,7 @@ enum see_error {
     SEE_INVALID_ARGUMENT,  /**< Inspect arguments given to function*/
     SEE_RUNTIME_ERROR,     /**< Inspect errno for clue.*/
     SEE_NOT_INITIALIZED,   /**< making use of an uninitialized class/function.*/
+    SEE_INDEX_ERROR,       /**< Index is out of the valid range. */
 };
 
 #ifdef __cplusplus

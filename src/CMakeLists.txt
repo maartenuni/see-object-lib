@@ -16,7 +16,6 @@ configure_file(
 
 set (SEE_OBJ_SRC
     see_functions.c
-    Array.c
     see_init.c
     DynamicArray.c
     Error.c
@@ -29,7 +28,6 @@ set (SEE_OBJ_SRC
 set (SEE_OBJ_HDR_PUBLIC
     errors.h
     see_functions.h
-    Array.h
     DynamicArray.h
     Error.h
     see_init.h
