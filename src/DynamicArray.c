@@ -374,6 +374,40 @@ see_dynamic_array_set(SeeDynamicArray* array, size_t index, const void* element)
     return SEE_SUCCESS;
 }
 
+int
+see_dynamic_array_reserve(SeeDynamicArray* array, size_t n_elements)
+{
+    const SeeDynamicArrayClass *cls =
+        (const SeeDynamicArrayClass *) see_object_get_class(
+            (const SeeObject *) array
+        );
+
+    if (!cls)
+        return SEE_NOT_INITIALIZED;
+
+    if (!array)
+        return SEE_INVALID_ARGUMENT;
+
+    return cls->reserve(array, n_elements);
+}
+
+int
+see_dynamic_array_shrink_to_fit(SeeDynamicArray* array)
+{
+    const SeeDynamicArrayClass *cls =
+        (const SeeDynamicArrayClass *) see_object_get_class(
+            (const SeeObject *) array
+        );
+
+    if (!cls)
+        return SEE_NOT_INITIALIZED;
+
+    if (!array)
+        return SEE_INVALID_ARGUMENT;
+
+    return cls->shrink_to_fit(array);
+}
+
 /* **** initialization of the class **** */
 
 SeeDynamicArrayClass* g_SeeDynamicArrayClass = NULL;

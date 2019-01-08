@@ -321,6 +321,42 @@ SEE_EXPORT int
 see_dynamic_array_set(SeeDynamicArray* array, size_t index, const void* element);
 
 /**
+ * \brief preallocate enough space to hold n_elements
+ *
+ * This method preallocates space for future elements. This mechanism can be
+ * used to prevent extra allocations when items are added to the array. If the
+ * size is equal to the number of elements that are currently hold in the array
+ * the array needs to reserve anyway. So if you have a rough clue about how many
+ * items should be reserved, it might be handy to preallocate them using this
+ * function.
+ * If the array contains a larger capacity than reserve is asking for the
+ * function returns SEE_SUCCESS immediately without any allocations.
+ * The opposite can be asked with see_array_shrink_to_fit, this shrinks
+ * the array capacity back to the number of items the array is holding. releasing
+ * superfluous memory.
+ *
+ * @param [in, out] array the array whose capacity we would like to alter.
+ * @param [in]      n_elements
+ * @return SEE_SUCCESS when the operation is successful or when the array
+ *         already contained enough space, SEE_RUNTIME_ERROR when there is not
+ *         enough space to allocate that many items or SEE_INVALID_ARGUMENT
+ *         when array == NULL.
+ */
+SEE_EXPORT int
+see_dynamic_array_reserve(SeeDynamicArray* array, size_t n_elements);
+
+
+/**
+ * \brief shrinks the capacity of the array to be equal to the size.
+ *
+ * @param array
+ * @return SEE_SUCCESS when successful.
+ */
+SEE_EXPORT int
+see_dynamic_array_shrink_to_fit(SeeDynamicArray* array);
+
+
+/**
  * Gets the pointer to the SeeDynamicArrayClass table.
  */
 SEE_EXPORT const SeeDynamicArrayClass*

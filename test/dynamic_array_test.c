@@ -36,7 +36,7 @@ int two_int_arrays_equal(int* a, int* b, size_t n)
 
 /* **** unit tests **** */
 
-void array_create(void)
+static void array_create(void)
 {
     SeeDynamicArray* array = NULL;
     int ret;
@@ -51,8 +51,44 @@ void array_create(void)
     see_object_decref((SeeObject*) array);
 }
 
+static void array_create_capacity(void)
+{
+    const size_t desired_capacity = 10;
+    SeeDynamicArray* array = NULL;
+    int ret;
+    ret = see_dynamic_array_new_capacity(
+        &array, sizeof(int), NULL, NULL, NULL, desired_capacity
+        );
 
-void array_add(void)
+    CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
+    if (ret)
+        return;
+
+    CU_ASSERT_EQUAL(see_dynamic_array_capacity(array), desired_capacity);
+    CU_ASSERT_EQUAL(see_dynamic_array_size(array), 0);
+
+    for (size_t i = 0; i < desired_capacity; i++) {
+        if (see_dynamic_array_add(array, &i) != SEE_SUCCESS) {
+            // this shouldn't happen realistically.
+            see_object_decref((SeeObject*) array);
+            CU_ASSERT(CU_FALSE);
+            return;
+        }
+    }
+    CU_ASSERT_EQUAL(see_dynamic_array_capacity(array), desired_capacity);
+    CU_ASSERT_EQUAL(
+        see_dynamic_array_capacity(array), see_dynamic_array_size(array)
+        );
+    int value = 1;
+    ret = see_dynamic_array_add(array, &value);
+    CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
+    CU_ASSERT_EQUAL(see_dynamic_array_capacity(array), desired_capacity * 2);
+
+    see_object_decref((SeeObject*) array);
+}
+
+
+static void array_add(void)
 {
     int input[TEST_N] = {0,1,2,3,4,5,6,7,8,9};
     SeeDynamicArray* array = NULL;
@@ -83,7 +119,7 @@ void array_add(void)
     see_object_decref((SeeObject*) array);
 }
 
-void array_set(void)
+static void array_set(void)
 {
     // This check should also be run with valgrind, the elements should
     // be freed when the array is destroyed, but also when a new
@@ -138,12 +174,42 @@ void array_set(void)
     see_object_decref((SeeObject*)array);
 }
 
+static void array_capacity(void)
+{
+    const size_t CAPACITY = 100;
+    const size_t SIZE     = 10;
+    SeeDynamicArray* array = NULL;
+    int ret;
+    ret = see_dynamic_array_new(&array, sizeof(int), NULL, NULL, NULL);
+    CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
+    if (ret)
+        return;
+
+    CU_ASSERT_EQUAL(see_dynamic_array_capacity(array), 0);
+    see_dynamic_array_reserve(array, CAPACITY);
+    for (size_t i = 0; i < SIZE; i++)
+        see_dynamic_array_add(array, &ret);
+
+    CU_ASSERT_EQUAL(see_dynamic_array_capacity(array), CAPACITY);
+    CU_ASSERT_EQUAL(see_dynamic_array_size(array), SIZE);
+
+    see_dynamic_array_shrink_to_fit(array);
+
+    CU_ASSERT_EQUAL(
+        see_dynamic_array_size(array), see_dynamic_array_capacity(array)
+        );
+
+    see_object_decref((SeeObject*)array);
+}
+
 int add_dynamic_array_suite()
 {
     SEE_UNIT_SUITE_CREATE(NULL, NULL);
     SEE_UNIT_TEST_CREATE(array_create);
+    SEE_UNIT_TEST_CREATE(array_create_capacity);
     SEE_UNIT_TEST_CREATE(array_add);
     SEE_UNIT_TEST_CREATE(array_set);
+    SEE_UNIT_TEST_CREATE(array_capacity);
 
     return 0;
 }
