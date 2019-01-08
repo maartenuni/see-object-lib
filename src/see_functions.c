@@ -16,23 +16,25 @@
  */
 
 
-#ifndef errors_H
-#define errors_H
+#include <string.h>
+#include <stdint.h>
+#include "SeeObject.h"
+#include "see_functions.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-enum see_error {
-    SEE_SUCCESS = 0,       /**< Everything looks dandy! */
-    SEE_INVALID_ARGUMENT,  /**< Inspect arguments given to function*/
-    SEE_RUNTIME_ERROR,     /**< Inspect errno for clue.*/
-    SEE_NOT_INITIALIZED,   /**< making use of an uninitialized class/function.*/
-    SEE_INDEX_ERROR,       /**< Index is out of the valid range. */
-};
-
-#ifdef __cplusplus
+void* see_copy_by_ref(void* dest_seeobj, const void* src, size_t unused)
+{
+    (void) unused;
+    memcpy(dest_seeobj, src, sizeof(SeeObject*));
+    see_object_ref(dest_seeobj);
+    return dest_seeobj;
 }
-#endif
 
-#endif //ifndef errors_H
+int
+see_init_memset(void* obj, size_t nbytes, void* byte)
+{
+    int byte_value = 0;
+    if (byte)
+        byte_value = *((uint8_t*) byte);
+    memset(obj, byte_value, nbytes);
+    return SEE_SUCCESS;
+}

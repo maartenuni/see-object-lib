@@ -18,11 +18,12 @@ if (BUILD_UNIT_TESTS)
     set(UNIT_TEST unit-test)
     set(UNIT_TEST_SOURCES
         unit_test.c
+        dynamic_array_test.c
         error_test.c
         meta_test.c
         see_object_test.c
         )
-    set(UNIT_TEST_HEADERS suites.h)
+    set(UNIT_TEST_HEADERS suites.h test_macros.h)
 
     add_executable(${UNIT_TEST} ${UNIT_TEST_SOURCES} ${UNIT_TEST_HEADERS})
 
