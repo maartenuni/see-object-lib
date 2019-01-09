@@ -182,9 +182,9 @@ struct _SeeDynamicArrayClass {
     int        (*insert)(
         SeeDynamicArray* array,
         size_t pos,
-        void* elements,
+        const void* elements,
         size_t n
-    );
+        );
 
     // private  use resize instead.
     int        (*shrink)(SeeDynamicArray* array, size_t nelements);
@@ -377,6 +377,30 @@ see_dynamic_array_reserve(SeeDynamicArray* array, size_t n_elements);
 SEE_EXPORT int
 see_dynamic_array_shrink_to_fit(SeeDynamicArray* array);
 
+/**
+ * \brief inserts n elements into the array at a given position.
+ *
+ * This function tries to instert n new items into the array. Therefore
+ * the array makes sure that the capacity is large enough, and that the
+ * final size of the array is the current size + the number of inserted
+ * items.
+ *
+ * @param [in, out] array, the array into which we would like to insert some new
+ *                  elements.
+ * @param [in]      pos, the index at which we would like to insert the items.
+ * @param [in]      elements a pointer to the elements that should be inserted
+ *                  into the array.
+ * @param [in]      n The number of itmes that should be inserted into the array.
+ *
+ * @return SEE_SUCCES if the function is successfull, another SEE value otherwise.
+ */
+SEE_EXPORT int
+see_dynamic_array_insert(
+        SeeDynamicArray* array,
+        size_t pos,
+        const void* elements,
+        size_t n
+        );
 
 /**
  * Gets the pointer to the SeeDynamicArrayClass table.
@@ -384,11 +408,6 @@ see_dynamic_array_shrink_to_fit(SeeDynamicArray* array);
 SEE_EXPORT const SeeDynamicArrayClass*
 see_dynamic_array_class();
 
-
-/* Expand the class with public functions here, don't forget the SEE_EXPORT
- * macro, because otherwise you'll run into troubles when exporting function
- * in a windows dll.
- */
 
 /* **** class initialization functions **** */
 

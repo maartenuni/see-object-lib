@@ -241,6 +241,43 @@ array_grow(SeeDynamicArray* array, size_t count, void* init_data)
     return success;
 }
 
+static int array_insert(
+        SeeDynamicArray*    array,
+        size_t              pos,
+        const void*         elements,
+        size_t              n
+        )
+{
+    int ret;
+    const SeeDynamicArrayClass* cls;
+    cls = SEE_DYNAMIC_ARRAY_GET_CLASS(array);
+
+    size_t num_to_copy = array->size - pos;
+    size_t final_size = array->size + n;
+
+    ret = cls->reserve(array, final_size);
+    if (ret)
+        return ret;
+
+    memcpy(
+            ARRAY_ELEM_ADDRESS(array, pos + num_to_copy),
+            ARRAY_ELEM_ADDRESS(array, pos),
+            ARRAY_NUM_BYTES(array, num_to_copy)
+          );
+
+    const char* source_start = elements;
+    char*       dest_start   = ARRAY_ELEM_ADDRESS(array, pos);
+    char*       dest_end     = ARRAY_ELEM_ADDRESS(array, pos + num_to_copy);
+    size_t      nbytes = array->element_size;
+
+    for ( ; dest_start < dest_end; source_start += nbytes, dest_start += nbytes)
+        array->copy_element(dest_start, source_start, nbytes);
+
+    array->size += n;
+
+    return SEE_SUCCESS;
+}
+
 /* **** implementation of the public API **** */
 
 int
@@ -383,6 +420,23 @@ see_dynamic_array_shrink_to_fit(SeeDynamicArray* array)
     return cls->shrink_to_fit(array);
 }
 
+int
+see_dynamic_array_insert(
+     SeeDynamicArray* array,
+     size_t           pos,
+     const void*      elements,
+     size_t           n
+     )
+{
+    const SeeDynamicArrayClass* cls;
+    
+    if (!array)
+        return SEE_INVALID_ARGUMENT;
+
+    cls = SEE_DYNAMIC_ARRAY_GET_CLASS(array);
+    return cls->insert(array, pos, elements, n);
+}
+
 /* **** initialization of the class **** */
 
 SeeDynamicArrayClass* g_SeeDynamicArrayClass = NULL;
@@ -405,6 +459,7 @@ static int see_dynamic_array_class_init(SeeObjectClass* new_cls) {
     cls->shrink_to_fit = array_shrink_to_fit;
     cls->shrink     = array_shrink;
     cls->grow       = array_grow;
+    cls->insert     = array_insert;
     
     return ret;
 }
