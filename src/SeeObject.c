@@ -96,15 +96,15 @@ object_ref(SeeObject* obj)
 static void
 object_decref(SeeObject* obj)
 {
+    int refcount;
     if (!obj) {
         assert(obj != NULL);
         return;
     }
 
-    int refcount = see_atomic_decrement(&obj->refcount);
-    if (refcount == 0) {
+    refcount = see_atomic_decrement(&obj->refcount);
+    if (refcount == 0)
         obj->cls->destroy(obj);
-    }
 }
 
 static void object_destroy(SeeObject* obj)
@@ -168,7 +168,7 @@ SeeObject* see_object_create()
 
 int see_object_repr(const SeeObject* obj, char* out, size_t size)
 {
-    const SeeObjectClass* cls = obj->cls;
+    const SeeObjectClass* cls = SEE_OBJECT_GET_CLASS(obj);
     return cls->repr(obj, out, size);
 }
 

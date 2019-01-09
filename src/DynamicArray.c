@@ -43,8 +43,8 @@ dynamic_array_init(
     see_free_func free_func
     )
 {
-    const SeeObjectClass* obj_cls = (const SeeObjectClass*) cls;
-    obj_cls->object_init((SeeObject*) array, (const SeeObjectClass*) cls);
+    const SeeObjectClass* obj_cls = SEE_OBJECT_CLASS(cls);
+    obj_cls->object_init(SEE_OBJECT(array), obj_cls);
 
     // Generally you could set some default values here.
     // The init loop can still override them when necessary.
@@ -66,8 +66,8 @@ dynamic_array_init(
 static int
 init(const SeeObjectClass* cls, SeeObject* obj, va_list list)
 {
-    const SeeDynamicArrayClass* array_cls = (const SeeDynamicArrayClass*) cls;
-    SeeDynamicArray* array = (SeeDynamicArray*) obj;
+    const SeeDynamicArrayClass* array_cls = SEE_DYNAMIC_ARRAY_CLASS(cls);
+    SeeDynamicArray* array = SEE_DYNAMIC_ARRAY(obj);
 
     size_t          elem_size = va_arg(list, size_t);
     see_copy_func   copy_func = va_arg(list, see_copy_func);
@@ -85,9 +85,8 @@ init(const SeeObjectClass* cls, SeeObject* obj, va_list list)
 static void
 dynamic_array_destroy(SeeObject* obj)
 {
-    const SeeDynamicArrayClass* cls = (const SeeDynamicArrayClass*)
-        see_object_get_class(obj);
-    SeeDynamicArray* array = (SeeDynamicArray*) obj;
+    const SeeDynamicArrayClass* cls = SEE_DYNAMIC_ARRAY_GET_CLASS(obj);
+    SeeDynamicArray* array = SEE_DYNAMIC_ARRAY(obj);
 
     // clear the elements
     if (array) {
@@ -101,7 +100,7 @@ dynamic_array_destroy(SeeObject* obj)
     }
 
     // Let the parent destructor handle the rest.
-    ((SeeObjectClass*)cls)->psuper->destroy(obj);
+    SEE_OBJECT_CLASS(cls)->psuper->destroy(obj);
 }
 
 static void
@@ -194,10 +193,7 @@ array_pop_back(SeeDynamicArray* array, void* element)
 static int
 array_resize(SeeDynamicArray* array, size_t n, void* init_data)
 {
-    const SeeDynamicArrayClass* cls =
-        (SeeDynamicArrayClass*) see_object_get_class(
-            (SeeObject*) array
-            );
+    const SeeDynamicArrayClass* cls = SEE_DYNAMIC_ARRAY_GET_CLASS(array);
 
     if (n == array->size)
         return SEE_SUCCESS;
@@ -210,10 +206,7 @@ array_resize(SeeDynamicArray* array, size_t n, void* init_data)
 static int
 array_shrink(SeeDynamicArray* array, size_t size)
 {
-    const SeeDynamicArrayClass* cls =
-        (SeeDynamicArrayClass*) see_object_get_class(
-            (SeeObject*) array
-            );
+    const SeeDynamicArrayClass* cls = SEE_DYNAMIC_ARRAY_GET_CLASS(array);
 
     if (array->free_element) {
         for (size_t i = size; i < array->size; i++) {
@@ -229,10 +222,7 @@ static int
 array_grow(SeeDynamicArray* array, size_t count, void* init_data)
 {
     int success;
-    const SeeDynamicArrayClass* cls =
-        (SeeDynamicArrayClass*) see_object_get_class(
-            (SeeObject*) array
-        );
+    const SeeDynamicArrayClass* cls = SEE_DYNAMIC_ARRAY_GET_CLASS(array);
 
     success = cls->reserve(array, count);
     size_t diff = count - array->size;
@@ -262,8 +252,7 @@ see_dynamic_array_new(
     see_free_func       free_func
     )
 {
-    const SeeObjectClass* cls =
-        (const SeeObjectClass*) see_dynamic_array_class();
+    const SeeObjectClass* cls = SEE_OBJECT_CLASS(see_dynamic_array_class());
 
     if (!cls)
         return SEE_NOT_INITIALIZED;
@@ -307,9 +296,7 @@ see_dynamic_array_new_capacity(
     if (ret != SEE_SUCCESS)
         return ret;
 
-    array_cls = (const SeeDynamicArrayClass*) see_object_get_class(
-        (SeeObject*) *array
-        );
+    array_cls = SEE_DYNAMIC_ARRAY_GET_CLASS(*array);
 
     ret = array_cls->reserve(*array, desired_capacity);
     if (ret != SEE_SUCCESS) {
@@ -335,10 +322,8 @@ see_dynamic_array_capacity(const SeeDynamicArray* array)
 int
 see_dynamic_array_add(SeeDynamicArray* array, void* element)
 {
-    const SeeDynamicArrayClass* cls =
-        (const SeeDynamicArrayClass*) see_object_get_class(
-                (const SeeObject*) array
-                );
+
+    const SeeDynamicArrayClass* cls = SEE_DYNAMIC_ARRAY_GET_CLASS(array);
 
     if (!array || !element)
         return SEE_INVALID_ARGUMENT;
@@ -349,20 +334,16 @@ see_dynamic_array_add(SeeDynamicArray* array, void* element)
 void*
 see_dynamic_array_get(const SeeDynamicArray* array, size_t index)
 {
-    const SeeDynamicArrayClass* cls =
-        (const SeeDynamicArrayClass*) see_object_get_class(
-                (const SeeObject*) array
-                );
+    if (!array)
+        return NULL;
 
+    const SeeDynamicArrayClass* cls = SEE_DYNAMIC_ARRAY_GET_CLASS(array);
     return cls->get(array, index);
 }
 
 int
 see_dynamic_array_set(SeeDynamicArray* array, size_t index, const void* element) {
-    const SeeDynamicArrayClass *cls =
-        (const SeeDynamicArrayClass *) see_object_get_class(
-            (const SeeObject *) array
-        );
+    const SeeDynamicArrayClass *cls = SEE_DYNAMIC_ARRAY_GET_CLASS(array);
 
     if (!array)
         return SEE_INVALID_ARGUMENT;
@@ -377,10 +358,7 @@ see_dynamic_array_set(SeeDynamicArray* array, size_t index, const void* element)
 int
 see_dynamic_array_reserve(SeeDynamicArray* array, size_t n_elements)
 {
-    const SeeDynamicArrayClass *cls =
-        (const SeeDynamicArrayClass *) see_object_get_class(
-            (const SeeObject *) array
-        );
+    const SeeDynamicArrayClass *cls = SEE_DYNAMIC_ARRAY_GET_CLASS(array);
 
     if (!cls)
         return SEE_NOT_INITIALIZED;
@@ -394,10 +372,7 @@ see_dynamic_array_reserve(SeeDynamicArray* array, size_t n_elements)
 int
 see_dynamic_array_shrink_to_fit(SeeDynamicArray* array)
 {
-    const SeeDynamicArrayClass *cls =
-        (const SeeDynamicArrayClass *) see_object_get_class(
-            (const SeeObject *) array
-        );
+    const SeeDynamicArrayClass *cls = SEE_DYNAMIC_ARRAY_GET_CLASS(array);
 
     if (!cls)
         return SEE_NOT_INITIALIZED;

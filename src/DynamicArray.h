@@ -205,6 +205,28 @@ struct _SeeDynamicArrayClass {
         );
 };
 
+/**
+ * Cast a pointer to a SeeDynamicArray derived object to a pointer of SeeDynamicArray.
+ *
+ * Note make sure it is SeeDynamicArray derived
+ */
+#define SEE_DYNAMIC_ARRAY(obj)\
+    ((SeeDynamicArray*)(obj))
+
+/**
+ * Cast a pointer to a SeeDynamicArrayClass derived class back to a const SeeDynamicArrayClass
+ * instance.
+ */
+#define SEE_DYNAMIC_ARRAY_CLASS(cls)\
+    ((const SeeDynamicArrayClass*) (cls))
+
+/**
+ * Get a const pointer a (derived) SeeDynamicArrayClass. This cast can be used
+ * to call polymorphic functions.
+ */
+#define SEE_DYNAMIC_ARRAY_GET_CLASS(obj)\
+    ( SEE_DYNAMIC_ARRAY_CLASS( see_object_get_class( SEE_OBJECT(obj) ) )  )
+
 
 /* **** public functions **** */
 

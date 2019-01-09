@@ -67,6 +67,29 @@ struct _SeeErrorClass {
     void (*set_msg)(SeeError* error, const char* msg);
 };
 
+/**
+ * Cast a pointer to a SeeError derived object to a pointer of SeeError.
+ *
+ * Note make sure it is SeeError derived
+ */
+#define SEE_ERROR(obj)\
+    ((SeeError*)(obj))
+
+/**
+ * Cast a pointer to a SeeErrorClass derived class back to a const SeeErrorClass
+ * instance.
+ */
+#define SEE_ERROR_CLASS(cls)\
+    ((const SeeErrorClass*) (cls))
+
+/**
+ * Get a const pointer a (derived) SeeErrorClass. This cast can be used
+ * to call polymorphic functions.
+ */
+#define SEE_ERROR_GET_CLASS(obj)\
+    ( SEE_ERROR_CLASS( see_object_get_class( SEE_OBJECT(obj) ) )  )
+
+
 /* **** public functions **** */
 
 /**

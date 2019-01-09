@@ -25,15 +25,15 @@
 static void
 error_init(SeeError* obj, const SeeErrorClass* cls, const char* msg)
 {
-    const SeeObjectClass* obj_cls = (const SeeObjectClass*) cls;
+    const SeeObjectClass* obj_cls = SEE_OBJECT_CLASS(cls);
 
-    obj_cls->object_init((SeeObject*)obj, obj_cls);
+    obj_cls->object_init(SEE_OBJECT(obj), obj_cls);
 
     if (msg == NULL)
         msg = "No error";
 
     // Do some extra initialization here (on demand).
-    SeeError* error = (SeeError*)obj;
+    SeeError* error = SEE_ERROR(obj);
 
     cls->set_msg(error, msg);
 }
@@ -41,10 +41,10 @@ error_init(SeeError* obj, const SeeErrorClass* cls, const char* msg)
 static int
 init(const SeeObjectClass* cls, SeeObject* obj, va_list list)
 {
-    const SeeErrorClass* error_cls = (const SeeErrorClass*) cls;
+    const SeeErrorClass* error_cls = SEE_ERROR_CLASS(cls);
     const char* msg = va_arg(list, const char*);
 
-    error_cls->error_init((SeeError*)obj, (const SeeErrorClass*) cls, msg);
+    error_cls->error_init((SeeError*)obj, error_cls, msg);
 
     return SEE_SUCCESS;
 }
@@ -53,7 +53,10 @@ static const char*
 error_msg(const SeeError* error)
 {
     assert(error);
-    return error->msg;
+    if (error)
+        return error->msg;
+    else
+        return NULL;
 }
 
 static void
@@ -78,7 +81,7 @@ int see_error_new(SeeError** out)
     if (!cls)
         return SEE_NOT_INITIALIZED;
 
-    const SeeObjectClass* obj_cls = (const SeeObjectClass*) cls;
+    const SeeObjectClass* obj_cls = SEE_OBJECT_CLASS(cls);
     ret = obj_cls->new(obj_cls, 0, (SeeObject**) out, NULL);
 
     return ret;
@@ -97,7 +100,7 @@ int see_error_new_msg(SeeError** out, const char* msg)
     if (!cls)
         return SEE_NOT_INITIALIZED;
 
-    const SeeObjectClass* obj_cls = (const SeeObjectClass*) cls;
+    const SeeObjectClass* obj_cls = SEE_OBJECT_CLASS(cls);
     ret = obj_cls->new(obj_cls, 0, (SeeObject**) out, msg);
 
     return ret;
@@ -106,10 +109,11 @@ int see_error_new_msg(SeeError** out, const char* msg)
 const char*
 see_error_msg(const SeeError* error)
 {
-    if (!error)
+    const SeeErrorClass* cls = SEE_ERROR_GET_CLASS(error);
+    if (!error || !cls)
         return NULL;
 
-    return see_error_class()->msg(error);
+    return cls->msg(error);
 }
 
 void
@@ -118,7 +122,7 @@ see_error_set_msg(SeeError* error, const char* msg)
     if (!error)
         return;
 
-    see_error_class()->set_msg(error, msg);
+    SEE_ERROR_GET_CLASS(error)->set_msg(error, msg);
 }
 
 /* **** initialization of the class **** */

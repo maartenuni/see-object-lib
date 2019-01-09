@@ -33,7 +33,7 @@ static int new_class_init(
 {
     /* call supers initializer. */
     const SeeObjectClass* meta_super = meta->psuper;
-    meta_super->object_init((SeeObject*)new_cls, meta);
+    meta_super->object_init(SEE_OBJECT(new_cls), meta);
 
     assert(new_cls != NULL);
     assert(instance_size != 0);
@@ -60,7 +60,7 @@ meta_init(const SeeObjectClass* meta, SeeObject* out, va_list list)
     size_t instance_size, parent_class_size;
     const SeeObjectClass* parent = NULL;
     see_class_init_func cls_init = NULL;
-    const SeeMetaClass* meta_cls = (const SeeMetaClass*) meta;
+    const SeeMetaClass* meta_cls = SEE_META_CLASS(meta);
 
     // Call the parent init function.
     meta->object_init(out, meta);
@@ -98,7 +98,7 @@ new_cls(
 
     va_start(args, out);
 
-    const SeeObjectClass* cls = (SeeObjectClass*) meta;
+    const SeeObjectClass* cls = SEE_OBJECT_CLASS(meta);
     ret = cls->init(
         meta,
         (SeeObject*) new_cls,
@@ -109,7 +109,7 @@ new_cls(
 
     if (ret != SEE_SUCCESS) {
         if (new_cls) {
-            see_object_decref((SeeObject *) new_cls);
+            see_object_decref(SEE_OBJECT(new_cls));
         }
     }
 
@@ -136,7 +136,7 @@ int see_meta_class_new_class(
     see_class_init_func     init_func
     )
 {
-    const SeeObjectClass* cls = (SeeObjectClass*) meta;
+    const SeeObjectClass* cls = SEE_OBJECT_CLASS(meta);
     if (!meta)
         return SEE_INVALID_ARGUMENT;
 
@@ -175,11 +175,12 @@ int see_meta_class_init()
         sizeof(SeeObjectClass)
         );
 
-    SeeObject* obj  = (SeeObject*) g_see_meta_class_instance;
-    obj->cls        = (SeeObjectClass*) g_see_meta_class_instance;
+    SeeObject* obj  = SEE_OBJECT(g_see_meta_class_instance);
+    obj->cls        = SEE_OBJECT_CLASS(g_see_meta_class_instance);
     obj->refcount   = 1;
 
-    SeeObjectClass* see_obj_cls = (SeeObjectClass*) g_see_meta_class_instance;
+    // The macro cast provides a const pointer while we want to modify the class.
+    SeeObjectClass* see_obj_cls = (SeeObjectClass*)g_see_meta_class_instance;
     see_obj_cls->new    = new_cls;
     see_obj_cls->init   = meta_init;
     see_obj_cls->psuper = see_object_class();
@@ -191,6 +192,6 @@ int see_meta_class_init()
 
 void see_meta_class_deinit()
 {
-    see_object_decref((SeeObject*) g_see_meta_class_instance);
+    see_object_decref(SEE_OBJECT(g_see_meta_class_instance));
     g_see_meta_class_instance = NULL;
 }

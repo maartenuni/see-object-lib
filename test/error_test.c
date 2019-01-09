@@ -34,7 +34,7 @@ static void error_create(void)
     }
 
     CU_ASSERT_STRING_EQUAL("No error", see_error_msg(error));
-    see_object_decref((SeeObject*) error);
+    see_object_decref(SEE_OBJECT(error));
 }
 
 
@@ -52,7 +52,7 @@ static void error_create_msg(void)
     }
 
     CU_ASSERT_STRING_EQUAL(msg, see_error_msg(error));
-    see_object_decref((SeeObject*) error);
+    see_object_decref(SEE_OBJECT(error));
 }
 
 
@@ -68,7 +68,7 @@ static void error_set_msg(void)
 
     see_error_set_msg(error, msg);
     CU_ASSERT_STRING_EQUAL(msg, see_error_msg(error));
-    see_object_decref((SeeObject*) error);
+    see_object_decref(SEE_OBJECT(error));
 }
 
 static void error_expected_failures(void)
@@ -93,6 +93,7 @@ static void error_expected_failures(void)
     error = NULL;
     ret = see_error_new_msg(&error, NULL);
     CU_ASSERT_EQUAL(ret, SEE_INVALID_ARGUMENT);
+    CU_ASSERT_EQUAL(error, NULL)
 }
 
 

@@ -48,7 +48,7 @@ static void array_create(void)
     CU_ASSERT_EQUAL(0, see_dynamic_array_capacity(array));
     CU_ASSERT_EQUAL(0, see_dynamic_array_size(array));
 
-    see_object_decref((SeeObject*) array);
+    see_object_decref(SEE_OBJECT(array));
 }
 
 static void array_create_capacity(void)
@@ -84,7 +84,7 @@ static void array_create_capacity(void)
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
     CU_ASSERT_EQUAL(see_dynamic_array_capacity(array), desired_capacity * 2);
 
-    see_object_decref((SeeObject*) array);
+    see_object_decref(SEE_OBJECT(array));
 }
 
 
@@ -116,7 +116,7 @@ static void array_add(void)
 
     CU_ASSERT_EQUAL(power_of_two, see_dynamic_array_capacity(array));
 
-    see_object_decref((SeeObject*) array);
+    see_object_decref(SEE_OBJECT(array));
 }
 
 static void array_set(void)
@@ -171,7 +171,7 @@ static void array_set(void)
     CU_ASSERT_EQUAL(matches, 1);
     CU_ASSERT_EQUAL(see_dynamic_array_size(array), TEST_N/2);
 
-    see_object_decref((SeeObject*)array);
+    see_object_decref(SEE_OBJECT(array));
 }
 
 static void array_capacity(void)
@@ -199,7 +199,7 @@ static void array_capacity(void)
         see_dynamic_array_size(array), see_dynamic_array_capacity(array)
         );
 
-    see_object_decref((SeeObject*)array);
+    see_object_decref(SEE_OBJECT(array));
 }
 
 int add_dynamic_array_suite()

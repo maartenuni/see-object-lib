@@ -63,6 +63,28 @@ struct _SeeMetaClass {
 };
 
 /**
+ * Cast a pointer to a SeeMeta derived object to a pointer of SeeMeta.
+ *
+ * Note make sure it is SeeMeta derived
+ */
+#define SEE_META(obj)\
+    ((SeeMeta*)(obj))
+
+/**
+ * Cast a pointer to a SeeMetaClass derived class back to a const SeeMetaClass
+ * instance.
+ */
+#define SEE_META_CLASS(cls)\
+    ((const SeeMetaClass*) (cls))
+
+/**
+ * Get a const pointer a (derived) SeeMetaClass. This cast can be used
+ * to call polymorphic functions.
+ */
+#define SEE_META_GET_CLASS(obj)\
+    ( SEE_META_CLASS( see_object_get_class( SEE_OBJECT(obj) ) )  )
+
+/**
  * \brief allocate and initialize a new class instance.
  */
 typedef int (*see_new_class_instance_func) (

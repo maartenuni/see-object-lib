@@ -126,6 +126,31 @@ struct _SeeObjectClass {
 };
 
 /**
+ * \brief Cast a pointer to a SeeObject derived class back to a (SeeObject*)
+ */
+#define SEE_OBJECT(obj)\
+    ((SeeObject*)(obj))
+
+/**
+ * \brief class a pointer of a derived class to a const pointer of SeeObject
+ */
+#define SEE_OBJECT_CLASS(cls)\
+    ((const SeeObjectClass*) (cls))
+
+/**
+ * Get a const pointer to the class instance of a SeeObject derived object.
+ * The class instance is directly cast to a const SeeObjectClass*
+ *
+ * If you'll use this class and use the function pointers ont the class
+ * derived or overridden functions will be called, enabling polymorphism.
+ */
+#define SEE_OBJECT_GET_CLASS(obj)\
+    SEE_OBJECT_CLASS(see_object_get_class(SEE_OBJECT(obj)))
+
+
+/* **** public interface **** */
+
+/**
  * Creates a new object for any SeeObject derived class.
  */
 SEE_EXPORT int see_object_new(const SeeObjectClass* cls, SeeObject** out);
@@ -185,7 +210,7 @@ SEE_EXPORT int see_object_repr(const SeeObject* obj, char* out, size_t size);
 SEE_EXPORT int see_object_class_init();
 
 /**
- * Get the class thé SeeObject.
+ * Get the class of thé SeeObject.
  */
 SEE_EXPORT const SeeObjectClass* see_object_class();
 
