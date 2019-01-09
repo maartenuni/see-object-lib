@@ -267,7 +267,7 @@ static int array_insert(
 
     const char* source_start = elements;
     char*       dest_start   = ARRAY_ELEM_ADDRESS(array, pos);
-    char*       dest_end     = ARRAY_ELEM_ADDRESS(array, pos + num_to_copy);
+    char*       dest_end     = ARRAY_ELEM_ADDRESS(array, pos + n);
     size_t      nbytes = array->element_size;
 
     for ( ; dest_start < dest_end; source_start += nbytes, dest_start += nbytes)
