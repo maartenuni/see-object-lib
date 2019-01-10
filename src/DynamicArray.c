@@ -254,26 +254,29 @@ static int array_insert(
 
     size_t num_to_copy = array->size - pos;
     size_t final_size = array->size + n;
+    size_t to = final_size - num_to_copy;
 
     ret = cls->reserve(array, final_size);
     if (ret)
         return ret;
 
-    memcpy(
-            ARRAY_ELEM_ADDRESS(array, pos + num_to_copy),
+    memmove(
+            ARRAY_ELEM_ADDRESS(array, to),
             ARRAY_ELEM_ADDRESS(array, pos),
             ARRAY_NUM_BYTES(array, num_to_copy)
           );
 
     const char* source_start = elements;
-    char*       dest_start   = ARRAY_ELEM_ADDRESS(array, pos);
-    char*       dest_end     = ARRAY_ELEM_ADDRESS(array, pos + n);
-    size_t      nbytes = array->element_size;
+    size_t      nbytes       = array->element_size;
 
-    for ( ; dest_start < dest_end; source_start += nbytes, dest_start += nbytes)
-        array->copy_element(dest_start, source_start, nbytes);
+    for (size_t i = 0; i < n; i++)
+        array->copy_element(
+            ARRAY_ELEM_ADDRESS(array, i + pos),
+            source_start + i * nbytes,
+            nbytes
+            );
 
-    array->size += n;
+    array->size = final_size;
 
     return SEE_SUCCESS;
 }

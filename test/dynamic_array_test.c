@@ -260,6 +260,13 @@ static void array_insert(void)
     CU_ASSERT_EQUAL(see_dynamic_array_capacity(a2), 8);
     CU_ASSERT_EQUAL(see_dynamic_array_capacity(a5), 8);
 
+    ret = see_dynamic_array_insert(a0, 0, input, N);
+    CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
+    ret = see_dynamic_array_insert(a2, 2, input, N);
+    CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
+    ret = see_dynamic_array_insert(a5, 5, input, N);
+    CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
+
     int* out0 = see_dynamic_array_get(a0, 0);
     int* out2 = see_dynamic_array_get(a2, 0);
     int* out5 = see_dynamic_array_get(a5, 0);
