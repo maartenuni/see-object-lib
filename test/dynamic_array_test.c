@@ -271,10 +271,6 @@ static void array_insert(void)
     int* out2 = see_dynamic_array_get(a2, 0);
     int* out5 = see_dynamic_array_get(a5, 0);
 
-    print_int_array(out0, "a0", N*2);
-    print_int_array(out2, "a2", N*2);
-    print_int_array(out5, "a5", N*2);
-
     CU_ASSERT(two_int_arrays_equal(output0, out0, N*2));
     CU_ASSERT(two_int_arrays_equal(output2, out2, N*2));
     CU_ASSERT(two_int_arrays_equal(output5, out5, N*2));
