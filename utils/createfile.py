@@ -45,9 +45,15 @@ ROOT_DIR = path.abspath(path.dirname(argv[0]) + "/../")
 # Message for when the comment exists.
 FILE_EXIST_MSG = "The file {} seems to exists cowardly refusing to overwrite."
 
-NSPACE = "See"
-
-def write_header(filename, classname, parentname, force=False, lic_only=False):
+def write_header(
+        filename,
+        classname,
+        parentname,
+        project,
+        namespace,
+        force=False,
+        lic_only=False
+    ):
     """Writes the file header."""
     if path.exists(filename) and not force:
         print(FILE_EXIST_MSG.format(filename), file=sys.stderr)
@@ -58,15 +64,24 @@ def write_header(filename, classname, parentname, force=False, lic_only=False):
             content = file_contents.header_content(
                 classname,
                 parentname,
-                namespace=NSPACE
+                namespace=namespace,
+                project=project
                 )
         else:
-            content = file_contents.LIC_STR
+            content = file_contents.LIC_STR.format(PROJECT=project)
 
         f.write(content)
 
 
-def write_cfile(filename, classname, parentname, force=False, lic_only=False):
+def write_cfile(
+        filename,
+        classname,
+        parentname,
+        project,
+        namespace,
+        force=False,
+        lic_only=False
+    ):
     """Writes the class implementation file"""
     if path.exists(filename) and not force:
         print(
@@ -80,11 +95,12 @@ def write_cfile(filename, classname, parentname, force=False, lic_only=False):
                 file_contents.implementation_content(
                     classname,
                     parentname,
-                    NSPACE
+                    namespace,
+                    project
                     )
             )
         else:
-            f.write(file_contents.LIC_STR)
+            f.write(file_contents.LIC_STR.format(PROJECT=project))
 
 
 # Parsing commandline
@@ -96,7 +112,7 @@ parser.add_argument(
     "classname",
     help=(
         "The ClassName to create without extension, use CamelCase for "
-        "readability"
+        "readability, and don't append the namespace. e.g. Object not SeeObject"
         )
     )
 parser.add_argument(
@@ -110,6 +126,18 @@ parser.add_argument(
     "--source",
     help="Directory to place the new file(s) in",
     default=ROOT_DIR + "/src/"
+    )
+parser.add_argument(
+    "-P",
+    "--project",
+    help="The name for the project to enter in the license.",
+    default="see-object"
+    )
+parser.add_argument(
+    "-n",
+    "--namespace",
+    help="A the name of the namespace preferably capitalized eg: See",
+    default="See"
     )
 parser.add_argument(
     "-H",
@@ -141,6 +169,8 @@ args = parser.parse_args()
 SRC_DIR = args.source
 CLASSNAME = args.classname
 PARENTNAME = args.parentname
+PROJECTNAME = args.project
+NAMESPACENAME = args.namespace
 FILENAME_HDR = SRC_DIR + args.classname + ".h"
 FILENAME_C = SRC_DIR + args.classname + ".c"
 FORCE = args.force
@@ -148,9 +178,41 @@ LICENCE_ONLY = args.licence_only
 
 # Write files
 if args.header:     # Write the header only
-    write_header(FILENAME_HDR, CLASSNAME, PARENTNAME, FORCE, LICENCE_ONLY)
+    write_header(
+        FILENAME_HDR,
+        CLASSNAME,
+        PARENTNAME,
+        PROJECTNAME,
+        NAMESPACENAME,
+        FORCE,
+        LICENCE_ONLY
+    )
 elif args.object:   # Write the c file only
-    write_cfile(FILENAME_C, CLASSNAME, PARENTNAME, FORCE, LICENCE_ONLY)
+    write_cfile(
+        FILENAME_C,
+        CLASSNAME,
+        PARENTNAME,
+        PROJECTNAME,
+        NAMESPACENAME,
+        FORCE,
+        LICENCE_ONLY
+    )
 else:               # write both
-    write_header(FILENAME_HDR, CLASSNAME, PARENTNAME, FORCE, LICENCE_ONLY)
-    write_cfile(FILENAME_C, CLASSNAME, PARENTNAME, FORCE, LICENCE_ONLY)
+    write_header(
+        FILENAME_HDR,
+        CLASSNAME,
+        PARENTNAME,
+        PROJECTNAME,
+        NAMESPACENAME,
+        FORCE,
+        LICENCE_ONLY
+    )
+    write_cfile(
+        FILENAME_C,
+        CLASSNAME,
+        PARENTNAME,
+        PROJECTNAME,
+        NAMESPACENAME,
+        FORCE,
+        LICENCE_ONLY
+    )
