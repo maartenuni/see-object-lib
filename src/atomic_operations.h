@@ -15,6 +15,16 @@
  * along with see-object.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * \file atomic_operations.h
+ *
+ * One could use the functions from this header, but... I consider them
+ * to be a private part, because it is to low level..
+ *
+ * \brief implements atomic reference counting.
+ *
+ * \private
+ */
 
 #ifndef SeeAtomicOperations_H
 #define SeeAtomicOperations_H

@@ -15,6 +15,14 @@
  * along with see-object.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * \file MetaClass.h This file exports the public interface to the MetaClass.
+ *
+ * The instance of meta class is responsible of generating new classes.
+ * MetaClass, hence instance of MetaClass are classes themselves. You
+ * The metaclass overrides SeeObjectClass.new. Therefore instances of
+ * SeeMetaClass have a unknown instance size.
+ */
 
 #ifndef MetaClass_H
 #define MetaClass_H
@@ -49,6 +57,14 @@ typedef int (*see_class_init_func)(
     SeeObjectClass* new_class
     );
 
+/**
+ * \brief SeeMetaClass contains only one function, to initialize new
+ * classes.
+ *
+ * Next to the fact new classes can be initialized, the meta class overrides
+ * the default SeeObject->new to generate new classes instance instead
+ * of regular instances.
+ */
 struct _SeeMetaClass {
     SeeObjectClass cls;
 

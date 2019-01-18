@@ -15,6 +15,11 @@
  * along with see-object.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * \file see_functions.c implementations of some standard functions.
+ *
+ *
+ */
 
 #include <string.h>
 #include <stdint.h>

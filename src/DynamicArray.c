@@ -15,6 +15,12 @@
  * along with see-object.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file DynamicArray.c This file implements a general version of a dynamic
+ *array
+ * \private
+ */
+
 #include <string.h>
 #include <stdlib.h>
 

@@ -15,6 +15,103 @@
  * along with see-object.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * \file SeeObject.h this file declares the most basic SeeObject,
+ *  namely SeeObject itself.
+ *
+ * \brief All see objects derived from SeeObject
+ *
+ * To derive from a object means to Extend a struct by declaring a new struct
+ * that starts with its parent.
+ * @code
+ *
+ * typedef struct _SeeObject SeeObject;
+ * typedef struct _SeeObjectClass SeeObjectClass;
+ *
+ * struct _SeeObject {
+ *     const SeeObjectClass*   cls;
+ *     int                     refcount;
+ * };
+ *
+ * struct _SeeObjectClass {
+ *
+ *     SeeObject obj;
+ *
+ *     int (*object_init)(SeeObject* object, SeeObjectClass* cls);
+ *
+ *     // All the other operations off a class...
+ * };
+ *
+ * // This is a function-style macro that casts a SeeObject Derived instance
+ * // back to a SeeObject*.
+ * #define SEE_OBJECT(obj)\
+ *              ((SeeObject*)(obj))
+ *
+ * @endcode
+ * Here above one can see how declarartion of the SeeObjectClass start with
+ * SeeObject, hence the classes and all classes that derive from SeeObjectClass
+ * are ultimately SeeObjects.
+ *
+ * Every SeeObject can be cast to its parent, and then the parent class can call
+ * the same functions on the child. It is entirely possible to extend the
+ * derived class new functions, and the functions of its parent can be modified
+ * enabling polymorphism.
+ *
+ * @code
+ *
+ * typedef struct _SeeShape SeeShape;
+ * typedef struct _SeeShapeClass SeeShapeClass;
+ *
+ * // Derive a shape from a SeeObject. A shape extends a SeeObject
+ * struct _SeeShape {
+ *     SeeObject object;
+ *     double x;
+ *     double y;
+ * };
+ *
+ * // A ShapeClass extends SeeObject by adding extra operations not defined
+ * // on a SeeObjectClass.
+ *
+ * struct _SeeShapeClass {
+ *     SeeObjectClass parent; // contains the operations of the parent
+ *     int init_shape(Shape
+ *     double (*get_x)(const Shape*);
+ *     double (*get_y)(const Shape*);
+ * };
+ *
+ * #define SEE_SHAPE(obj)\
+ *              ((SeeShape*)(obj))
+ *
+ * typedef struct _SeeCircle SeeCircle;
+ * typedef struct _SeeCircleClass SeeCirleClass;
+ *
+ * struct _SeeCircle {
+ *      SeeShape    parent; // Contains all the data of a shape and hence object.
+ *      double      radius; // A Circle is a Shape with a radius.
+ * };
+ *
+ * struct _SeeCircleClass {
+ *     SeeShapeClass parent; // contains the operations of the parent
+ *     int (*init_circle)(SeeCircle* circle, SeeCircleClass, x, y, radius);
+ *     double (*get_x)(const Shape*);
+ *     double (*get_y)(const Shape*);
+ * };
+ *
+ * #define SEE_CIRCLE(obj)\
+ *              ((SeeCircle*)(obj))
+ *
+ * @endcode
+ *
+ * In the code above you can see how SeeShape is a object, because it derives
+ * from SeeObject by taking a SeeObject parent as its first member. SeeCircle
+ * is a SeeShape because the struct SeeCircle starts with a SeeShape and since
+ * SeeShape started with SeeObject, a pointer to a SeeCircle is a valid pointer
+ * to SeeShape and hence SeeObject as well.
+ * TAKE CARE, because a pointer to SeeObject doesn't need to be a valid SeeShape
+ * nor SeeCircle pointer.
+ *
+ * @author Maarten Duijndam
+ */
 
 #ifndef SeeObject_H
 #define SeeObject_H
@@ -37,31 +134,57 @@ typedef struct _SeeObjectClass SeeObjectClass;
 struct _SeeClass;
 
 /**
- * The definition of a SeeObject.
+ * \brief The definition of a SeeObject.
  *
- * This object mainly contains the data of a SeeObject.
+ * This object mainly contains the data of a SeeObject. The SeeObject class
+ * is a pointer to the class. That contains the methods that implement the
+ * functions on a SeeObject.
+ * The refcount is 1 once the object is created. Once the reference count via
+ * see_object_decref reaches 0, the object will be destroyed, and after that
+ * it shouldn't be used anymore.
  */
 struct _SeeObject {
+
+    /**
+     * \brief A pointer to the class this object is an instance of.
+     *
+     * An SeeObject is always a instance of a class. This member is a pointer
+     * to that class.
+     */
     const SeeObjectClass*   cls;
+
+    /**
+     * \brief The reference count.
+     *
+     * Once the reference count drops to zero via see_object_decref
+     * the object will be freed. If a SeeObject is put in an array for example
+     * array may decide to increment the reference count. Then the object's
+     * reference count will be atomically incremented by 1. Then the caller
+     * can safely decrement the object, knowing that the array will still hold
+     * a reference to that object.
+     */
     int                     refcount;
 };
 
 /**
- * Table with all the class attributes of a SeeObject.
+ * \brief Table with all the class attributes of a SeeObject.
  *
  * Where a SeeObject contains mainly data, its class object/type table
  * merely exists of methods that operate on the object. Although it is 
  * certainly possible to put class attribute values/data on a class too. 
  */
 struct _SeeObjectClass {
-    /** Classes are SeeObjects too */
+    /** \brief Classes are SeeObjects too */
     SeeObject obj;
 
-    /** Classes except for SeeObject class have a parent/super class.*/
+    /**
+     * \brief Classes except for SeeObjectClass have a parent/super class. Except
+     * for SeeObjectClass itself.
+     */
     const SeeObjectClass *psuper;
 
-    /** The size of an instance */
-    size_t inst_size;  ///< size of an instance
+    /**\brief The size of an instance of this class.*/
+    size_t inst_size;
 
     /**
      * \brief create a new object instance.
@@ -112,16 +235,16 @@ struct _SeeObjectClass {
         va_list list
         );
 
-    /** A function that destroys and frees instance */
+    /**\brief  A function that destroys and frees instance */
     void (*destroy)(SeeObject* obj);
 
-    /** representation of an object.*/
+    /**\brief  representation of an object.*/
     int (*repr)(const SeeObject* obj, char* out, size_t size);
 
-    /** Reference increment function.*/
+    /**\brief Reference increment function.*/
     void* (*incref)(SeeObject* obj);
 
-    /** reference decrement function.*/
+    /**\brief reference decrement function.*/
     void (*decref)(SeeObject* obj);
 };
 
@@ -138,7 +261,7 @@ struct _SeeObjectClass {
     ((const SeeObjectClass*) (cls))
 
 /**
- * Get a const pointer to the class instance of a SeeObject derived object.
+ * \brief Get a const pointer to the class instance of a SeeObject derived object.
  * The class instance is directly cast to a const SeeObjectClass*
  *
  * If you'll use this class and use the function pointers ont the class
@@ -151,20 +274,26 @@ struct _SeeObjectClass {
 /* **** public interface **** */
 
 /**
- * Creates a new object for any SeeObject derived class.
+ * \brief Creates a new object for any SeeObject derived class.
+ *
+ * This function see_object_new is a functions that takes a class and a
+ * reference to a new SeeObject*. The class table should know how to allocate
+ * a new instance of its class. Hence, any SeeObjectClass derived class can
+ * be used to make an instance of that class.
  */
 SEE_EXPORT int see_object_new(const SeeObjectClass* cls, SeeObject** out);
 
 /**
- * Allocates a new SeeObject instance.
+ * \brief Allocates a new SeeObject instance.
  *
- * This is short for see_object_new(see_object_class());
+ * This is short for see_object_new(see_object_class()); In practice this
+ * function isn't used.
  */
 SEE_EXPORT SeeObject* see_object_create();
 
 
 /**
- * Get the class of a SeeObject.
+ * \brief Get the class of a SeeObject.
  *
  * Returns a pointer to the SeeObject of the class instance. Note in contrast
  * to the functions see_object_class() also in this header, this function
@@ -181,7 +310,7 @@ SEE_EXPORT SeeObject* see_object_create();
 SEE_EXPORT const SeeObjectClass* see_object_get_class(const SeeObject* obj);
 
 /**
- * Atomically increment the reference count of a see object
+ * \brief Atomically increment the reference count of a see object
  *
  * The memory allocation/freeing strategy of SeeObjects is mainly done via
  * reference counting. When a object is created it has a reference count of
@@ -191,7 +320,7 @@ SEE_EXPORT const SeeObjectClass* see_object_get_class(const SeeObject* obj);
 SEE_EXPORT void* see_object_ref(SeeObject* obj);
 
 /**
- * Atomically decrement the reference count of a see object.
+ * \brief Atomically decrement the reference count of a see object.
  *
  * This function decrements the reference count of a see object by one. If
  * The reference count drops to 0, this means no one is referring to the
@@ -203,14 +332,28 @@ SEE_EXPORT void* see_object_ref(SeeObject* obj);
 SEE_EXPORT void see_object_decref(SeeObject* obj);
 
 
-// A short standard representation of an object.
+/**
+ * \brief Obtain A short standard representation of an object.
+ */
 SEE_EXPORT int see_object_repr(const SeeObject* obj, char* out, size_t size);
 
-/*** class management ***/
+/* **** class management **** */
+
+/**
+ * \brief "inits" the SeeObjectClass.
+ *
+ * This is one of the classes that is statically initialized, because so much
+ * depends on it.
+ * For classes that derive from SeeObjectClass a similar function is generally
+ * required. When calling this method for another class, would allocate,
+ * and initialize the class.
+ *
+ * @return SEE_SUCCESS
+ */
 SEE_EXPORT int see_object_class_init();
 
 /**
- * Get the class of thé SeeObject.
+ * \brief Get the class of thé SeeObject.
  */
 SEE_EXPORT const SeeObjectClass* see_object_class();
 

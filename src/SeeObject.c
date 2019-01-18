@@ -15,6 +15,15 @@
  * along with see-object.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * \file SeeObject.c
+ *
+ * This file contains the implementations of the most general SeeObject and
+ * class.
+ *
+ * \private
+ */
+
 #include "see_object_config.h"
 #include "SeeObject.h"
 #include <stdlib.h>

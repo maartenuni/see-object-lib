@@ -15,6 +15,12 @@
  * along with see-object.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * \file Error.c The implementation for SeeError
+ * \brief The implementation for SeeError
+ * \private
+ */
+
 #include <assert.h>
 
 #include "MetaClass.h"

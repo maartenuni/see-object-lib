@@ -15,6 +15,28 @@
  * along with see-object.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * \file Error.h
+ * \brief Sometimes things don't work out as desired.
+ * \author Maarten Duijndam
+ *
+ * This class is designed to be used when something goes horribly (hopefully not)
+ * wrong. You can obtain a SeeError. The SeeError instance contains a useful
+ * message, indicating what went wrong and perhaps it enables you at runtime
+ * to choose a secondary strategy to achieve the same goal.
+ *
+ * for example:
+ * @code
+ * int ret;
+ * SeeError* error = NULL;
+ * ret = see_dynamic_array_reserve(array, 100000000000, &error);
+ * if (ret != SEE_SUCCESS) {
+ *    fprintf(stderr, "Oops couldn't reserve enough memory: %s\n"
+ *            see_error_msg(error)
+ *            );
+ * }
+ * @endcode
+ */
 
 #ifndef SEE_ERROR_H
 #define SEE_ERROR_H
@@ -28,6 +50,12 @@ extern "C" {
 typedef struct _SeeError SeeError;
 typedef struct _SeeErrorClass SeeErrorClass;
 
+
+/**
+ * \brief The errors thrown when something goes to Oblivion.
+ *
+ * \private
+ */
 struct _SeeError {
     SeeObject parent_obj;
 
@@ -35,10 +63,16 @@ struct _SeeError {
 
     /**
      * \brief holds the error message.
+     * \private
      */
     const char* msg;
 };
 
+/**
+ * \brief The class definition of an error.
+ *
+ * \private
+ */
 struct _SeeErrorClass {
     SeeObjectClass parent_cls;
     /* expand SeeError class with extra functions here.*/
@@ -68,7 +102,7 @@ struct _SeeErrorClass {
 };
 
 /**
- * Cast a pointer to a SeeError derived object to a pointer of SeeError.
+ * \brief Cast a pointer to a SeeError derived object to a pointer of SeeError.
  *
  * Note make sure it is SeeError derived
  */
@@ -76,14 +110,14 @@ struct _SeeErrorClass {
     ((SeeError*)(obj))
 
 /**
- * Cast a pointer to a SeeErrorClass derived class back to a const SeeErrorClass
+ * \brief Cast a pointer to a SeeErrorClass derived class back to a const SeeErrorClass
  * instance.
  */
 #define SEE_ERROR_CLASS(cls)\
     ((const SeeErrorClass*) (cls))
 
 /**
- * Get a const pointer a (derived) SeeErrorClass. This cast can be used
+ * \brief Get a const pointer a (derived) SeeErrorClass. This cast can be used
  * to call polymorphic functions.
  */
 #define SEE_ERROR_GET_CLASS(obj)\
@@ -93,7 +127,7 @@ struct _SeeErrorClass {
 /* **** public functions **** */
 
 /**
- * Gets the pointer to the SeeErrorClass table.
+ * \brief Gets the pointer to the SeeErrorClass table.
  */
 SEE_EXPORT const SeeErrorClass*
 see_error_class();
@@ -145,13 +179,13 @@ see_error_set_msg(SeeError* error, const char* msg);
 /* **** class initialization functions **** */
 
 /**
- * Initialize SeeError; make it ready for use.
+ * \brief Initialize SeeError; make it ready for use.
  */
 SEE_EXPORT
 int see_error_init();
 
 /**
- * Deinitialize SeeError, after SeeError has been deinitialized,
+ * \brief Deinitialize SeeError, after SeeError has been deinitialized,
  * all functions in this header shouldn't be used anymore.
  */
 SEE_EXPORT

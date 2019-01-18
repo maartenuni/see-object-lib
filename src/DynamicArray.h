@@ -16,6 +16,13 @@
  */
 
 
+/**
+ * \file DynamicArray.h Public interface for a dynamic array.
+ *
+ * \brief This file presents the public interface for SeeDynamicArray.
+ * an array that manages its own memory when it expands.
+ */
+
 #ifndef SEE_DYNAMIC_ARRAY_H
 #define SEE_DYNAMIC_ARRAY_H
 
@@ -30,11 +37,40 @@ extern "C" {
 typedef struct _SeeDynamicArray SeeDynamicArray;
 typedef struct _SeeDynamicArrayClass SeeDynamicArrayClass;
 
+/**
+ * \brief This is the datastructure that handles one dynamic array.
+ * Everything in this object is to be accessed via the see_dynami_array...
+ * kind of public functions.
+ *
+ * \private
+ */
 struct _SeeDynamicArray {
     SeeObject   parent_obj;
+
+    /**
+     * \brief The size of an element inside the array
+     * \private
+     */
     size_t      element_size;
+
+    /**
+     * \brief the current size of the array.
+     * \private
+     */
     size_t      size;
+
+    /**
+     * \brief The current capacity of the array which is the number of elements
+     * that can be stored, not the number of bytes.
+     *
+     * \private
+     */
     size_t      capacity;
+
+    /**
+     * \brief a pointer to the elements storted inside the array.
+     * \private
+     */
     char*       elements;
 
     /**
@@ -64,9 +100,33 @@ struct _SeeDynamicArray {
     void*       (*copy_element)(void* destination, const void* source, size_t n);
 };
 
+/**
+ * \private
+ * \brief The class that belongs to SeeDynamicArray. This class implements
+ * the operations that can be done on SeeDynamicArray.
+ */
 struct _SeeDynamicArrayClass {
+
+    /**
+     * \brief This class extends SeeObjectClass.
+     * \private
+     */
     SeeObjectClass parent_cls;
 
+    /**
+     * \brief A function that initializes a newly allocated SeeDynamicArray.
+     * \private
+     * @param [in, out] array  a newly allocated SeeDynamicArray.
+     * @param [in]      array_cls
+     * @param [in]      element_size The sizeof() an element in the arrya
+     *                  All elements are assumed to have the same size
+     * @param copy_func A function that is able to copy an element.
+     * @param init_func A function that initializes an element when
+     *                  the array resizes.
+     * @param free_func A function that will destroy the element inside of
+     *                  the array when it is destroyed.
+     * @return SEE_SUCCESS if everything works out.
+     */
     int (*array_init)(
         SeeDynamicArray*            array,
         const SeeDynamicArrayClass* array_cls,
@@ -88,6 +148,7 @@ struct _SeeDynamicArrayClass {
      *                          The copy function that was specified while
      *                          creating the array will be used to copy the
      *                          member into the array.
+     * \private
      */
     void       (*set)(SeeDynamicArray* array, size_t pos, const void* element);
 
@@ -102,6 +163,7 @@ struct _SeeDynamicArrayClass {
      * @return              The pointer to the element stored inside of the
      *                      array. Note that you'll still have to dereference
      *                      the item in order to use it.
+     * \private
      */
     void*      (*get)(const SeeDynamicArray* array, size_t pos);
 
@@ -121,6 +183,7 @@ struct _SeeDynamicArrayClass {
      *
      * @return  see_success when the item can be successfully appended
      *          to the end of the array.
+     * \private
      */
     int        (*add)(SeeDynamicArray* array, const void* element);
 
@@ -138,6 +201,7 @@ struct _SeeDynamicArrayClass {
      * @param element[out]      A pointer to store the element in that is
      *                          popped from the array.
      * @return 0 when the operation was successful.
+     * \private
      */
     int        (*pop_back)(SeeDynamicArray* array, void *element);
 
@@ -150,6 +214,7 @@ struct _SeeDynamicArrayClass {
      *                 and it is probably only used when the desired size
      *                 is larger than the current size.
      * @return SEE_SUCCESS when everything is alright, another value if not.
+     * \private
      */
     int        (*resize)(SeeDynamicArray* array, size_t count, void* initdata);
 
@@ -159,6 +224,7 @@ struct _SeeDynamicArrayClass {
      * @param nelements      The number of elements to reserve room for.
      *
      * @return
+     * \private
      */
     int        (*reserve)(SeeDynamicArray* array, size_t nelements);
 
@@ -167,6 +233,7 @@ struct _SeeDynamicArrayClass {
      * memory than it needs.
      *
      * @return SEE_SUCCESS when the operation was successful.
+     * \private
      */
     int        (*shrink_to_fit)(SeeDynamicArray* array);
 
@@ -177,8 +244,8 @@ struct _SeeDynamicArrayClass {
      * @param elements
      * @param n
      * @return
+     * \private
      */
-
     int        (*insert)(
         SeeDynamicArray* array,
         size_t pos,
@@ -206,7 +273,8 @@ struct _SeeDynamicArrayClass {
 };
 
 /**
- * Cast a pointer to a SeeDynamicArray derived object to a pointer of SeeDynamicArray.
+ * \brief Cast a pointer to a SeeDynamicArray derived object to a pointer
+ * of SeeDynamicArray.
  *
  * Note make sure it is SeeDynamicArray derived
  */
@@ -214,14 +282,14 @@ struct _SeeDynamicArrayClass {
     ((SeeDynamicArray*)(obj))
 
 /**
- * Cast a pointer to a SeeDynamicArrayClass derived class back to a const SeeDynamicArrayClass
+ * \brief Cast a pointer to a SeeDynamicArrayClass derived class back to a const SeeDynamicArrayClass
  * instance.
  */
 #define SEE_DYNAMIC_ARRAY_CLASS(cls)\
     ((const SeeDynamicArrayClass*) (cls))
 
 /**
- * Get a const pointer a (derived) SeeDynamicArrayClass. This cast can be used
+ * \brief Get a const pointer a (derived) SeeDynamicArrayClass. This cast can be used
  * to call polymorphic functions.
  */
 #define SEE_DYNAMIC_ARRAY_GET_CLASS(obj)\

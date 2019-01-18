@@ -15,6 +15,11 @@
  * along with see-object.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * \file see_functions.h
+ *
+ * This header defines prototypes for frequently used functions
+ */
 
 #ifndef see_functions_H
 #define see_functions_H

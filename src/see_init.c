@@ -15,6 +15,12 @@
  * along with see-object.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * \file see_init.c the code that does the initialization of the library.
+ *
+ * \private
+ */
+
 #include "MetaClass.h"
 #include "see_init.h"
 #include "Error.h"

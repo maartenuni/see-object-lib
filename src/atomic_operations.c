@@ -15,6 +15,13 @@
  * along with see-object.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * \file atomic_operations.c implements atomic reference counting.
+ * \brief contains some platform specific reference counting functions
+ * that can do that atomically.
+ * \private
+ */
+
 #include "atomic_operations.h"
 
 #if defined(_WIN32) || defined(WIN32)

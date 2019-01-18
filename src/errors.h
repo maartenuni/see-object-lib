@@ -15,6 +15,13 @@
  * along with see-object.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file errors.h
+ * \brief this file export the constants used when a function returns
+ * (un-)successfully.
+ * @author Maarten Duijndam
+ */
+
 
 #ifndef errors_H
 #define errors_H
@@ -23,6 +30,11 @@
 extern "C" {
 #endif
 
+/**
+ * \public
+ * \brief This enumeration exports the errors that are returned when a
+ * see_object_do_someting(object, param1, ... paramn) is unsuccessful.
+ */
 enum see_error {
     SEE_SUCCESS = 0,       /**< Everything looks dandy! */
     SEE_INVALID_ARGUMENT,  /**< Inspect arguments given to function*/

@@ -15,6 +15,12 @@
  * along with see-object.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * \file MetaClass.c the implementation of the metaclass in order to generate
+ * new classes.
+ * \private
+ */
+
 #include "MetaClass.h"
 #include <stdarg.h>
 #include <string.h>
