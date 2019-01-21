@@ -74,7 +74,7 @@ struct _{CamelCaseName}Class {{
  *        pointer to {CamelCaseName}.
  */
 #define {CLASS_NAME_CAPS}(obj)                      \
-    ((const {CamelCaseName}*) obj)
+    (({CamelCaseName}*) obj)
 
 /**
  * \brief cast a pointer to {CamelCaseName}Class derived class back to a
