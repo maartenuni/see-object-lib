@@ -88,7 +88,7 @@ int see_error_new(SeeError** out)
         return SEE_NOT_INITIALIZED;
 
     const SeeObjectClass* obj_cls = SEE_OBJECT_CLASS(cls);
-    ret = obj_cls->new(obj_cls, 0, (SeeObject**) out, NULL);
+    ret = obj_cls->new_obj(obj_cls, 0, (SeeObject**) out, NULL);
 
     return ret;
 }
@@ -107,7 +107,7 @@ int see_error_new_msg(SeeError** out, const char* msg)
         return SEE_NOT_INITIALIZED;
 
     const SeeObjectClass* obj_cls = SEE_OBJECT_CLASS(cls);
-    ret = obj_cls->new(obj_cls, 0, (SeeObject**) out, msg);
+    ret = obj_cls->new_obj(obj_cls, 0, (SeeObject**) out, msg);
 
     return ret;
 }

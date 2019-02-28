@@ -207,7 +207,7 @@ struct _SeeObjectClass {
      *
      * @return  SEE_SUCCESS, SEE_INVALID_ARGUMENT or SEE_RUNTIME_ERROR
      */
-    int (*new)(
+    int (*new_obj)(
         const SeeObjectClass*   cls,
         size_t                  sz,
         SeeObject**             obj,

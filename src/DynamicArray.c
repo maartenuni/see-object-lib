@@ -309,7 +309,7 @@ see_dynamic_array_new(
     if (element_size == 0)
         return SEE_INVALID_ARGUMENT;
 
-    return cls->new(
+    return cls->new_obj(
         cls,
         0,
         (SeeObject**) array,

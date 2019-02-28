@@ -131,7 +131,7 @@ static const SeeObjectClass g_class = {
     },
     .psuper     = NULL,
     .inst_size  = sizeof(SeeObject),
-    .new        = object_new,
+    .new_obj    = object_new,
     .object_init= object_object_init,
     .init       = object_init,
     .destroy    = object_destroy,
@@ -162,7 +162,7 @@ int see_object_new(const SeeObjectClass* cls, SeeObject** out)
     if (!out || *out)
         return SEE_INVALID_ARGUMENT;
 
-    return cls->new(cls, 0, out);
+    return cls->new_obj(cls, 0, out);
 }
 
 SeeObject* see_object_create()
