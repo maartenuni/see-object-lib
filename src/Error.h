@@ -65,7 +65,7 @@ struct _SeeError {
      * \brief holds the error message.
      * \private
      */
-    const char* msg;
+    char* msg;
 };
 
 /**

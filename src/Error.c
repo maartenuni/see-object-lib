@@ -22,6 +22,8 @@
  */
 
 #include <assert.h>
+#include <string.h>
+#include <stdio.h>
 
 #include "MetaClass.h"
 #include "Error.h"
@@ -55,6 +57,18 @@ init(const SeeObjectClass* cls, SeeObject* obj, va_list list)
     return SEE_SUCCESS;
 }
 
+static void error_destroy(SeeObject* object)
+{
+    const SeeErrorClass* cls   = SEE_ERROR_GET_CLASS(object);
+    SeeError*            error = SEE_ERROR(object);
+
+    if (error->msg)
+        free(error->msg);
+
+    SEE_OBJECT_CLASS(cls)->psuper->destroy(object);
+}
+
+
 static const char*
 error_msg(const SeeError* error)
 {
@@ -70,8 +84,16 @@ error_set_msg(SeeError* error, const char* msg)
 {
     assert(error);
     assert(msg);
+    if (error->msg) {
+        free(error->msg);
+        error->msg = NULL;
+    }
 
-    error->msg = msg;
+    error->msg = strdup(msg);
+    if (!error->msg) {
+        assert(error->msg);
+        fprintf(stderr, "Panic: unable to allocate memory to handle error.\n");
+    }
 }
 
 /* **** implementation of the public API **** */
@@ -140,7 +162,8 @@ see_error_class_init(SeeObjectClass* new_cls) {
     int ret = SEE_SUCCESS;
     
     /* Override the functions on the parent here */
-    new_cls->init = init;
+    new_cls->init       = init;
+    new_cls->destroy    = error_destroy;
     
     /* Set the function pointers of the own class here */
     SeeErrorClass* cls = (SeeErrorClass*) new_cls;
