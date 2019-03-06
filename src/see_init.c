@@ -25,9 +25,13 @@
 #include "see_init.h"
 #include "Error.h"
 #include "DynamicArray.h"
+#include "atomic_operations.h"
 
-int see_init()
-{
+int g_init_count = 0;
+int g_is_init = 0;
+
+static int
+initialize() {
     // The meta class must be initialized first, otherwise the rest
     // will fail.
     int ret = see_meta_class_init();
@@ -40,17 +44,49 @@ int see_init()
     if (ret)
         return ret;
 
-	ret = see_error_init();
+    ret = see_error_init();
     if (ret)
         return ret;
+
+    g_is_init = 1;
+
+    return ret;
+}
+
+static void
+deinit()
+{
+    see_dynamic_array_deinit();
+    see_error_deinit();
+
+    see_meta_class_deinit();
+
+    g_is_init = 0;
+}
+
+
+int see_init()
+{
+    int ret = SEE_SUCCESS;
+
+    int count = see_atomic_increment(&g_init_count);
+
+    if (count == 1) {
+        ret = initialize();
+    }
+    else {
+        while (!g_is_init)
+            ;
+    }
 
     return ret;
 }
 
 void see_deinit()
 {
-    see_dynamic_array_deinit();
-    see_error_deinit();
-
-    see_meta_class_deinit();
+    int count;
+    count = see_atomic_decrement(&g_init_count);
+    if (count == 0) {
+        deinit();
+    }
 }
