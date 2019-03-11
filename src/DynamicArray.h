@@ -282,6 +282,13 @@ struct _SeeDynamicArrayClass {
     ((SeeDynamicArray*)(obj))
 
 /**
+ * \brief Cast a pointer to pointer to an instance derived from SeeDynamicArray
+ * To a reference to a SeeDynamicArray*
+ */
+#define SEE_DYNAMIC_ARRAY_REF(ref)\
+    ((SeeDynamicArray**) ref)
+
+/**
  * \brief Cast a pointer to a SeeDynamicArrayClass derived class back to a const SeeDynamicArrayClass
  * instance.
  */

@@ -255,6 +255,13 @@ struct _SeeObjectClass {
     ((SeeObject*)(obj))
 
 /**
+ * \brief Cast a pointer to pointer to an instance derived from SeeObject
+ * To a reference to a SeeObject*
+ */
+#define SEE_OBJECT_REF(ref)\
+    ((SeeObject**) ref)
+
+/**
  * \brief class a pointer of a derived class to a const pointer of SeeObject
  */
 #define SEE_OBJECT_CLASS(cls)\

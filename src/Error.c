@@ -110,7 +110,7 @@ int see_error_new(SeeError** out)
         return SEE_NOT_INITIALIZED;
 
     const SeeObjectClass* obj_cls = SEE_OBJECT_CLASS(cls);
-    ret = obj_cls->new_obj(obj_cls, 0, (SeeObject**) out, NULL);
+    ret = obj_cls->new_obj(obj_cls, 0, SEE_OBJECT_REF(out), NULL);
 
     return ret;
 }
@@ -129,7 +129,7 @@ int see_error_new_msg(SeeError** out, const char* msg)
         return SEE_NOT_INITIALIZED;
 
     const SeeObjectClass* obj_cls = SEE_OBJECT_CLASS(cls);
-    ret = obj_cls->new_obj(obj_cls, 0, (SeeObject**) out, msg);
+    ret = obj_cls->new_obj(obj_cls, 0, SEE_OBJECT_REF(out), msg);
 
     return ret;
 }
@@ -158,7 +158,8 @@ see_error_set_msg(SeeError* error, const char* msg)
 SeeErrorClass* g_SeeErrorClass = NULL;
 
 static int
-see_error_class_init(SeeObjectClass* new_cls) {
+see_error_class_init(SeeObjectClass* new_cls)
+{
     int ret = SEE_SUCCESS;
     
     /* Override the functions on the parent here */
@@ -166,7 +167,7 @@ see_error_class_init(SeeObjectClass* new_cls) {
     new_cls->destroy    = error_destroy;
     
     /* Set the function pointers of the own class here */
-    SeeErrorClass* cls = (SeeErrorClass*) new_cls;
+    SeeErrorClass* cls  = (SeeErrorClass*) new_cls;
     cls->error_init     = error_init;
     cls->msg            = error_msg;
     cls->set_msg        = error_set_msg;

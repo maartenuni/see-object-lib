@@ -110,6 +110,12 @@ struct _SeeErrorClass {
     ((SeeError*)(obj))
 
 /**
+ * \brief Cast pointer to pointer to a reference of a SeeError*.
+ */
+#define SEE_ERROR_REF(ref)\
+    ((SeeError**) ref)
+
+/**
  * \brief Cast a pointer to a SeeErrorClass derived class back to a const SeeErrorClass
  * instance.
  */

@@ -87,6 +87,13 @@ struct _SeeMetaClass {
     ((SeeMeta*)(obj))
 
 /**
+ * @brief Cast a pointer to pointer to an instance derived from SeeMeta
+ * To a reference to a SeeMeta*
+ */
+#define SEE_META_REF(obj)\
+    ((SeeMeta**)(obj))
+
+/**
  * Cast a pointer to a SeeMetaClass derived class back to a const SeeMetaClass
  * instance.
  */
