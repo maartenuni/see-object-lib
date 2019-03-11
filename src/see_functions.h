@@ -51,7 +51,7 @@ typedef void (*see_free_func)(void* free_me);
 
 /**
  * \brief initializes a new object. This function can be used for example
- * when a array resizes to initizalize the newly allocated objects.
+ * when a array resizes to initialize the newly allocated objects.
  */
 typedef int (*see_init_func)(void* element, size_t num_bytes, void* data);
 
