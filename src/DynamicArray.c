@@ -366,7 +366,7 @@ see_dynamic_array_capacity(const SeeDynamicArray* array)
 }
 
 int
-see_dynamic_array_add(SeeDynamicArray* array, void* element)
+see_dynamic_array_add(SeeDynamicArray* array, const void* element)
 {
 
     const SeeDynamicArrayClass* cls = SEE_DYNAMIC_ARRAY_GET_CLASS(array);

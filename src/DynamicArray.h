@@ -388,7 +388,7 @@ see_dynamic_array_capacity(const SeeDynamicArray* array);
  * @return SEE_SUCCESS or an error value.
  */
 SEE_EXPORT int
-see_dynamic_array_add(SeeDynamicArray* array, void* element);
+see_dynamic_array_add(SeeDynamicArray* array, const void* element);
 
 /**
  * \brief Get a pointer to an element inside of the array.
