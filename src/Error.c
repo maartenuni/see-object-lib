@@ -57,15 +57,15 @@ init(const SeeObjectClass* cls, SeeObject* obj, va_list list)
     return SEE_SUCCESS;
 }
 
-static void error_destroy(SeeObject* object)
+static void
+error_destroy(SeeObject* object)
 {
-    const SeeErrorClass* cls   = SEE_ERROR_GET_CLASS(object);
     SeeError*            error = SEE_ERROR(object);
 
     if (error->msg)
         free(error->msg);
 
-    SEE_OBJECT_CLASS(cls)->psuper->destroy(object);
+    see_object_class()->destroy(object);
 }
 
 

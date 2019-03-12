@@ -91,7 +91,6 @@ init(const SeeObjectClass* cls, SeeObject* obj, va_list list)
 static void
 dynamic_array_destroy(SeeObject* obj)
 {
-    const SeeDynamicArrayClass* cls = SEE_DYNAMIC_ARRAY_GET_CLASS(obj);
     SeeDynamicArray* array = SEE_DYNAMIC_ARRAY(obj);
 
     // clear the elements
@@ -106,7 +105,7 @@ dynamic_array_destroy(SeeObject* obj)
     }
 
     // Let the parent destructor handle the rest.
-    SEE_OBJECT_CLASS(cls)->psuper->destroy(obj);
+    see_object_class()->destroy(obj);
 }
 
 static void
