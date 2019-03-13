@@ -29,6 +29,7 @@
 #include <stdlib.h>
 #include "SeeObject.h"
 #include "see_functions.h"
+#include "Error.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -148,9 +149,15 @@ struct _SeeDynamicArrayClass {
      *                          The copy function that was specified while
      *                          creating the array will be used to copy the
      *                          member into the array.
+     * @param error[out]        If an error occurs it will be returned here.
+     *
      * \private
      */
-    void       (*set)(SeeDynamicArray* array, size_t pos, const void* element);
+    void       (*set)  (SeeDynamicArray*    array,
+                        size_t              pos,
+                        const void*         element,
+                        SeeError**          error
+                        );
 
     /**
      * \brief Get a pointer to the item at pos
@@ -159,13 +166,17 @@ struct _SeeDynamicArrayClass {
      *                      like to obtain an element
      * @param pos[IN]       The index of the item to which we would like to
      *                      retrieve a pointer
+     * @param error[out]    If an error occurs it will be returned here.
      *
      * @return              The pointer to the element stored inside of the
      *                      array. Note that you'll still have to dereference
      *                      the item in order to use it.
      * \private
      */
-    void*      (*get)(const SeeDynamicArray* array, size_t pos);
+    void*      (*get)  (SeeDynamicArray*    array,
+                        size_t              pos,
+                        SeeError**          error
+                        );
 
     /**
      * \brief Add a new item to the back of the array.
@@ -180,12 +191,16 @@ struct _SeeDynamicArrayClass {
      *                          like to copy a new item.
      * @param element[in]       The item that is going to be appended to the
      *                          end of the array.
+     * @param error[out]        If an error occurs it will be returned here.
      *
      * @return  see_success when the item can be successfully appended
      *          to the end of the array.
      * \private
      */
-    int        (*add)(SeeDynamicArray* array, const void* element);
+    int        (*add)  (SeeDynamicArray*    array,
+                        const void*         element,
+                        SeeError**          error
+                        );
 
     /**
      * \brief   pop an array from the back of the array and store the value
@@ -347,7 +362,8 @@ see_dynamic_array_new(
  * @param [in]  free_func       see doc for "see_dynamic_array_new()"
  * @param [in]  capacity    This capacity is used to preallocate the size
  *                          of the memory.
- * @return SEE_SUCCES or another value indicating what went wrong.
+ * @return SEE_SUCCESS or another value indicating what went wrong.
+ *         SEE_RUNTIME_ERROR when no mem is available.
  */
 SEE_EXPORT int
 see_dynamic_array_new_capacity(
@@ -382,19 +398,29 @@ see_dynamic_array_capacity(const SeeDynamicArray* array);
 /**
  * \brief Append the array with an additional item.
  *
- * @param array The array to append to
- * @param element The element that must be copied into the array.
+ * If the array is able to put the item within its current capacity it will
+ * be added without any problems. If necessary the array will try to expand
+ * its capacity
  *
- * @return SEE_SUCCESS or an error value.
+ * @param [in] array    The array to append to
+ * @param [in] element  The element that must be copied into the array.
+ * @param [out] error   If an error occurs it will be returned here.
+ *
+ * @return SEE_SUCCESS or an error value for example SEE_RUNTIME_ERROR.
  */
 SEE_EXPORT int
-see_dynamic_array_add(SeeDynamicArray* array, const void* element);
+see_dynamic_array_add(
+    SeeDynamicArray*    array,
+    const void*         element,
+    SeeError**          error
+    );
 
 /**
  * \brief Get a pointer to an element inside of the array.
  *
  * @param [in] array the array from which to get a pointer.
  * @param [in] index a zero based index.
+ * @param [out]If an error occurs it will be returned here.
  *
  * @return A pointer into the array. So if index is 0 the first item
  *         in the array is returned, if you cast that to a pointer
@@ -402,20 +428,31 @@ see_dynamic_array_add(SeeDynamicArray* array, const void* element);
  *         Note that the return value should be dereferenced before use.
  */
 SEE_EXPORT void*
-see_dynamic_array_get(const SeeDynamicArray* array, size_t index);
+see_dynamic_array_get(
+    SeeDynamicArray*    array,
+    size_t              index,
+    SeeError**          error
+    );
 
 /**
  * \brief set a element into the array.
  *
- * @param [in]array the array in witch we would like to set a new element.
- * @param [in]index the index (0-based) into the array on which position
- *                  we should set a new value. If the array has a free_function
- *                  the element sitting at that index should be freed.
- * @param element   the new element to be inserted.
- * return SEE_SUCCESS if everything is alright.
+ * @param [in] array    the array in witch we would like to set a new element.
+ * @param [in] index    the index (0-based) into the array on which position
+ *                      we should set a new value. If the array has a free_function
+ *                      the element sitting at that index should be freed.
+ * @param [in]  element the new element to be inserted.
+ * @param [out] error   If an error occurs it will be returned here.
+ *
+ * return SEE_SUCCESS if everything is alright. SEE_INDEX_ERROR
  */
 SEE_EXPORT int
-see_dynamic_array_set(SeeDynamicArray* array, size_t index, const void* element);
+see_dynamic_array_set(
+    SeeDynamicArray*    array,
+    size_t              index,
+    const void*         element,
+    SeeError**          error
+    );
 
 /**
  * \brief preallocate enough space to hold n_elements

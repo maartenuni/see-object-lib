@@ -65,6 +65,7 @@ static void array_create_capacity(void)
 {
     const size_t desired_capacity = 10;
     SeeDynamicArray* array = NULL;
+    SeeError* error = NULL;
     int ret;
     ret = see_dynamic_array_new_capacity(
         &array, sizeof(int), NULL, NULL, NULL, desired_capacity
@@ -78,9 +79,13 @@ static void array_create_capacity(void)
     CU_ASSERT_EQUAL(see_dynamic_array_size(array), 0);
 
     for (size_t i = 0; i < desired_capacity; i++) {
-        if (see_dynamic_array_add(array, &i) != SEE_SUCCESS) {
-            // this shouldn't happen realistically.
-            see_object_decref((SeeObject*) array);
+        if (see_dynamic_array_add(array, &i, &error) != SEE_SUCCESS) {
+            fprintf(stderr, "%s, %s",
+                __func__,
+                see_error_msg(error)
+                );
+            see_object_decref(SEE_OBJECT(array));
+            see_object_decref(SEE_OBJECT(error));
             CU_ASSERT(CU_FALSE);
             return;
         }
@@ -90,11 +95,12 @@ static void array_create_capacity(void)
         see_dynamic_array_capacity(array), see_dynamic_array_size(array)
         );
     int value = 1;
-    ret = see_dynamic_array_add(array, &value);
+    ret = see_dynamic_array_add(array, &value, &error);
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
     CU_ASSERT_EQUAL(see_dynamic_array_capacity(array), desired_capacity * 2);
 
     see_object_decref(SEE_OBJECT(array));
+    see_object_decref(SEE_OBJECT(error));
 }
 
 
@@ -102,6 +108,7 @@ static void array_add(void)
 {
     int input[TEST_N] = {0,1,2,3,4,5,6,7,8,9};
     SeeDynamicArray* array = NULL;
+    SeeError*        error = NULL;
     int ret;
     ret = see_dynamic_array_new(&array, sizeof(int), NULL, NULL, NULL);
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
@@ -109,13 +116,29 @@ static void array_add(void)
         return;
 
     for (size_t i = 0; i < TEST_N; i++) {
-        ret = see_dynamic_array_add(array, &input[i]);
-        if (ret)
+        ret = see_dynamic_array_add(array, &input[i], &error);
+        if (ret) {
+            fprintf(stderr, "%s, %s",
+                    __func__,
+                    see_error_msg(error)
+                    );
+            see_object_decref(SEE_OBJECT(error));
+            error = NULL;
             break;
+        }
     }
 
-    int* elements_start = see_dynamic_array_get(array, 0);
+
+    int* elements_start = see_dynamic_array_get(array, 0, &error);
     CU_ASSERT(two_int_arrays_equal(elements_start, input, TEST_N));
+    if (error) {
+        fprintf(stderr, "%s, %s",
+                __func__,
+                see_error_msg(error)
+        );
+        see_object_decref(SEE_OBJECT(error));
+        error = NULL;
+    }
 
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
     CU_ASSERT_EQUAL(TEST_N, see_dynamic_array_size(array));
@@ -140,6 +163,7 @@ static void array_set(void)
     int input2[TEST_N/2] = {5,6,7,8,9};
 
     SeeDynamicArray* array = NULL;
+    SeeError*        error = NULL;
     int ret;
 
     ret = see_dynamic_array_new(&array, sizeof(int*), NULL, NULL, free);
@@ -151,12 +175,14 @@ static void array_set(void)
         int* val = malloc(sizeof(int));
         assert(val);
         *val = input1[i];
-        see_dynamic_array_add(array, &val);
+        ret = see_dynamic_array_add(array, &val, &error);
+        assert(ret == SEE_SUCCESS);
     }
     CU_ASSERT_EQUAL(see_dynamic_array_size(array), TEST_N/2);
 
     int matches = 1;
-    const int** int_ptr_array = see_dynamic_array_get(array, 0);
+    const int** int_ptr_array = see_dynamic_array_get(array, 0, &error);
+
     for (size_t i = 0; i < TEST_N/2 ;i++) {
         if (input1[i] != *int_ptr_array[i])
             matches = 0;
@@ -167,13 +193,14 @@ static void array_set(void)
         int* val = malloc(sizeof(int));
         assert(val);
         *val = input2[i];
-        ret = see_dynamic_array_set(array, i, &val);
+        ret = see_dynamic_array_set(array, i, &val, &error);
         assert(ret == SEE_SUCCESS);
     }
     CU_ASSERT_EQUAL(see_dynamic_array_size(array), TEST_N/2);
 
     matches = 1;
-    int_ptr_array = see_dynamic_array_get(array, 0);
+    int_ptr_array = see_dynamic_array_get(array, 0, &error);
+    assert(!error);
     for (size_t i = 0; i < TEST_N/2 ;i++) {
         if (input2[i] != *int_ptr_array[i])
             matches = 0;
@@ -186,9 +213,10 @@ static void array_set(void)
 
 static void array_capacity(void)
 {
-    const size_t CAPACITY = 100;
-    const size_t SIZE     = 10;
+    const size_t CAPACITY  = 100;
+    const size_t SIZE      = 10;
     SeeDynamicArray* array = NULL;
+    SeeError*        error = NULL;
     int ret;
     ret = see_dynamic_array_new(&array, sizeof(int), NULL, NULL, NULL);
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
@@ -197,8 +225,10 @@ static void array_capacity(void)
 
     CU_ASSERT_EQUAL(see_dynamic_array_capacity(array), 0);
     see_dynamic_array_reserve(array, CAPACITY);
-    for (size_t i = 0; i < SIZE; i++)
-        see_dynamic_array_add(array, &ret);
+    for (size_t i = 0; i < SIZE; i++) {
+        see_dynamic_array_add(array, &ret, &error);
+        assert(error == NULL);
+    }
 
     CU_ASSERT_EQUAL(see_dynamic_array_capacity(array), CAPACITY);
     CU_ASSERT_EQUAL(see_dynamic_array_size(array), SIZE);
@@ -226,6 +256,7 @@ static void array_insert(void)
     int output2[]   = {0, 1, 0, 1, 2, 3, 4, 2, 3, 4};
 
     SeeDynamicArray *a0 = NULL, *a5 = NULL, *a2 = NULL;
+    SeeError        *error = NULL;
 
     ret = see_dynamic_array_new(&a0, sizeof(int), NULL, NULL, NULL);
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
@@ -248,8 +279,8 @@ static void array_insert(void)
         return;
 
     for(size_t i = 0; i < sizeof(input)/sizeof(input[0]); i++) {
-        see_dynamic_array_add(a2, &input[i]);
-        ret = see_dynamic_array_add(a5, &input[i]);
+        see_dynamic_array_add(a2, &input[i], &error);
+        ret = see_dynamic_array_add(a5, &input[i], &error);
     }
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
     CU_ASSERT_EQUAL(see_dynamic_array_size(a0), N);
@@ -267,9 +298,9 @@ static void array_insert(void)
     ret = see_dynamic_array_insert(a5, 5, input, N);
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
 
-    int* out0 = see_dynamic_array_get(a0, 0);
-    int* out2 = see_dynamic_array_get(a2, 0);
-    int* out5 = see_dynamic_array_get(a5, 0);
+    int* out0 = see_dynamic_array_get(a0, 0, &error);
+    int* out2 = see_dynamic_array_get(a2, 0, &error);
+    int* out5 = see_dynamic_array_get(a5, 0, &error);
 
     CU_ASSERT(two_int_arrays_equal(output0, out0, N*2));
     CU_ASSERT(two_int_arrays_equal(output2, out2, N*2));
@@ -278,6 +309,12 @@ static void array_insert(void)
     see_object_decref(SEE_OBJECT(a0));
     see_object_decref(SEE_OBJECT(a2));
     see_object_decref(SEE_OBJECT(a5));
+}
+
+void array_exception(void)
+{
+    SeeError* error = NULL;
+    int catch_some_exceptions;
 }
 
 int add_dynamic_array_suite()
@@ -289,6 +326,7 @@ int add_dynamic_array_suite()
     SEE_UNIT_TEST_CREATE(array_set);
     SEE_UNIT_TEST_CREATE(array_capacity);
     SEE_UNIT_TEST_CREATE(array_insert);
+    SEE_UNIT_TEST_CREATE(array_exception);
 
     return 0;
 }

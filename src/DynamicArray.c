@@ -23,6 +23,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <assert.h>
 
 #include "MetaClass.h"
 #include "DynamicArray.h"
@@ -168,17 +169,22 @@ array_add(SeeDynamicArray* array, const void* element)
             array->element_size
             );
         array->size++;
-        return result;
     }
     else {
         if (array->capacity == 0)
             result = array_reserve(array, 1);
         else
             result = array_reserve(array, array->capacity * 2);
-        if (result)
+
+        if (result) {
+            int generate_runtime_error;
             return result;
-        return array_add(array, element);
+        }
+
+        void* address = ARRAY_ELEM_ADDRESS(array, array->size++);
+        array->copy_element(address, element, array->element_size);
     }
+    return result;
 }
 
 static int
@@ -211,11 +217,9 @@ array_resize(SeeDynamicArray* array, size_t n, void* init_data)
 static int
 array_shrink(SeeDynamicArray* array, size_t size)
 {
-    const SeeDynamicArrayClass* cls = SEE_DYNAMIC_ARRAY_GET_CLASS(array);
-
     if (array->free_element) {
         for (size_t i = size; i < array->size; i++) {
-            void* element = cls->get(array, i);
+            void* element = ARRAY_ELEM_ADDRESS(array, i);
             array->free_element(element);
         }
     }
@@ -233,7 +237,7 @@ array_grow(SeeDynamicArray* array, size_t count, void* init_data)
     size_t diff = count - array->size;
     if (array->init_element) {
         for (size_t i = array->size; i < array->size + diff; i++) {
-            void* element = cls->get(array, i);
+            void* element = ARRAY_ELEM_ADDRESS(array, i);
             success = array->init_element(
                 element,
                 array->element_size,
@@ -365,38 +369,57 @@ see_dynamic_array_capacity(const SeeDynamicArray* array)
 }
 
 int
-see_dynamic_array_add(SeeDynamicArray* array, const void* element)
+see_dynamic_array_add(
+    SeeDynamicArray*    array,
+    const void*         element,
+    SeeError**          error
+    )
 {
-
     const SeeDynamicArrayClass* cls = SEE_DYNAMIC_ARRAY_GET_CLASS(array);
 
     if (!array || !element)
         return SEE_INVALID_ARGUMENT;
 
-    return cls->add(array, element);
+    if (!error || *error)
+        return SEE_INVALID_ARGUMENT;
+
+    return cls->add(array, element, error);
 }
 
 void*
-see_dynamic_array_get(const SeeDynamicArray* array, size_t index)
+see_dynamic_array_get(
+    SeeDynamicArray*    array,
+    size_t              index,
+    SeeError**          error
+    )
 {
+    const SeeDynamicArrayClass* cls = SEE_DYNAMIC_ARRAY_GET_CLASS(array);
     if (!array)
         return NULL;
 
-    const SeeDynamicArrayClass* cls = SEE_DYNAMIC_ARRAY_GET_CLASS(array);
-    return cls->get(array, index);
+    if (!error || *error)
+        return NULL;
+
+    return cls->get(array, index, error);
 }
 
 int
-see_dynamic_array_set(SeeDynamicArray* array, size_t index, const void* element) {
+see_dynamic_array_set(
+    SeeDynamicArray*    array,
+    size_t              index,
+    const void*         element,
+    SeeError**          error
+    )
+{
     const SeeDynamicArrayClass *cls = SEE_DYNAMIC_ARRAY_GET_CLASS(array);
 
     if (!array)
         return SEE_INVALID_ARGUMENT;
 
-    if (index >= array->size)
-        return SEE_INDEX_ERROR;
+    if (!error || *error)
+        return SEE_INVALID_ARGUMENT;
 
-    cls->set(array, index, element);
+    cls->set(array, index, element, error);
     return SEE_SUCCESS;
 }
 
