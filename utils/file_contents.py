@@ -77,6 +77,13 @@ struct _{CamelCaseName}Class {{
     (({CamelCaseName}*) obj)
 
 /**
+ * \brief cast a pointer to pointer from a {CamelCaseName} derived instance back to a
+ *        reference to {CamelCaseName}*.
+ */
+#define {CLASS_NAME_CAPS}_REF(ref)                      \
+    (({CamelCaseName}**) ref)
+
+/**
  * \brief cast a pointer to {CamelCaseName}Class derived class back to a
  *        pointer to {CamelCaseName}Class.
  */
@@ -194,7 +201,8 @@ init(const SeeObjectClass* cls, SeeObject* obj, va_list args)
 
 {CamelCaseName}Class* g_{CamelCaseName}Class = NULL;
 
-static int {function_name}_class_init(SeeObjectClass* new_cls) {{
+static int {function_name}_class_init(SeeObjectClass* new_cls)
+{{
     int ret = SEE_SUCCESS;
     
     /* Override the functions on the parent here */
@@ -213,7 +221,8 @@ static int {function_name}_class_init(SeeObjectClass* new_cls) {{
  * You might want to call this from the library initialization func.
  */
 int
-{function_name}_init() {{
+{function_name}_init()
+{{
     int ret;
     const SeeMetaClass* meta = see_meta_class_class();
 
@@ -222,7 +231,7 @@ int
         (SeeObjectClass**) &g_{CamelCaseName}Class,
         sizeof({CamelCaseName}Class),
         sizeof({CamelCaseName}),
-        {parent_func_name}_class(),
+        SEE_OBJECT_CLASS({parent_func_name}_class()),
         sizeof({ParentCamelCaseName}Class),
         {function_name}_class_init
         );
@@ -236,8 +245,14 @@ void
     if(!g_{CamelCaseName}Class)
         return;
 
-    see_object_decref((SeeObject*) g_{CamelCaseName}Class);
+    see_object_decref(SEE_OBJECT(g_{CamelCaseName}Class));
     g_{CamelCaseName}Class = NULL;
+}}
+
+const {CamelCaseName}Class*
+{fuction_name}_class()
+{{
+    return g_{CamelCaseName}Class;
 }}
 
 """
@@ -271,7 +286,8 @@ def get_class_names(classname, namespace="See"):
     except UnicodeEncodeError:
         print(warning.format(classname), file=sys.stderr)
 
-    # I'm ignoring pep8 here, because these names document what the code does.
+    # I'm ignoring pep8 here, because these names document how the code will
+    # eventually format the code.
     CamelCaseName = namespace + classname
     NAMESPACE_CAPS= namespace.upper()
     function_name = re.sub(r'([a-z]+)([A-Z]+)', r'\1_\2', CamelCaseName).lower()
