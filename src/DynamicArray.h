@@ -233,7 +233,7 @@ struct _SeeDynamicArrayClass {
      *                           and it is probably only used when the desired size
      *                           is larger than the current size.
      * @return SEE_SUCCESS when everything is alright, another value if not.
-     *         eg SEE_RUNTIME_ERROR if there is not enough available memory.
+     *         eg SEE_ERROR_RUNTIME if there is not enough available memory.
      * \private
      */
     int        (*resize)(
@@ -254,7 +254,7 @@ struct _SeeDynamicArrayClass {
      * @param [in]nelements  The number of elements to reserve room for.
      * @param [out]error     If an error occurs it will be returned here.
      *
-     * @return SEE_SUCCESS, SEE_RUNTIME_ERROR
+     * @return SEE_SUCCESS, SEE_ERROR_RUNTIME
      *
      * \private
      */
@@ -281,7 +281,7 @@ struct _SeeDynamicArrayClass {
      * @param n Number of elements to insert.
      * @param error An error might be returned here.
      *
-     * @return SEE_SUCCESS, SEE_INDEX_ERROR, SEE_RUNTIME_ERROR
+     * @return SEE_SUCCESS, SEE_ERROR_INDEX, SEE_ERROR_RUNTIME
      * \private
      */
     int        (*insert)(
@@ -305,7 +305,7 @@ struct _SeeDynamicArrayClass {
      * @param array
      * @param num_elements
      * @param init_data
-     * @return SEE_SUCCESS, SEE_RUNTIME_ERROR
+     * @return SEE_SUCCESS, SEE_ERROR_RUNTIME
      */
     int        (*grow)(
         SeeDynamicArray*    array,
@@ -394,7 +394,7 @@ see_dynamic_array_new(
  *                              of the memory.
  * @param [out] error           If an error occurs it will be returned here.
  * @return SEE_SUCCESS or another value indicating what went wrong.
- *         SEE_RUNTIME_ERROR when no mem is available.
+ *         SEE_ERROR_RUNTIME when no mem is available.
  */
 SEE_EXPORT int
 see_dynamic_array_new_capacity(
@@ -438,7 +438,7 @@ see_dynamic_array_capacity(const SeeDynamicArray* array);
  * @param [in] element  The element that must be copied into the array.
  * @param [out] error   If an error occurs it will be returned here.
  *
- * @return SEE_SUCCESS or an error value for example SEE_RUNTIME_ERROR.
+ * @return SEE_SUCCESS or an error value for example SEE_ERROR_RUNTIME.
  */
 SEE_EXPORT int
 see_dynamic_array_add(
@@ -476,7 +476,7 @@ see_dynamic_array_get(
  * @param [in]  element the new element to be inserted.
  * @param [out] error   If an error occurs it will be returned here.
  *
- * return SEE_SUCCESS if everything is alright. SEE_INDEX_ERROR
+ * return SEE_SUCCESS if everything is alright. SEE_ERROR_INDEX
  */
 SEE_EXPORT int
 see_dynamic_array_set(
@@ -506,7 +506,7 @@ see_dynamic_array_set(
  * @param [out]     error       if an error occurs it will be returned here.
  *
  * @return SEE_SUCCESS when the operation is successful or when the array
- *         already contained enough space, SEE_RUNTIME_ERROR when there is not
+ *         already contained enough space, SEE_ERROR_RUNTIME when there is not
  *         enough space to allocate that many items or SEE_INVALID_ARGUMENT
  *         when array == NULL.
  */

@@ -37,11 +37,11 @@ extern "C" {
  */
 enum see_error {
     SEE_SUCCESS = 0,       /**< Everything looks dandy! */
-    SEE_INTERNAL_ERROR,    /**< Something inside the library is broken */
+    SEE_ERROR_INTERNAL,    /**< Something inside the library is broken */
     SEE_INVALID_ARGUMENT,  /**< Inspect arguments given to function*/
-    SEE_RUNTIME_ERROR,     /**< Inspect errno for clue.*/
+    SEE_ERROR_RUNTIME,     /**< Inspect errno for clue.*/
     SEE_NOT_INITIALIZED,   /**< making use of an uninitialized class/function.*/
-    SEE_INDEX_ERROR,       /**< Index is out of the valid range. */
+    SEE_ERROR_INDEX,       /**< Index is out of the valid range. */
 };
 
 #ifdef __cplusplus

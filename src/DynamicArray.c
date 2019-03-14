@@ -129,7 +129,7 @@ array_set(
     }
     else {
         see_index_error_create(error, pos);
-        ret = SEE_INDEX_ERROR;
+        ret = SEE_ERROR_INDEX;
     }
     return ret;
 }
@@ -159,7 +159,7 @@ array_reserve(
     char* new_mem = realloc(array->elements, num_bytes);
     if (new_mem == NULL) {
         int see_runtime_error_create;
-        return SEE_RUNTIME_ERROR;
+        return SEE_ERROR_RUNTIME;
     }
 
     array->elements = new_mem;
@@ -178,7 +178,7 @@ array_shrink_to_fit(SeeDynamicArray* array, SeeError** error)
     char* new_mem = realloc(array->elements, n_bytes);
     if (new_mem == NULL) {
         int generate_runtime_error;
-        return SEE_RUNTIME_ERROR;
+        return SEE_ERROR_RUNTIME;
     }
 
     array->elements = new_mem;
@@ -300,7 +300,7 @@ array_insert(
 
     if (pos > array->size) {
         see_index_error_create(error, pos);
-        return SEE_INDEX_ERROR;
+        return SEE_ERROR_INDEX;
     }
 
     size_t num_to_copy = array->size - pos;

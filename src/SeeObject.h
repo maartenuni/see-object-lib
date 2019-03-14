@@ -205,7 +205,7 @@ struct _SeeObjectClass {
      * @param ...      instance specific arguments that are use to initialize
      *                 the new instance.
      *
-     * @return  SEE_SUCCESS, SEE_INVALID_ARGUMENT or SEE_RUNTIME_ERROR
+     * @return  SEE_SUCCESS, SEE_INVALID_ARGUMENT or SEE_ERROR_RUNTIME
      */
     int (*new_obj)(
         const SeeObjectClass*   cls,

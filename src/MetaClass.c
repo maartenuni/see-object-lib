@@ -100,7 +100,7 @@ new_cls(
 
     new_cls = calloc(1, cls_size);
     if (!new_cls)
-        return SEE_RUNTIME_ERROR;
+        return SEE_ERROR_RUNTIME;
 
     va_start(args, out);
 
@@ -173,7 +173,7 @@ int see_meta_class_init()
 
     g_see_meta_class_instance = calloc(1, sizeof(SeeMetaClass));
     if (!g_see_meta_class_instance)
-        return SEE_RUNTIME_ERROR;
+        return SEE_ERROR_RUNTIME;
 
     memcpy(
         g_see_meta_class_instance,

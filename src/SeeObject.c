@@ -74,7 +74,7 @@ object_new(const SeeObjectClass* cls, size_t cls_sz, SeeObject** out, ...)
     new_instance = calloc(1, cls->inst_size);
 
     if (!new_instance)
-        return SEE_RUNTIME_ERROR;
+        return SEE_ERROR_RUNTIME;
 
     // set class.
     new_instance->cls = cls;
