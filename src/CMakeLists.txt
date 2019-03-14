@@ -19,6 +19,7 @@ set (SEE_OBJ_SRC
     see_init.c
     DynamicArray.c
     Error.c
+    IndexError.c
     MetaClass.c
     SeeObject.c
     atomic_operations.c
@@ -30,6 +31,7 @@ set (SEE_OBJ_HDR_PUBLIC
     see_functions.h
     DynamicArray.h
     Error.h
+    IndexError.h
     see_init.h
     MetaClass.h
     SeeObject.h

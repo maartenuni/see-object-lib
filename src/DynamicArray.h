@@ -126,6 +126,7 @@ struct _SeeDynamicArrayClass {
      *                  the array resizes.
      * @param free_func A function that will destroy the element inside of
      *                  the array when it is destroyed.
+     * @param error     if an error occurs it will be returned here.
      * @return SEE_SUCCESS if everything works out.
      */
     int (*array_init)(
@@ -134,7 +135,8 @@ struct _SeeDynamicArrayClass {
         size_t                      element_size,
         see_copy_func               copy_func,
         see_init_func               init_func,
-        see_free_func               free_func
+        see_free_func               free_func,
+        SeeError**                  error
         );
 
     /**
@@ -153,7 +155,7 @@ struct _SeeDynamicArrayClass {
      *
      * \private
      */
-    void       (*set)  (SeeDynamicArray*    array,
+    int        (*set)  (SeeDynamicArray*    array,
                         size_t              pos,
                         const void*         element,
                         SeeError**          error
@@ -222,26 +224,45 @@ struct _SeeDynamicArrayClass {
 
     /**
      * \brief grow or shrink to the size specified by count
-     * @param array the array that is going to be resized.
-     * @param count The desired number of elements after the resize operation
-     * @param initdata Data for the initialization function
-     *                 may be NULL, but depends on the init_data_func.
-     *                 and it is probably only used when the desired size
-     *                 is larger than the current size.
+     *
+     * @param [in, out] array    the array that is going to be resized.
+     * @param [in]      count    The desired number of elements after the resize
+     *                           operation.
+     * @param [in,out]  initdata Data for the initialization function
+     *                           may be NULL, but depends on the init_data_func.
+     *                           and it is probably only used when the desired size
+     *                           is larger than the current size.
      * @return SEE_SUCCESS when everything is alright, another value if not.
+     *         eg SEE_RUNTIME_ERROR if there is not enough available memory.
      * \private
      */
-    int        (*resize)(SeeDynamicArray* array, size_t count, void* initdata);
+    int        (*resize)(
+        SeeDynamicArray*    array,
+        size_t              count,
+        void*               initdata,
+        SeeError**          error
+        );
 
     /**
      * \brief allocate space for a number of elements.
-     * @param array [in,out] The new array to initialize.
-     * @param nelements      The number of elements to reserve room for.
      *
-     * @return
+     * Allocate new memory for a given number of elements. The array uses
+     * the size of the elemnts to calculate the number of byte to reserve
+     * memory for.
+     *
+     * @param [in,out]array  The array for which we would like to reserve capacity
+     * @param [in]nelements  The number of elements to reserve room for.
+     * @param [out]error     If an error occurs it will be returned here.
+     *
+     * @return SEE_SUCCESS, SEE_RUNTIME_ERROR
+     *
      * \private
      */
-    int        (*reserve)(SeeDynamicArray* array, size_t nelements);
+    int        (*reserve)(
+        SeeDynamicArray*    array,
+        size_t              nelements,
+        SeeError**          error
+        );
 
     /**
      * \brief tries to shrink the array when you think it reserves more
@@ -250,26 +271,32 @@ struct _SeeDynamicArrayClass {
      * @return SEE_SUCCESS when the operation was successful.
      * \private
      */
-    int        (*shrink_to_fit)(SeeDynamicArray* array);
+    int        (*shrink_to_fit)(SeeDynamicArray* array, SeeError** error);
 
     /**
      * \brief insert new elements into the array at the nth index.
-     * @param array
-     * @param pos
-     * @param elements
-     * @param n
-     * @return
+     * @param array The array in which we would like to insert the elements.
+     * @param pos The position at which to insert the new elements
+     * @param elements Pointer to the elements to insert.
+     * @param n Number of elements to insert.
+     * @param error An error might be returned here.
+     *
+     * @return SEE_SUCCESS, SEE_INDEX_ERROR, SEE_RUNTIME_ERROR
      * \private
      */
     int        (*insert)(
         SeeDynamicArray* array,
         size_t pos,
         const void* elements,
-        size_t n
+        size_t n,
+        SeeError** error
         );
 
     // private  use resize instead.
-    int        (*shrink)(SeeDynamicArray* array, size_t nelements);
+    int        (*shrink)(
+        SeeDynamicArray*    array,
+        size_t              nelements
+        );
 
     /**
      * \brief grows array to have n elements.
@@ -278,12 +305,13 @@ struct _SeeDynamicArrayClass {
      * @param array
      * @param num_elements
      * @param init_data
-     * @return
+     * @return SEE_SUCCESS, SEE_RUNTIME_ERROR
      */
     int        (*grow)(
-        SeeDynamicArray* array,
-        size_t num_elements,
-        void* init_data
+        SeeDynamicArray*    array,
+        size_t              num_elements,
+        void*               init_data,
+        SeeError**          error
         );
 };
 
@@ -341,6 +369,7 @@ struct _SeeDynamicArrayClass {
  *                       free function is specified (NULL), no function
  *                       will be called, otherwise this function will be used
  *                       to free the resources of such element.
+ * @param [out] error    If an error occurs it will be returned here.
  * @return SEE_SUCCESS if a new array is successfully created.
  */
 SEE_EXPORT int
@@ -349,7 +378,8 @@ see_dynamic_array_new(
     size_t          element_size,
     see_copy_func   copy_func,
     see_init_func   init_func,
-    see_free_func   free_func
+    see_free_func   free_func,
+    SeeError**      error
     );
 
 /**
@@ -360,8 +390,9 @@ see_dynamic_array_new(
  * @param [in]  copy_func       see doc for "see_dynamic_array_new()"
  * @param [in]  init_func       see doc for "see_dynamic_array_new()"
  * @param [in]  free_func       see doc for "see_dynamic_array_new()"
- * @param [in]  capacity    This capacity is used to preallocate the size
- *                          of the memory.
+ * @param [in]  capacity        This capacity is used to preallocate the size
+ *                              of the memory.
+ * @param [out] error           If an error occurs it will be returned here.
  * @return SEE_SUCCESS or another value indicating what went wrong.
  *         SEE_RUNTIME_ERROR when no mem is available.
  */
@@ -372,7 +403,8 @@ see_dynamic_array_new_capacity(
     see_copy_func       copy_func,
     see_init_func       init_func,
     see_free_func       free_func,
-    size_t              capacity
+    size_t              capacity,
+    SeeError**          error
     );
 
 /**
@@ -469,49 +501,61 @@ see_dynamic_array_set(
  * the array capacity back to the number of items the array is holding. releasing
  * superfluous memory.
  *
- * @param [in, out] array the array whose capacity we would like to alter.
- * @param [in]      n_elements
+ * @param [in, out] array       The array whose capacity we would like to alter.
+ * @param [in]      n_elements  Number of elements to reserve memory for.
+ * @param [out]     error       if an error occurs it will be returned here.
+ *
  * @return SEE_SUCCESS when the operation is successful or when the array
  *         already contained enough space, SEE_RUNTIME_ERROR when there is not
  *         enough space to allocate that many items or SEE_INVALID_ARGUMENT
  *         when array == NULL.
  */
 SEE_EXPORT int
-see_dynamic_array_reserve(SeeDynamicArray* array, size_t n_elements);
+see_dynamic_array_reserve(
+    SeeDynamicArray*    array,
+    size_t              n_elements,
+    SeeError**          error
+    );
 
 
 /**
  * \brief shrinks the capacity of the array to be equal to the size.
  *
- * @param array
+ * @param [in, out] array   The array to shrink.
+ * @param [out]     error   If an error occurs it will be returned here.
+ *
  * @return SEE_SUCCESS when successful.
  */
 SEE_EXPORT int
-see_dynamic_array_shrink_to_fit(SeeDynamicArray* array);
+see_dynamic_array_shrink_to_fit(SeeDynamicArray* array, SeeError** error);
 
 /**
  * \brief inserts n elements into the array at a given position.
  *
- * This function tries to instert n new items into the array. Therefore
+ * This function tries to insert n new items into the array. Therefore
  * the array makes sure that the capacity is large enough, and that the
  * final size of the array is the current size + the number of inserted
  * items.
  *
- * @param [in, out] array, the array into which we would like to insert some new
- *                  elements.
- * @param [in]      pos, the index at which we would like to insert the items.
- * @param [in]      elements a pointer to the elements that should be inserted
- *                  into the array.
- * @param [in]      n The number of itmes that should be inserted into the array.
+ * @param [in, out] array       the array into which we would like to insert
+ *                              some new elements.
+ * @param [in]      pos         The index at which we would like to insert the items.
+ * @param [in]      elements    a pointer to the elements that should be
+ *                              inserted into the array.
+ * @param [in]      n           The number of items that should be inserted into
+ *                              the array.
+ * @param [out]     error       If the insert isn't possible an error will be
+ *                              returned here.
  *
- * @return SEE_SUCCES if the function is successfull, another SEE value otherwise.
+ * @return SEE_SUCCESS if the function is successful, another SEE value otherwise.
  */
 SEE_EXPORT int
 see_dynamic_array_insert(
         SeeDynamicArray* array,
-        size_t pos,
-        const void* elements,
-        size_t n
+        size_t           pos,
+        const void*      elements,
+        size_t           n,
+        SeeError**       error
         );
 
 /**

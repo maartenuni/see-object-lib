@@ -18,6 +18,7 @@
 #include <assert.h>
 #include "test_macros.h"
 #include "../src/DynamicArray.h"
+#include "../src/IndexError.h"
 
 static const char* SUITE_NAME = "Dynamic array test";
 
@@ -50,7 +51,8 @@ static void array_create(void)
 {
     SeeDynamicArray* array = NULL;
     int ret;
-    ret = see_dynamic_array_new(&array, sizeof(int), NULL, NULL, NULL);
+    SeeError* error = NULL;
+    ret = see_dynamic_array_new(&array, sizeof(int), NULL, NULL, NULL, &error);
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
     if (ret)
         return;
@@ -68,7 +70,7 @@ static void array_create_capacity(void)
     SeeError* error = NULL;
     int ret;
     ret = see_dynamic_array_new_capacity(
-        &array, sizeof(int), NULL, NULL, NULL, desired_capacity
+        &array, sizeof(int), NULL, NULL, NULL, desired_capacity, &error
         );
 
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
@@ -110,7 +112,7 @@ static void array_add(void)
     SeeDynamicArray* array = NULL;
     SeeError*        error = NULL;
     int ret;
-    ret = see_dynamic_array_new(&array, sizeof(int), NULL, NULL, NULL);
+    ret = see_dynamic_array_new(&array, sizeof(int), NULL, NULL, NULL, &error);
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
     if (ret)
         return;
@@ -166,7 +168,7 @@ static void array_set(void)
     SeeError*        error = NULL;
     int ret;
 
-    ret = see_dynamic_array_new(&array, sizeof(int*), NULL, NULL, free);
+    ret = see_dynamic_array_new(&array, sizeof(int*), NULL, NULL, free, &error);
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
     if (ret)
         return;
@@ -218,13 +220,13 @@ static void array_capacity(void)
     SeeDynamicArray* array = NULL;
     SeeError*        error = NULL;
     int ret;
-    ret = see_dynamic_array_new(&array, sizeof(int), NULL, NULL, NULL);
+    ret = see_dynamic_array_new(&array, sizeof(int), NULL, NULL, NULL, &error);
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
     if (ret)
         return;
 
     CU_ASSERT_EQUAL(see_dynamic_array_capacity(array), 0);
-    see_dynamic_array_reserve(array, CAPACITY);
+    see_dynamic_array_reserve(array, CAPACITY, &error);
     for (size_t i = 0; i < SIZE; i++) {
         see_dynamic_array_add(array, &ret, &error);
         assert(error == NULL);
@@ -233,7 +235,7 @@ static void array_capacity(void)
     CU_ASSERT_EQUAL(see_dynamic_array_capacity(array), CAPACITY);
     CU_ASSERT_EQUAL(see_dynamic_array_size(array), SIZE);
 
-    see_dynamic_array_shrink_to_fit(array);
+    see_dynamic_array_shrink_to_fit(array, &error);
 
     CU_ASSERT_EQUAL(
         see_dynamic_array_size(array), see_dynamic_array_capacity(array)
@@ -258,22 +260,22 @@ static void array_insert(void)
     SeeDynamicArray *a0 = NULL, *a5 = NULL, *a2 = NULL;
     SeeError        *error = NULL;
 
-    ret = see_dynamic_array_new(&a0, sizeof(int), NULL, NULL, NULL);
+    ret = see_dynamic_array_new(&a0, sizeof(int), NULL, NULL, NULL, &error);
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
     if (ret != SEE_SUCCESS)
         return;
 
-    ret = see_dynamic_array_new(&a2, sizeof(int), NULL, NULL, NULL);
+    ret = see_dynamic_array_new(&a2, sizeof(int), NULL, NULL, NULL, &error);
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
     if (ret != SEE_SUCCESS)
         return;
 
-    ret = see_dynamic_array_new(&a5, sizeof(int), NULL, NULL, NULL);
+    ret = see_dynamic_array_new(&a5, sizeof(int), NULL, NULL, NULL, &error);
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
     if (ret != SEE_SUCCESS)
         return;
 
-    ret = see_dynamic_array_insert(a0, 0, input, N);
+    ret = see_dynamic_array_insert(a0, 0, input, N, &error);
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
     if (ret)
         return;
@@ -291,11 +293,15 @@ static void array_insert(void)
     CU_ASSERT_EQUAL(see_dynamic_array_capacity(a2), 8);
     CU_ASSERT_EQUAL(see_dynamic_array_capacity(a5), 8);
 
-    ret = see_dynamic_array_insert(a0, 0, input, N);
+    assert(error == NULL);
+    if (!error)
+        return;
+
+    ret = see_dynamic_array_insert(a0, 0, input, N, &error);
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
-    ret = see_dynamic_array_insert(a2, 2, input, N);
+    ret = see_dynamic_array_insert(a2, 2, input, N, &error);
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
-    ret = see_dynamic_array_insert(a5, 5, input, N);
+    ret = see_dynamic_array_insert(a5, 5, input, N, &error);
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
 
     int* out0 = see_dynamic_array_get(a0, 0, &error);
@@ -309,12 +315,55 @@ static void array_insert(void)
     see_object_decref(SEE_OBJECT(a0));
     see_object_decref(SEE_OBJECT(a2));
     see_object_decref(SEE_OBJECT(a5));
+    see_object_decref(SEE_OBJECT(error));
 }
 
 void array_exception(void)
 {
     SeeError* error = NULL;
-    int catch_some_exceptions;
+    SeeDynamicArray* array = NULL;
+    int ret = SEE_SUCCESS;
+    int* elements;
+    const char* msg1 = "IndexError: 0 is an invalid index";
+
+    const int SIZE = 10;
+
+    ret = see_dynamic_array_new(&array, sizeof(int), NULL, NULL, NULL, &error);
+    CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
+    if(ret != SEE_SUCCESS)
+        return;
+
+    elements = see_dynamic_array_get(array, 0, &error);
+    CU_ASSERT(elements == NULL);
+    CU_ASSERT(error    != NULL);
+    CU_ASSERT_EQUAL(
+        see_object_get_class(SEE_OBJECT(error)),
+        SEE_OBJECT_CLASS(see_index_error_class())
+        );
+    CU_ASSERT_STRING_EQUAL(see_error_msg(error), msg1);
+    see_object_decref(SEE_OBJECT(error));
+    error = NULL;
+
+    for (int i = 0; i < SIZE; i++) {
+        ret = see_dynamic_array_add(array, &i, &error);
+        if (ret) {
+            CU_ASSERT(ret == SEE_SUCCESS);
+            goto run_error;
+        }
+    }
+
+    elements = see_dynamic_array_get(array, SIZE, &error);
+    CU_ASSERT(elements == NULL);
+    CU_ASSERT(error    != NULL);
+    CU_ASSERT_EQUAL(
+        see_object_get_class(SEE_OBJECT(error)),
+        SEE_OBJECT_CLASS(see_index_error_class())
+    );
+
+run_error:
+
+    see_object_decref(SEE_OBJECT(error));
+    see_object_decref(SEE_OBJECT(array));
 }
 
 int add_dynamic_array_suite()
