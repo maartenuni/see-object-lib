@@ -21,6 +21,7 @@ set (SEE_OBJ_SRC
     Error.c
     IndexError.c
     MetaClass.c
+    RuntimeError.c
     SeeObject.c
     atomic_operations.c
     #priv/see_mutex.cpp
@@ -34,6 +35,7 @@ set (SEE_OBJ_HDR_PUBLIC
     IndexError.h
     see_init.h
     MetaClass.h
+    RuntimeError.h
     SeeObject.h
     atomic_operations.h
     ${CMAKE_CURRENT_BINARY_DIR}/see_export.h

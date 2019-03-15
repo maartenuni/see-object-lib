@@ -27,6 +27,7 @@
 #include "DynamicArray.h"
 #include "atomic_operations.h"
 #include "IndexError.h"
+#include "RuntimeError.h"
 
 int g_init_count = 0;
 int g_is_init = 0;
@@ -53,6 +54,10 @@ initialize() {
     if (ret)
         return ret;
 
+    ret = see_runtime_error_init();
+    if (ret)
+        return ret;
+
     g_is_init = 1;
 
     return ret;
@@ -64,6 +69,7 @@ deinit()
     see_dynamic_array_deinit();
     see_error_deinit();
     see_index_error_deinit();
+    see_runtime_error_deinit();
 
     see_meta_class_deinit();
 

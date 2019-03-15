@@ -21,6 +21,7 @@ project (SeeObject
         )
 
 include (CheckIncludeFiles)
+include (CheckFunctionExists)
 include (GenerateExportHeader)
 include (InstallRequiredSystemLibraries)
 include (GNUInstallDirs)
@@ -30,6 +31,9 @@ check_include_files(stdio.h     HAVE_STDIO_H)
 check_include_files(stdlib.h    HAVE_STDLIB_H)
 check_include_files(string.h    HAVE_STRING_H)
 check_include_files(sys/stat.h  HAVE_SYS_STAT_H)
+
+check_function_exists(strerror_s HAVE_STRERROR_S)
+check_function_exists(strerror_r HAVE_STRERROR_R)
 
 set (CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
 set (CPACK_PACKAGE_VERSION_MAJOR "${SEE_OBJECT_VERSION_MAJOR}")

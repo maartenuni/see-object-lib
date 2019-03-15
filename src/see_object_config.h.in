@@ -1,10 +1,36 @@
+/*
+ * This file is part of see-object.
+ *
+ * see-object is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * see-object is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with see-object.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 
 #define SEE_OBJECT_VERSION_MAJOR @SEE_OBJECT_VERSION_MAJOR@
 #define SEE_OBJECT_VERSION_MINOR @SEE_OBJECT_VERSION_MINOR@
 #define SEE_OBJECT_VERSION_MICRO @SEE_OBJECT_VERSION_MICRO@
 #define SEE_OBJECT_VERSION_STRING "@SEE_OBJECT_VERSION_STRING@"
 
+// Check whether these headers have been found
+
 #cmakedefine HAVE_STDIO_H       1
 #cmakedefine HAVE_STDLIB_H      1
 #cmakedefine HAVE_STRING_H      1
 #cmakedefine HAVE_SYS_STAT_H    1
+
+
+// Check whether it is possible to link against these functions
+
+#cmakedefine HAVE_STRERROR_S    1
+#cmakedefine HAVE_STRERROR_R    1
+

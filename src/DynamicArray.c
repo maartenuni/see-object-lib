@@ -24,11 +24,13 @@
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <errno.h>
 
 #include "MetaClass.h"
 #include "DynamicArray.h"
 #include "IndexError.h"
 #include "see_functions.h"
+#include "RuntimeError.h"
 
 /* **** some private helper macro's **** */
 
@@ -158,7 +160,7 @@ array_reserve(
     size_t num_bytes = ARRAY_NUM_BYTES(array, n_elements);
     char* new_mem = realloc(array->elements, num_bytes);
     if (new_mem == NULL) {
-        int see_runtime_error_create;
+        see_runtime_error_create(error, errno);
         return SEE_ERROR_RUNTIME;
     }
 
@@ -177,7 +179,7 @@ array_shrink_to_fit(SeeDynamicArray* array, SeeError** error)
     size_t n_bytes = ARRAY_NUM_BYTES(array, array->size);
     char* new_mem = realloc(array->elements, n_bytes);
     if (new_mem == NULL) {
-        int generate_runtime_error;
+        see_runtime_error_create(error, errno);
         return SEE_ERROR_RUNTIME;
     }
 

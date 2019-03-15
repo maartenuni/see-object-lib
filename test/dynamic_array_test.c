@@ -16,9 +16,11 @@
  */
 
 #include <assert.h>
+#include <stdint.h>
 #include "test_macros.h"
 #include "../src/DynamicArray.h"
 #include "../src/IndexError.h"
+#include "../src/RuntimeError.h"
 
 static const char* SUITE_NAME = "Dynamic array test";
 
@@ -341,6 +343,7 @@ void array_exception(void)
         SEE_OBJECT_CLASS(see_index_error_class())
         );
     CU_ASSERT_STRING_EQUAL(see_error_msg(error), msg1);
+    // Clear the error.
     see_object_decref(SEE_OBJECT(error));
     error = NULL;
 
@@ -359,6 +362,23 @@ void array_exception(void)
         see_object_get_class(SEE_OBJECT(error)),
         SEE_OBJECT_CLASS(see_index_error_class())
     );
+
+    // Clear the error.
+    see_object_decref(SEE_OBJECT(error));
+    error = NULL;
+
+    // I would expect that allocating SIZE_MAX would result in a memory
+    // allocation error straight away.
+
+    ret = see_dynamic_array_reserve(array, SIZE_MAX, &error);
+    CU_ASSERT_EQUAL(ret, SEE_ERROR_RUNTIME);
+    CU_ASSERT_EQUAL(
+        SEE_ERROR_GET_CLASS(error),
+        SEE_ERROR_CLASS(see_runtime_error_class())
+        );
+    const char* msg = see_error_msg(error);
+    CU_ASSERT_STRING_EQUAL(msg, strerror(ENOMEM));
+
 
 run_error:
 
