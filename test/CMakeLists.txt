@@ -57,7 +57,7 @@ if (BUILD_UNIT_TESTS)
             ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
             LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
             RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
-            C_STANDARD 99
+            C_STANDARD 11
         )
     # Add compiler warnings
     if (NOT MSVC)
