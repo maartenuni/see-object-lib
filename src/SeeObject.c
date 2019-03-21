@@ -36,9 +36,22 @@
 /* **** implementation of SeeObjects **** */
 
 static int
-object_representation(const SeeObject* obj, char* out, size_t size)
+object_representation(const SeeObject* obj, char** out)
 {
-    return snprintf(out, size, "See object at %p", (void*) obj);
+	const SeeObjectClass* cls = SEE_OBJECT_GET_CLASS(obj);
+	char* str;
+	const char* format = "Instance of %s at %p";
+	int size = snprintf(NULL, 0, format, cls->name, obj);
+
+	str = malloc(size + 1);
+	if (!str)
+		return SEE_ERROR_RUNTIME;
+
+	sprintf(str, format, cls->name, obj);
+
+	*out = str;
+
+	return SEE_SUCCESS;
 }
 
 static void
@@ -125,13 +138,14 @@ static void object_destroy(SeeObject* obj)
 /* **** Initialization of the SeeObjectClass **** */
 
 static const SeeObjectClass g_class = {
-    .obj        = {
-        .cls        = &g_class,
-        .refcount   = 1
-    },
-    .psuper     = NULL,
-    .inst_size  = sizeof(SeeObject),
-    .new_obj    = object_new,
+	.obj = {
+		.cls		= &g_class,
+		.refcount	=	1
+	},
+	.psuper		= NULL,
+	.name		= "SeeObject",
+	.new_obj	= object_new,
+	.inst_size  = sizeof(SeeObject),
     .object_init= object_object_init,
     .init       = object_init,
     .destroy    = object_destroy,
@@ -175,10 +189,15 @@ SeeObject* see_object_create()
     return obj;
 }
 
-int see_object_repr(const SeeObject* obj, char* out, size_t size)
+int see_object_repr(const SeeObject* obj, char** out)
 {
     const SeeObjectClass* cls = SEE_OBJECT_GET_CLASS(obj);
-    return cls->repr(obj, out, size);
+	if (!obj)
+		return SEE_INVALID_ARGUMENT;
+	if (!out || *out)
+		return SEE_INVALID_ARGUMENT;
+
+    return cls->repr(obj, out);
 }
 
 const SeeObjectClass*

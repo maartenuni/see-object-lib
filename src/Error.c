@@ -163,6 +163,7 @@ see_error_class_init(SeeObjectClass* new_cls)
     int ret = SEE_SUCCESS;
     
     /* Override the functions on the parent here */
+	new_cls->name		= "SeeError";
     new_cls->init       = init;
     new_cls->destroy    = error_destroy;
     

@@ -94,6 +94,7 @@ static int see_index_error_class_init(SeeObjectClass* new_cls)
     int ret = SEE_SUCCESS;
     
     /* Override the functions on the parent here */
+	new_cls->name = "SeeIndexError";
     new_cls->init = init;
     
     /* Set the function pointers of the own class here */

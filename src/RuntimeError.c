@@ -101,6 +101,7 @@ static int see_runtime_error_class_init(SeeObjectClass* new_cls)
     int ret = SEE_SUCCESS;
     
     /* Override the functions on the parent here */
+	new_cls->name = "SeeRuntimeError";
     new_cls->init = init;
     
     /* Set the function pointers of the own class here */
