@@ -31,10 +31,10 @@ struct _SeeCustomRepr {
 
 typedef void(*set_repr_func)(SeeCustomRepr* obj, const char* repr);
 
-typedef struct _SeeCustomReprClass {
+struct _SeeCustomReprClass {
     SeeObjectClass  parent;
     set_repr_func   set_repr;
-}SeeCustomReprClass;
+};
 
 SeeCustomReprClass* g_custom_class_instance = NULL;
 

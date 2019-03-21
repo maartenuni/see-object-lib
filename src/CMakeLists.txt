@@ -58,7 +58,7 @@ add_library(${SEE_OJB_LIB}::${SEE_OBJ_LIB} ALIAS ${SEE_OBJ_LIB})
 generate_export_header(${SEE_OBJ_LIB} BASE_NAME SEE)
 
 #enable compiling with C99 standard
-set_property(TARGET ${SEE_OBJ_LIB} PROPERTY C_STANDARD 99)
+set_property(TARGET ${SEE_OBJ_LIB} PROPERTY C_STANDARD 11)
 set_property(TARGET ${SEE_OBJ_LIB} PROPERTY CXX_STANDARD 11)
 
 set_property(TARGET ${SEE_OBJ_LIB} PROPERTY C_STANDARD_REQUIRED ON)

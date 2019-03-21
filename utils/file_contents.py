@@ -151,7 +151,7 @@ static int
     )
 {{
     int ret = SEE_SUCCESS;
-    const {ParentCamelCaseName}Class* parent_cls = {PARENT_CLASS_NAME_CAPS}_CLASS(
+    const {ParentCamelCaseName}Class* parent_cls = {PARENT_CLASS_NAME_CAPS}_GET_CLASS(
         {object_name}
         );
         
@@ -250,7 +250,7 @@ void
 }}
 
 const {CamelCaseName}Class*
-{fuction_name}_class()
+{function_name}_class()
 {{
     return g_{CamelCaseName}Class;
 }}
