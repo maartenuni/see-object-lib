@@ -38,10 +38,18 @@ struct _SeeCustomReprClass {
 
 SeeCustomReprClass* g_custom_class_instance = NULL;
 
-static int custom_repr(const SeeObject* obj, char* out, size_t size)
+static int custom_repr(const SeeObject* obj, char** out)
 {
-    SeeCustomRepr* r = (SeeCustomRepr*) obj;
-    return snprintf(out, size, "%s", r->repr);
+    char *ret;
+    const char* format = "Custom Wrapper message = %s";
+    struct _SeeCustomRepr* custom = (struct _SeeCustomRepr*) obj;
+
+    int size = snprintf(NULL, 0, format, custom->repr);
+    ret = malloc(size + 1);
+
+    sprintf(ret, format, custom->repr);
+    *out = ret;
+    return SEE_SUCCESS;
 }
 
 static void
@@ -54,6 +62,7 @@ static int post_init_class(SeeObjectClass* cls)
 {
     // overwrite repr of SeeObjectClass
     cls->repr = custom_repr;
+    cls->name = "TestCustomRepr";
 
     // Initialize our own derivable function.
     SeeCustomReprClass* custom_cls = (SeeCustomReprClass*) cls;
@@ -94,10 +103,11 @@ static void meta_create(void)
 static void meta_use(void)
 {
     SeeCustomRepr* obj = NULL;
-    char buffer[BUFSIZ];
+    char* ret_msg = NULL;
     int ret;
     const char* msg = "Hi from a custom class instance.";
-
+    const char* expected_out =
+        "Custom Wrapper message = Hi from a custom class instance.";
     ret = see_object_new(
         (SeeObjectClass*)g_custom_class_instance,
         (SeeObject**) &obj
@@ -109,10 +119,10 @@ static void meta_use(void)
 
     // Does the instance do what we think it does.
     g_custom_class_instance->set_repr(obj, msg);
-    ret = g_custom_class_instance->parent.repr((SeeObject*) obj, buffer, BUFSIZ);
+    ret = g_custom_class_instance->parent.repr((SeeObject*) obj, &ret_msg);
 
-    CU_ASSERT_EQUAL((size_t) ret, strlen(msg));
-    CU_ASSERT_STRING_EQUAL(msg, buffer);
+    CU_ASSERT_STRING_EQUAL(expected_out, ret_msg);
+    free(ret_msg);
     see_object_decref((SeeObject*) obj);
 }
 
