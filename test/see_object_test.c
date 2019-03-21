@@ -17,6 +17,7 @@
 
 #include <stdio.h>
 #include <CUnit/CUnit.h>
+#include <assert.h>
 
 #include "../src/SeeObject.h"
 
@@ -34,12 +35,21 @@ static void repr(void)
 {
     SeeObject* obj = NULL;
     obj = see_object_create();
-    char bufcmp[BUFSIZ] = {0};
+	const char* expected = "Instance of SeeObject at %p";
     char buffer[BUFSIZ] = {0};
-    snprintf(bufcmp, BUFSIZ, "See object at %p", (void*) obj);
-    int n = see_object_repr(obj, buffer, BUFSIZ);
-    CU_ASSERT_STRING_EQUAL(bufcmp, buffer);
-    CU_ASSERT_EQUAL(n, (int)strlen(bufcmp));
+	char* repr = NULL;
+
+	snprintf(buffer, BUFSIZ, expected, obj);
+    int n = see_object_repr(obj, &repr);
+
+	CU_ASSERT_EQUAL(n, SEE_SUCCESS);
+	if (n != SEE_SUCCESS) {
+		assert(repr == NULL);
+		return;
+	}
+	
+    CU_ASSERT_STRING_EQUAL(repr, buffer);
+	free(repr);
     see_object_decref(obj);
 }
 

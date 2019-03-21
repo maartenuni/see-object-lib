@@ -533,6 +533,7 @@ static int see_dynamic_array_class_init(SeeObjectClass* new_cls) {
     int ret = SEE_SUCCESS;
     
     /* Override the functions on the parent here */
+	new_cls->name	= "SeeDynamicArray";
     new_cls->init   = init;
     new_cls->destroy= dynamic_array_destroy;
     /* Set the function pointers of the own class here */

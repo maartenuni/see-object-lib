@@ -187,6 +187,7 @@ int see_meta_class_init()
 
     // The macro cast provides a const pointer while we want to modify the class.
     SeeObjectClass* see_obj_cls = (SeeObjectClass*)g_see_meta_class_instance;
+	see_obj_cls->name	= "SeeMetaClass";
     see_obj_cls->new_obj= new_cls;
     see_obj_cls->init   = meta_init;
     see_obj_cls->psuper = see_object_class();

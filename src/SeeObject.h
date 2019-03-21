@@ -183,6 +183,14 @@ struct _SeeObjectClass {
      */
     const SeeObjectClass *psuper;
 
+	/**
+	 * @brief Every Class should have a descriptive name.
+	 *
+	 * This name can help to identify which class it is and can sometimes be used in
+	 * other function where the name of a class is handy.
+	 */
+	const char* name;
+
     /**\brief The size of an instance of this class.*/
     size_t inst_size;
 
@@ -238,8 +246,17 @@ struct _SeeObjectClass {
     /**\brief  A function that destroys and frees instance */
     void (*destroy)(SeeObject* obj);
 
-    /**\brief  representation of an object.*/
-    int (*repr)(const SeeObject* obj, char* out, size_t size);
+    /**
+	 * \brief  representation of an object.
+	 * 
+	 * This returns a short representation of a class, the string should be 
+	 * freed after use.
+	 *
+	 * @param obj The object whose representation we would like to know.
+	 * @param [out] out Out should not be NULL, whereas *out should be NULL.
+	 * @return SEE_SUCCESS
+	 */
+    int (*repr)(const SeeObject* obj, char** out);
 
     /**\brief Reference increment function.*/
     void* (*incref)(SeeObject* obj);
@@ -341,8 +358,16 @@ SEE_EXPORT void see_object_decref(SeeObject* obj);
 
 /**
  * \brief Obtain A short standard representation of an object.
+ *
+ * This function returns a short representation of the object.
+ * The string at out should be freed after use.
+ *
+ * @param[in] obj the object one wants to know about.
+ * @param[out] out The representation will be returned here.
+ *
+ * Returns SEE_SUCCESS or SEE_RUNTIME_ERROR
  */
-SEE_EXPORT int see_object_repr(const SeeObject* obj, char* out, size_t size);
+SEE_EXPORT int see_object_repr(const SeeObject* obj, char** out);
 
 /* **** class management **** */
 
