@@ -82,18 +82,28 @@ error_msg(const SeeError* error)
 static void
 error_set_msg(SeeError* error, const char* msg)
 {
+	const char* format = "%s: %s";
+	const SeeObjectClass* cls = SEE_OBJECT_GET_CLASS(error);
+
     assert(error);
     assert(msg);
-    if (error->msg) {
-        free(error->msg);
-        error->msg = NULL;
+
+	int size = snprintf(NULL, 0, format, cls->name, msg);
+	char* new_msg = malloc(size + 1);
+    if (!new_msg) {
+        fprintf(
+            stderr,
+            "Panic: unable to allocate memory to handle error.\n"
+        );
+        return;
     }
 
-    error->msg = strdup(msg);
-    if (!error->msg) {
-        assert(error->msg);
-        fprintf(stderr, "Panic: unable to allocate memory to handle error.\n");
-    }
+	sprintf(new_msg, format, cls->name, msg);
+	
+	if (error->msg)
+        free(error->msg);
+
+	error->msg = new_msg;
 }
 
 /* **** implementation of the public API **** */

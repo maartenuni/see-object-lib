@@ -35,7 +35,7 @@ index_error_init(
         );
 
     char temp_buf[128];
-    snprintf(temp_buf, sizeof(temp_buf), "Invalid index \"%zu\"", index);
+    snprintf(temp_buf, sizeof(temp_buf), "%zu", index);
         
     /* Because every class has its own members to initialize, you have
      * to check how your parent is initialized and pass through all relevant

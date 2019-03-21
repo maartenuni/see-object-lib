@@ -33,7 +33,7 @@ static void error_create(void)
         return;
     }
 
-    CU_ASSERT_STRING_EQUAL("No error", see_error_msg(error));
+    CU_ASSERT_STRING_EQUAL("SeeError: No error", see_error_msg(error));
     see_object_decref(SEE_OBJECT(error));
 }
 
@@ -43,6 +43,7 @@ static void error_create_msg(void)
     int ret;
     SeeError* error = NULL;
     const char* msg = "Hello, I'm an error!";
+    const char* msg_expected = "SeeError: Hello, I'm an error!";
 
     ret = see_error_new_msg(&error, msg);
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
@@ -51,7 +52,7 @@ static void error_create_msg(void)
         return;
     }
 
-    CU_ASSERT_STRING_EQUAL(msg, see_error_msg(error));
+    CU_ASSERT_STRING_EQUAL(msg_expected, see_error_msg(error));
     see_object_decref(SEE_OBJECT(error));
 }
 
@@ -60,6 +61,7 @@ static void error_set_msg(void)
 {
     int ret;
     const char* msg = "Hello, World!";
+    const char* msg_expected = "SeeError: Hello, World!";
     SeeError* error = NULL;
 
     ret = see_error_new(&error);
@@ -67,7 +69,7 @@ static void error_set_msg(void)
         return;
 
     see_error_set_msg(error, msg);
-    CU_ASSERT_STRING_EQUAL(msg, see_error_msg(error));
+    CU_ASSERT_STRING_EQUAL(msg_expected, see_error_msg(error));
     see_object_decref(SEE_OBJECT(error));
 }
 

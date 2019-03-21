@@ -326,7 +326,8 @@ void array_exception(void)
     SeeDynamicArray* array = NULL;
     int ret = SEE_SUCCESS;
     int* elements;
-    const char* msg1 = "IndexError: 0 is an invalid index";
+    const char* msg1 = "SeeIndexError: 0";
+	const char* result = NULL;
 
     const int SIZE = 10;
 
@@ -342,7 +343,8 @@ void array_exception(void)
         see_object_get_class(SEE_OBJECT(error)),
         SEE_OBJECT_CLASS(see_index_error_class())
         );
-    CU_ASSERT_STRING_EQUAL(see_error_msg(error), msg1);
+	result = see_error_msg(error);
+    CU_ASSERT_STRING_EQUAL(result, msg1);
     // Clear the error.
     see_object_decref(SEE_OBJECT(error));
     error = NULL;
@@ -376,8 +378,10 @@ void array_exception(void)
         SEE_ERROR_GET_CLASS(error),
         SEE_ERROR_CLASS(see_runtime_error_class())
         );
+    char strerrorbuf[BUFSIZ];
+    snprintf(strerrorbuf, BUFSIZ, "SeeRuntimeError: %s", strerror(ENOMEM));
     const char* msg = see_error_msg(error);
-    CU_ASSERT_STRING_EQUAL(msg, strerror(ENOMEM));
+    CU_ASSERT_STRING_EQUAL(msg, strerrorbuf);
 
 
 run_error:
