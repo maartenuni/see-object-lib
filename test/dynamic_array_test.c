@@ -295,9 +295,9 @@ static void array_insert(void)
     CU_ASSERT_EQUAL(see_dynamic_array_capacity(a2), 8);
     CU_ASSERT_EQUAL(see_dynamic_array_capacity(a5), 8);
 
-    assert(error == NULL);
-    if (!error)
-        return;
+    CU_ASSERT(error == NULL);
+    if (error)
+        goto cleanup;
 
     ret = see_dynamic_array_insert(a0, 0, input, N, &error);
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
@@ -313,6 +313,8 @@ static void array_insert(void)
     CU_ASSERT(two_int_arrays_equal(output0, out0, N*2));
     CU_ASSERT(two_int_arrays_equal(output2, out2, N*2));
     CU_ASSERT(two_int_arrays_equal(output5, out5, N*2));
+
+cleanup:
 
     see_object_decref(SEE_OBJECT(a0));
     see_object_decref(SEE_OBJECT(a2));
