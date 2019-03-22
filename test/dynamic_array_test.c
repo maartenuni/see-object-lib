@@ -371,15 +371,23 @@ void array_exception(void)
     see_object_decref(SEE_OBJECT(error));
     error = NULL;
 
-    // I would expect that allocating SIZE_MAX would result in a memory
-    // allocation error straight away.
+    // I would expect that allocating SIZE_MAX/2 would result in a memory
+    // allocation error straight away. The devide by to is to clear the top
+    // most bit, because otherwise valgrid thinks the sign bit is set.
+    size_t bits = sizeof(size_t) * 8;
+    size_t one = 1;
+    bits = (one << (bits - 10)) - 1;
 
-    ret = see_dynamic_array_reserve(array, SIZE_MAX, &error);
+    ret = see_dynamic_array_reserve(array, bits, &error);
     CU_ASSERT_EQUAL(ret, SEE_ERROR_RUNTIME);
     CU_ASSERT_EQUAL(
         SEE_ERROR_GET_CLASS(error),
         SEE_ERROR_CLASS(see_runtime_error_class())
         );
+    CU_ASSERT_PTR_NOT_EQUAL(error, NULL);
+    if (!error)
+        goto run_error;
+
     char strerrorbuf[BUFSIZ];
     snprintf(strerrorbuf, BUFSIZ, "SeeRuntimeError: %s", strerror(ENOMEM));
     const char* msg = see_error_msg(error);
