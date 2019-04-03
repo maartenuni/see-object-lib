@@ -8,10 +8,15 @@ if (BUILD_UNIT_TESTS)
     #find_package(${SEE_OBJ_LIB})
     #option(CUnit_DIR CACHE PATH)
     #find_package(CUnit)
-    find_library(LIB_CUINIT cunit)
+    set(CUNIT_HINT_PREFIX "C:/Program Files (x86)/CUnit")
+    find_library(LIB_CUINIT cunit
+        HINTS "${CUNIT_HINT_PREFIX}/Lib/Release-Win32"
+        )
     #Find the headers on windows
     if (MSVC)
-        find_path(HEADER_DIR_CUNIT CUnit/CUnit.h)
+        find_path(HEADER_DIR_CUNIT CUnit/CUnit.h
+            HINTS "${CUNIT_HINT_PREFIX}/Include"
+            )
     endif()
         
 
