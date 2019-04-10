@@ -20,7 +20,7 @@
 #include "Clock.h"
 #include "TimePoint.h"
 #include "Duration.h"
-#include "cpp/clock.hpp"
+#include "cpp/Clock.hpp"
 #include <new>
 
 
