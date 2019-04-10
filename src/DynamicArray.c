@@ -157,9 +157,20 @@ array_reserve(
     if (n_elements <= array->capacity)
         return SEE_SUCCESS;
 
+    size_t a = n_elements, b = array->element_size;
+    size_t x = a * b;
+
+    if (a != 0 && x / a != b) {
+        errno = EOVERFLOW;
+        see_runtime_error_create(error, errno);
+        return SEE_ERROR_RUNTIME;
+    }
+
     size_t num_bytes = ARRAY_NUM_BYTES(array, n_elements);
+
     char* new_mem = realloc(array->elements, num_bytes);
-    if (new_mem == NULL) {
+
+    if (new_mem == NULL && num_bytes != 0) {
         see_runtime_error_create(error, errno);
         return SEE_ERROR_RUNTIME;
     }
