@@ -267,7 +267,9 @@ void time_comparison(void)
     CU_ASSERT_TRUE(result_true);
     CU_ASSERT_FALSE(result_false);
     ret = see_time_point_lte(t2, te, &result_true);
+    UNIT_HANDLE_ERROR();
     ret = see_time_point_lte(t3, t2, &result_false);
+    UNIT_HANDLE_ERROR();
     CU_ASSERT_NOT_EQUAL(result_true, 0);
     CU_ASSERT_EQUAL(result_false, 0);
 
@@ -285,7 +287,9 @@ void time_comparison(void)
     CU_ASSERT_TRUE(result_true);
     CU_ASSERT_FALSE(result_false);
     ret = see_time_point_gte(t2, te, &result_true);
+    UNIT_HANDLE_ERROR();
     ret = see_time_point_gte(t1, t3, &result_false);
+    UNIT_HANDLE_ERROR();
     CU_ASSERT_NOT_EQUAL(result_true, 0);
     CU_ASSERT_EQUAL(result_false, 0);
 
@@ -312,7 +316,9 @@ void time_comparison(void)
     CU_ASSERT_TRUE(result_true);
     CU_ASSERT_FALSE(result_false);
     ret = see_duration_lte(d2, de, &result_true);
+    UNIT_HANDLE_ERROR();
     ret = see_duration_lte(d3, d2, &result_false);
+    UNIT_HANDLE_ERROR();
     CU_ASSERT_NOT_EQUAL(result_true, 0);
     CU_ASSERT_EQUAL(result_false, 0);
 
@@ -330,7 +336,9 @@ void time_comparison(void)
     CU_ASSERT_TRUE(result_true);
     CU_ASSERT_FALSE(result_false);
     ret = see_duration_gte(d2, de, &result_true);
+    UNIT_HANDLE_ERROR();
     ret = see_duration_gte(d1, d3, &result_false);
+    UNIT_HANDLE_ERROR();
     CU_ASSERT_NOT_EQUAL(result_true, 0);
     CU_ASSERT_EQUAL(result_false, 0);
 
@@ -429,3 +437,4 @@ int add_time_suite()
 
     return 0;
 }
+
