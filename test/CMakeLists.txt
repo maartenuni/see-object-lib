@@ -27,6 +27,7 @@ if (BUILD_UNIT_TESTS)
         error_test.c
         meta_test.c
         see_object_test.c
+        time_test.c
         )
     set(UNIT_TEST_HEADERS suites.h test_macros.h)
 

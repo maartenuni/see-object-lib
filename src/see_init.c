@@ -23,11 +23,14 @@
 
 #include "MetaClass.h"
 #include "see_init.h"
-#include "Error.h"
+#include "Clock.h"
+#include "Duration.h"
 #include "DynamicArray.h"
+#include "Error.h"
 #include "atomic_operations.h"
 #include "IndexError.h"
 #include "RuntimeError.h"
+#include "TimePoint.h"
 
 int g_init_count = 0;
 int g_is_init = 0;
@@ -41,6 +44,13 @@ initialize() {
         return ret;
 
     // Initialize the other objects.
+    ret = see_clock_init();
+    if (ret)
+        return ret;
+
+    ret = see_duration_init();
+    if (ret)
+        return ret;
 
     ret = see_dynamic_array_init();
     if (ret)
@@ -58,6 +68,10 @@ initialize() {
     if (ret)
         return ret;
 
+    ret = see_time_point_init();
+    if (ret)
+        return ret;
+
     g_is_init = 1;
 
     return ret;
@@ -66,10 +80,13 @@ initialize() {
 static void
 deinit()
 {
+    see_clock_deinit();
+    see_duration_deinit();
     see_dynamic_array_deinit();
     see_error_deinit();
     see_index_error_deinit();
     see_runtime_error_deinit();
+    see_time_point_deinit();
 
     see_meta_class_deinit();
 

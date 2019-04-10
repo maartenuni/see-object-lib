@@ -40,6 +40,8 @@ int add_suites()
     res = add_error_suite();
     if (res)
         return res;
+
+    res = add_time_suite();
     
     return res;
 }
