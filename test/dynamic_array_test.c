@@ -372,8 +372,8 @@ void array_exception(void)
     error = NULL;
 
     // I would expect that allocating SIZE_MAX/2 would result in a memory
-    // allocation error straight away. The devide by to is to clear the top
-    // most bit, because otherwise valgrid thinks the sign bit is set.
+    // allocation error straight away. The divide by to is to clear the top
+    // most bit, because otherwise valgrind thinks the sign bit is set.
     size_t bits = sizeof(size_t) * 8;
     size_t one = 1;
     bits = (one << (bits - 10)) - 1;
