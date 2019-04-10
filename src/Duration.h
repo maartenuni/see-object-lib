@@ -83,25 +83,124 @@ struct _SeeDurationClass {
 
 /* **** public functions **** */
 
-int
+SEE_EXPORT int
 see_duration_new(SeeDuration** out, SeeError** error_out);
 
-int
+SEE_EXPORT int
+see_duration_new_s(SeeDuration** out, int64_t s, SeeError** error_out);
+
+SEE_EXPORT int
 see_duration_new_ms(SeeDuration** out, int64_t ms, SeeError** error_out);
 
-int
+SEE_EXPORT int
 see_duration_new_us(SeeDuration** out, int64_t us, SeeError** error_out);
 
-int
+SEE_EXPORT int
 see_duration_new_ns(SeeDuration** out, int64_t ns, SeeError** error_out);
 
+SEE_EXPORT int
+see_duration_set(
+    SeeDuration* self,
+    SeeDuration* other,
+    SeeError** error_out
+    );
 
-double see_duration_seconds_f(const SeeDuration* self);
+SEE_EXPORT int
+see_duration_add(
+    const SeeDuration*  self,
+    const SeeDuration*  other,
+    SeeDuration**       result,
+    SeeError**          error_out
+    );
 
-int64_t see_duration_seconds(const SeeDuration* self);
-int64_t see_duration_millis(const SeeDuration* self);
-int64_t see_duration_micros(const SeeDuration* self);
-int64_t see_duration_nanos(const SeeDuration* self);
+SEE_EXPORT int
+see_duration_sub(
+    const SeeDuration*  self,
+    const SeeDuration*  other,
+    SeeDuration**       result,
+    SeeError**          error_out
+    );
+
+/**
+* @brief evaluates self < rhs
+*
+* @param[out] result non zero value when self smaller then rhs.
+* @return SEE_SUCCESS or SEE_INVALID_ARGUMENT
+*/
+SEE_EXPORT int
+see_duration_lt(
+    const SeeDuration* self,
+    const SeeDuration* rhs,
+    int* result
+    );
+
+/**
+* @brief evaluates self <= rhs
+*
+* @param [out] result non zero value when self <= rhs.
+* @return SEE_SUCCESS or SEE_INVALID_ARGUMENT
+*/
+SEE_EXPORT int
+see_duration_lte(
+    const SeeDuration* self,
+    const SeeDuration* rhs,
+    int* result
+    );
+
+/**
+* @brief evaluates self == rhs
+*
+* @return non zero value when self == rhs.
+* @result SEE_SUCCESS or SEE_INVALID_ARGUMENT
+*/
+SEE_EXPORT int
+see_duration_eq(
+    const SeeDuration* self,
+    const SeeDuration* rhs,
+    int* result
+    );
+
+/**
+ * @brief evaluates self >= rhs
+ *
+ * @return non zero value when self >= rhs.
+ * @return SEE_SUCCESS or SEE_INVALID_ARGUMENT
+ */
+SEE_EXPORT int
+see_duration_gte(
+    const SeeDuration* self,
+    const SeeDuration* rhs,
+    int* result
+    );
+
+/**
+ * @brief evaluates self > rhs
+ *
+ * @param result non zero value when self > rhs.
+ * @return SEE_SUCCESS or SEE_INVALID_ARGUMENT
+ */
+SEE_EXPORT int
+see_duration_gt(
+    const SeeDuration* self,
+    const SeeDuration* rhs,
+    int* result
+    );
+
+
+SEE_EXPORT double
+see_duration_seconds_f(const SeeDuration* self);
+
+SEE_EXPORT int64_t
+see_duration_seconds(const SeeDuration* self);
+
+SEE_EXPORT int64_t
+see_duration_millis(const SeeDuration* self);
+
+SEE_EXPORT int64_t
+see_duration_micros(const SeeDuration* self);
+
+SEE_EXPORT int64_t
+see_duration_nanos(const SeeDuration* self);
 
 
 /**

@@ -42,6 +42,57 @@ public:
     {
     }
 
+    /* Arithmetic operator overloading */
+
+    Duration operator + (const Duration& other) const
+    {
+        return this->m_dur + other.m_dur;
+    }
+
+    Duration& operator += (const Duration& other)
+    {
+        this->m_dur += other.m_dur;
+        return *this;
+    }
+
+    Duration operator-(const Duration& other) const
+    {
+        return this->m_dur - other.m_dur;
+    }
+
+    Duration& operator-=(const Duration& other)
+    {
+        this->m_dur -= other.m_dur;
+        return *this;
+    }
+
+    /* comparison operator overloading */
+
+    bool operator < (const Duration& other) const
+    {
+        return this->m_dur < other.m_dur;
+    }
+
+    bool operator <= (const Duration& other) const
+    {
+        return this->m_dur <= other.m_dur;
+    }
+
+    bool operator ==(const Duration& other) const
+    {
+        return this->m_dur == other.m_dur;
+    }
+
+    bool operator >= (const Duration& other) const
+    {
+        return this->m_dur >= other.m_dur;
+    }
+
+    bool operator > (const Duration& other) const
+    {
+        return this->m_dur > other.m_dur;
+    }
+
     double seconds_f() const
     {
         std::chrono::duration<double> res = m_dur;

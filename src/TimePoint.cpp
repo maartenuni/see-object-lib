@@ -161,6 +161,25 @@ int see_time_point_new(SeeTimePoint** out, SeeError** error_out)
     return cls->new_obj(cls, 0, SEE_OBJECT_REF(out), error_out);
 }
 
+int see_time_point_set(
+    SeeTimePoint*       self,
+    const SeeTimePoint* other,
+    SeeError**          out
+    )
+{
+    TimePoint* tself = static_cast<TimePoint*>(self->priv_time);
+    const TimePoint* tother =
+        static_cast<const TimePoint*>(other->priv_time);
+    try {
+        *tself = *tother;
+    }
+    catch (std::exception& e) {
+        see_error_new_msg(out, e.what());
+        return SEE_ERROR_RUNTIME;
+    }
+    return SEE_SUCCESS;
+}
+
 int see_time_point_add(
     const SeeTimePoint* self,
     const SeeDuration* dur,
@@ -192,6 +211,166 @@ int see_time_point_sub(
 
     return cls->sub(self, other, out, error_out);
 }
+
+int
+see_time_point_add_dur(
+    const SeeTimePoint* self,
+    const SeeDuration*  dur,
+    SeeTimePoint**      result,
+    SeeError**          error_out
+    )
+{
+    const TimePoint* tself;
+    const Duration*  dother;
+    TimePoint*       tres;
+    int ret = SEE_SUCCESS;
+
+    if (!self || !dur || !result)
+        return SEE_INVALID_ARGUMENT;
+    if (!error_out || *error_out)
+        return SEE_INVALID_ARGUMENT;
+    
+    if (*result == NULL) {
+        ret = see_time_point_new(result, error_out);
+        if (ret)
+            return ret;
+    }
+
+    tself = static_cast<const TimePoint*>(self->priv_time);
+    dother= static_cast<const Duration*>(dur->priv_dur);
+    tres  = static_cast<TimePoint*>((*result)->priv_time);
+
+    *tres = *tself + *dother;
+    return ret;
+}
+
+int
+see_time_point_sub_dur(
+    const SeeTimePoint* self,
+    const SeeDuration*  dur,
+    SeeTimePoint**      result,
+    SeeError**          error_out
+    )
+{
+    const TimePoint* tself;
+    const Duration*  dother;
+    TimePoint*       tres;
+    int ret = SEE_SUCCESS;
+
+    if (!self || !dur || !result)
+        return SEE_INVALID_ARGUMENT;
+    if (!error_out || *error_out)
+        return SEE_INVALID_ARGUMENT;
+
+    if (*result == NULL) {
+        ret = see_time_point_new(result, error_out);
+        if (ret)
+            return ret;
+    }
+
+    tself = static_cast<const TimePoint*>(self->priv_time);
+    dother= static_cast<const Duration*>(dur->priv_dur);
+    tres  = static_cast<TimePoint*>((*result)->priv_time);
+
+    *tres = *tself - *dother;
+    return ret;
+}
+
+int
+see_time_point_lt(
+    const SeeTimePoint* self,
+    const SeeTimePoint* rhs,
+    int* result
+    )
+{
+    const TimePoint *ts, *trhs;
+
+    if (!self || !rhs)
+        return SEE_INVALID_ARGUMENT;
+    
+    ts  = static_cast<const TimePoint*>(self->priv_time);
+    trhs= static_cast<const TimePoint*>(rhs->priv_time);
+
+    *result = *ts < *trhs;
+    return SEE_SUCCESS;
+}
+
+int
+see_time_point_lte(
+    const SeeTimePoint* self,
+    const SeeTimePoint* rhs,
+    int* result
+    )
+{
+    const TimePoint *ts, *trhs;
+
+    if (!self || !rhs)
+        return SEE_INVALID_ARGUMENT;
+
+    ts  = static_cast<const TimePoint*>(self->priv_time);
+    trhs= static_cast<const TimePoint*>(rhs->priv_time);
+
+    *result = *ts <= *trhs;
+    return SEE_SUCCESS;
+}
+
+int
+see_time_point_eq(
+    const SeeTimePoint* self,
+    const SeeTimePoint* rhs,
+    int* result
+)
+{
+    const TimePoint *ts, *trhs;
+
+    if (!self || !rhs)
+        return SEE_INVALID_ARGUMENT;
+
+    ts  = static_cast<const TimePoint*>(self->priv_time);
+    trhs= static_cast<const TimePoint*>(rhs->priv_time);
+
+    *result = *ts == *trhs;
+    return SEE_SUCCESS;
+}
+
+int
+see_time_point_gte(
+    const SeeTimePoint* self,
+    const SeeTimePoint* rhs,
+    int* result
+)
+{
+    const TimePoint *ts, *trhs;
+
+    if (!self || !rhs)
+        return SEE_INVALID_ARGUMENT;
+
+    ts  = static_cast<const TimePoint*>(self->priv_time);
+    trhs= static_cast<const TimePoint*>(rhs->priv_time);
+
+    *result = *ts >= *trhs;
+    return SEE_SUCCESS;
+}
+
+int
+see_time_point_gt(
+    const SeeTimePoint* self,
+    const SeeTimePoint* rhs,
+    int* result
+    )
+{
+    const TimePoint *ts, *trhs;
+
+    if (!self || !rhs)
+        return SEE_INVALID_ARGUMENT;
+
+    ts  = static_cast<const TimePoint*>(self->priv_time);
+    trhs= static_cast<const TimePoint*>(rhs->priv_time);
+
+    *result = *ts > *trhs;
+    return SEE_SUCCESS;
+}
+
 
 /* **** initialization of the class **** */
 

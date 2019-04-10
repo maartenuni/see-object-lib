@@ -129,8 +129,137 @@ struct _SeeTimePointClass {
  *
  * returns SEE_SUCCESS or another error value.
  */
-int
+SEE_EXPORT int
 see_time_point_new(SeeTimePoint** out, SeeError** error_out);
+
+/**
+ * @brief assign a new timepoint to this value
+ *
+ */
+SEE_EXPORT int
+see_time_point_set(
+    SeeTimePoint* self,
+    const SeeTimePoint* other,
+    SeeError** error_out
+    );
+
+/**
+ * @brief Subtract two timepoints
+ *
+ * @param [in] self  The operation is the result self - other
+ * @param [in] other t2
+ * @param [in, out]  inout The result of self - other
+ *
+ * @return SEE_SUCCESS, SEE_RUNTIME_ERROR
+ */
+SEE_EXPORT int
+see_time_point_sub(
+    const SeeTimePoint* self,
+    const SeeTimePoint* other,
+    SeeDuration**       inout,
+    SeeError**          error_out
+    );
+
+/**
+ * @brief Add a duration to a timepoint in order to obtain a new
+ *        timepoint.
+ *
+ * @param [in] self  The operation is the result self - other
+ * @param [in] other t2
+ * @param [in, out]  inout The result of self - other
+ *
+ * @return SEE_SUCCESS, SEE_RUNTIME_ERROR
+ */
+SEE_EXPORT int
+see_time_point_add_dur(
+    const SeeTimePoint* self,
+    const SeeDuration*  dur,
+    SeeTimePoint**      result,
+    SeeError**          out
+    );
+
+/**
+ * @brief Subtract a duration from a timepoint in order to obtain a new
+ *        timepoint.
+ *
+ * @param [in] self  The operation is the result self - other
+ * @param [in] other t2
+ * @param [in, out]  inout The result of self - other
+ *
+ * @return SEE_SUCCESS, SEE_RUNTIME_ERROR
+ */
+SEE_EXPORT int
+see_time_point_sub_dur(
+    const SeeTimePoint* self,
+    const SeeDuration*  dur,
+    SeeTimePoint**      result,
+    SeeError**          out
+    );
+
+/**
+ * @brief evaluates self < rhs
+ *
+ * @param[out] result non zero value when self smaller then rhs.
+ * @return SEE_SUCCESS or SEE_INVALID_ARGUMENT
+ */
+SEE_EXPORT int
+see_time_point_lt(
+    const SeeTimePoint* self,
+    const SeeTimePoint* rhs,
+    int* result
+    );
+
+/**
+ * @brief evaluates self <= rhs
+ *
+ * @param [out] result non zero value when self <= rhs.
+ * @return SEE_SUCCESS or SEE_INVALID_ARGUMENT
+ */
+SEE_EXPORT int
+see_time_point_lte(
+    const SeeTimePoint* self,
+    const SeeTimePoint* rhs,
+    int* result
+    );
+
+/**
+* @brief evaluates self == rhs
+*
+* @return non zero value when self == rhs.
+* @result SEE_SUCCESS or SEE_INVALID_ARGUMENT
+*/
+SEE_EXPORT int
+see_time_point_eq(
+    const SeeTimePoint* self,
+    const SeeTimePoint* rhs,
+    int* result
+    );
+
+/**
+ * @brief evaluates self >= rhs
+ *
+ * @return non zero value when self >= rhs.
+ * @return SEE_SUCCESS or SEE_INVALID_ARGUMENT
+ */
+SEE_EXPORT int
+see_time_point_gte(
+    const SeeTimePoint* self,
+    const SeeTimePoint* rhs,
+    int* result
+    );
+
+/**
+ * @brief evaluates self > rhs
+ *
+ * @param result non zero value when self > rhs.
+ * @return SEE_SUCCESS or SEE_INVALID_ARGUMENT
+ */
+SEE_EXPORT int
+see_time_point_gt(
+    const SeeTimePoint* self,
+    const SeeTimePoint* rhs,
+    int* result
+    );
 
 /**
  * Gets the pointer to the SeeTimePointClass table.
@@ -148,8 +277,8 @@ see_time_point_class();
 /**
  * Initialize SeeTimePoint; make it ready for use.
  */
-SEE_EXPORT
-int see_time_point_init();
+SEE_EXPORT int
+see_time_point_init();
 
 /**
  * Deinitialize SeeTimePoint, after SeeTimePoint has been deinitialized,

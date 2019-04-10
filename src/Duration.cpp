@@ -168,6 +168,189 @@ see_duration_new_ns(SeeDuration** out, int64_t ns, SeeError** error_out)
         );
 }
 
+int
+see_duration_set(SeeDuration * self, SeeDuration * other, SeeError** error_out)
+{
+    Duration* dself = static_cast<Duration*>(self->priv_dur);
+    const Duration* dother = static_cast<const Duration*>(other->priv_dur);
+    try {
+        *dself = *dother;
+    }
+    catch (std::exception& e) {
+        see_error_new_msg(error_out, e.what());
+        return SEE_ERROR_RUNTIME;
+    }
+    return SEE_SUCCESS;    
+}
+
+int
+see_duration_add(
+    const SeeDuration*  self,
+    const SeeDuration*  other,
+    SeeDuration**       result,
+    SeeError**          error_out
+    )
+{
+    int ret = SEE_SUCCESS;
+    const Duration* dself, *dother;
+    Duration* dres;
+
+    if (!self || !other)
+        return SEE_INVALID_ARGUMENT;
+
+    if (!error_out || *error_out)
+        return SEE_INVALID_ARGUMENT;
+
+    if (!result)
+        return SEE_INVALID_ARGUMENT;
+
+    if (*result == nullptr) {
+        ret = see_duration_new(result, error_out);
+        if (ret)
+            return ret;
+    }
+
+    dself = static_cast<const Duration*>(self->priv_dur);
+    dother = static_cast<const Duration*>(other->priv_dur);
+    dres = static_cast<Duration*>((*result)->priv_dur);
+    
+    *dres = *dself + *dother;
+
+    return ret;
+}
+
+int
+see_duration_sub(
+    const SeeDuration*  self,
+    const SeeDuration*  other,
+    SeeDuration**       result,
+    SeeError**          error_out
+    )
+{
+    int ret = SEE_SUCCESS;
+    const Duration* dself, *dother;
+    Duration* dres;
+
+    if (!self || !other)
+        return SEE_INVALID_ARGUMENT;
+
+    if (!error_out || *error_out)
+        return SEE_INVALID_ARGUMENT;
+
+    if (!result)
+        return SEE_INVALID_ARGUMENT;
+
+    if (*result == nullptr) {
+        ret = see_duration_new(result, error_out);
+        if (ret)
+            return ret;
+    }
+
+    dself = static_cast<const Duration*>(self->priv_dur);
+    dother = static_cast<const Duration*>(other->priv_dur);
+    dres = static_cast<Duration*>((*result)->priv_dur);
+
+    *dres = *dself - *dother;
+
+    return ret;
+}
+
+int
+see_duration_lt(
+    const SeeDuration* self,
+    const SeeDuration* rhs,
+    int* result
+)
+{
+    const Duration *ts, *trhs;
+
+    if (!self || !rhs)
+        return SEE_INVALID_ARGUMENT;
+
+    ts  = static_cast<const Duration*>(self->priv_dur);
+    trhs= static_cast<const Duration*>(rhs->priv_dur);
+
+    *result = *ts < *trhs;
+    return SEE_SUCCESS;
+}
+
+int
+see_duration_lte(
+    const SeeDuration* self,
+    const SeeDuration* rhs,
+    int* result
+)
+{
+    const Duration *ts, *trhs;
+
+    if (!self || !rhs)
+        return SEE_INVALID_ARGUMENT;
+
+    ts  = static_cast<const Duration*>(self->priv_dur);
+    trhs= static_cast<const Duration*>(rhs->priv_dur);
+
+    *result = *ts <= *trhs;
+    return SEE_SUCCESS;
+}
+
+int
+see_duration_eq(
+    const SeeDuration* self,
+    const SeeDuration* rhs,
+    int* result
+)
+{
+    const Duration *ts, *trhs;
+
+    if (!self || !rhs)
+        return SEE_INVALID_ARGUMENT;
+
+    ts  = static_cast<const Duration*>(self->priv_dur);
+    trhs= static_cast<const Duration*>(rhs->priv_dur);
+
+    *result = *ts == *trhs;
+    return SEE_SUCCESS;
+}
+
+int
+see_duration_gte(
+    const SeeDuration* self,
+    const SeeDuration* rhs,
+    int* result
+)
+{
+    const Duration *ts, *trhs;
+
+    if (!self || !rhs)
+        return SEE_INVALID_ARGUMENT;
+
+    ts  = static_cast<const Duration*>(self->priv_dur);
+    trhs= static_cast<const Duration*>(rhs->priv_dur);
+
+    *result = *ts >= *trhs;
+    return SEE_SUCCESS;
+}
+
+int
+see_duration_gt(
+    const SeeDuration* self,
+    const SeeDuration* rhs,
+    int* result
+)
+{
+    const Duration *ts, *trhs;
+
+    if (!self || !rhs)
+        return SEE_INVALID_ARGUMENT;
+
+    ts  = static_cast<const Duration*>(self->priv_dur);
+    trhs= static_cast<const Duration*>(rhs->priv_dur);
+
+    *result = *ts > *trhs;
+    return SEE_SUCCESS;
+}
+
+
 double see_duration_seconds_f(const SeeDuration* self)
 {
     Duration* d = static_cast<Duration*>(self->priv_dur);

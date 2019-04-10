@@ -72,6 +72,48 @@ public:
         return Duration(this->m_tp - other.m_tp);
     }
 
+    TimePoint operator+(const Duration& dur) const noexcept
+    {
+        return m_tp + dur.m_dur;
+    }
+
+    TimePoint& operator +=(const Duration& dur)
+    {
+        m_tp += dur.m_dur;
+        return *this;
+    }
+
+    TimePoint operator -=(const Duration& dur) 
+    {
+        m_tp -= dur.m_dur;
+        return *this;
+    }
+
+    bool operator <(const TimePoint& rhs) const
+    {
+        return m_tp < rhs.m_tp;
+    }
+
+    bool operator <=(const TimePoint& rhs) const
+    {
+        return m_tp <= rhs.m_tp;
+    }
+
+    bool operator ==(const TimePoint& rhs) const
+    {
+        return m_tp == rhs.m_tp;
+    }
+
+    bool operator >=(const TimePoint& rhs) const
+    {
+        return m_tp >= rhs.m_tp;
+    }
+
+    bool operator >(const TimePoint& rhs) const
+    {
+        return m_tp > rhs.m_tp;
+    }
+
 private:
      tp m_tp;
 };

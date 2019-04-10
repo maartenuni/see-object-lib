@@ -91,8 +91,46 @@ struct _SeeClockClass {
 /**
  * @brief create a new clock object;
  */
-int
+SEE_EXPORT int
 see_clock_new(SeeClock** out, SeeError** error_out);
+
+/**
+ * @brief Obtain time from the clock
+ *
+ * @param [in] in   the clock from which we would like to the time.
+ * @param [in,out]  tp The time is returned here. If inout already
+ *                        contains a time it will be reinitialized with a
+ *                        new time. If *tp == NULL, a new instance will be
+ *                        allocated.
+ * @param [out]     error_out, if an error occurs the error
+ *                  The error will be returned here.
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_ERROR_RUNTIME
+ */
+SEE_EXPORT int
+see_clock_time(const SeeClock* in, SeeTimePoint** tp, SeeError** error_out);
+
+/**
+ * @brief Obtain the resolution of the clock.
+ *
+ * The resolution of a clock is finite. This value represents the smallest
+ * units in which the clock can be incremented, Although the clock will probably
+ * return timepoints specified in nanoseconds, it might easily be that
+ * the smallest increment of the clock is multiple of a nanosecond.
+ *
+ * @param [in]      clk the clock for which you would like to know the
+ *                  resolution.
+ * @param [in, out] resolution *resolution may be NULL, if not NULL
+ *                  the duration will be reset to the resolution of the clock.
+ * @param [out]     error_out if an error occurres it will be returned here
+ *
+ * @return SEE_SUCCESS, SEE_ERROR_RUNTIME
+ */
+SEE_EXPORT int
+see_clock_resolution(
+    const SeeClock* clk,
+    SeeDuration** resolution,
+    SeeError** error_out
+    );
 
 /**
  * Gets the pointer to the SeeClockClass table.

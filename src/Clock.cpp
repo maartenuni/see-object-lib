@@ -113,7 +113,7 @@ see_clock_new(SeeClock** out, SeeError** error_out)
     if (!cls)
         return SEE_NOT_INITIALIZED;
 
-    if (!out || !error_out || *out || error_out)
+    if (!out || !error_out || *out || *error_out)
         return SEE_INVALID_ARGUMENT;
 
     return cls->new_obj(

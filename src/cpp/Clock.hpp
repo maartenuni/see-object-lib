@@ -33,6 +33,11 @@ public:
     {
         return m_clk.now();
     }
+
+    static Duration resolution()
+    {
+        return std::chrono::duration<clk::rep, clk::period>(1);
+    }
     
 private:
 
