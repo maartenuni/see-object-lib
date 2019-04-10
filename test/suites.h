@@ -27,6 +27,7 @@ int add_see_object_suite();
 int add_meta_suite();
 int add_dynamic_array_suite();
 int add_error_suite();
+int add_time_suite();
 
 #ifdef __cplusplus
 }
