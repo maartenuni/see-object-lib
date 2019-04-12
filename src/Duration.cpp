@@ -16,6 +16,12 @@
  */
 
 
+/**
+ * \file duration.cpp The implementation of SeeDuration object and class.
+ * \private
+ */
+
+
 #include "MetaClass.h"
 #include "Duration.h"
 #include "RuntimeError.h"

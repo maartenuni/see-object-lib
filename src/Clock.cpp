@@ -15,6 +15,10 @@
  * along with see-object.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * \file Clock.cpp Implements a steady clock.
+ * \private
+ */
 
 #include "MetaClass.h"
 #include "Clock.h"

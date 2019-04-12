@@ -15,6 +15,18 @@
  * along with see-object.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * \file Clock.h Exports the api of the SeeClock class and object.
+ * 
+ * \brief A clock can return Specific TimePoints.
+ * 
+ * The Clock used is the std::chrono::steady_clock. This clock is
+ * a clock that typically has its start at boot time of the computer.
+ * Since that epoch, it will always continues to run and it won't be
+ * adjusted in contrast with a wallclock, that can be adjusted (think summer,
+ * winter time or leap seconds). 
+ * 
+ */
 
 #ifndef SEE_CLOCK_H
 #define SEE_CLOCK_H
@@ -30,20 +42,48 @@ extern "C" {
 typedef struct _SeeClock SeeClock;
 typedef struct _SeeClockClass SeeClockClass;
 
+/**
+ * Implementation of the clock.
+ */
 struct _SeeClock {
     SeeObject parent_obj;
+    /**
+     * \private
+     * The implementation of the clock.
+     */
     void*     priv_clk;
 };
 
+/**
+ * @brief the SeeClockClass the class defines some of the 
+ * virtual operation that can be done on the clock.
+ */
 struct _SeeClockClass {
     SeeObjectClass parent_cls;
     
+    /**
+     * @brief Initialize a SeeClock object
+     * @param clock the clock to be initialized.
+     * @param clock_cls A pointer to the class that implements the
+     *                  virtual operations
+     * @param error_out A pointer to a SeeError where occasional errors 
+     *                  can be returned.
+     * @return 
+     */
     int (*clock_init)(
         SeeClock*            clock,
         const SeeClockClass* clock_cls,
         SeeError**           error_out
         );
 
+    /**
+     * @brief Return the current time (since boot) that the clock has been
+     *        running.
+     * @param clock 
+     * @param out 
+     * @param error_out 
+     * @return 
+     */
     int (*time) (
         const SeeClock*     clock,
         SeeTimePoint**      out,
@@ -88,11 +128,15 @@ struct _SeeClockClass {
 
 /* **** public functions **** */
 
+
 /**
- * @brief create a new clock object;
+ * @brief Create a new clock object.
+ * @param [out] clk  clk may not be NULL, whereas *clk should.
+ * @param [out] error_out 
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_RUNTIME_ERROR
  */
 SEE_EXPORT int
-see_clock_new(SeeClock** out, SeeError** error_out);
+see_clock_new(SeeClock** clk, SeeError** error_out);
 
 /**
  * @brief Obtain time from the clock

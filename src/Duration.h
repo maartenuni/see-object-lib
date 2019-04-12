@@ -16,6 +16,20 @@
  */
 
 
+/**
+ * \file Duration.h Export the api of the SeeDuration objects.
+ *
+ * \brief Durations are a aritmetic type that specify the amount of time
+ * between two points in time.
+ *
+ * Duration is a data type that stores the amount of time between
+ * two specific timepoints. Durations are objects that can be
+ * added and subtracted from each other. Although one can construct
+ * durations from seconds, ms, us and ns, the calculations are always
+ * done with the precision of the C++11 std::chrono::steady_clock.
+ * This is likely in nanoseconds.
+ */
+
 #ifndef SEE_DURATION_H
 #define SEE_DURATION_H
 
@@ -30,11 +44,22 @@ extern "C" {
 typedef struct _SeeDuration SeeDuration;
 typedef struct _SeeDurationClass SeeDurationClass;
 
+/**
+ * A instance of a SeeDuration
+ */
 struct _SeeDuration {
     SeeObject   parent_obj;
+
+    /**
+     * @brief the implementation of the duration
+     * \private
+     */
     void*       priv_dur;
 };
 
+/**
+ * \brief The SeeDurationClass that specifies the operations on a duration.
+ */
 struct _SeeDurationClass {
     SeeObjectClass parent_cls;
     
@@ -83,21 +108,65 @@ struct _SeeDurationClass {
 
 /* **** public functions **** */
 
+/**
+ * @brief Create a new duration with a default value of 0
+ *
+ * @param [out] out The newly generated duration
+ * @param [out] error_out If an error occurs it will be returned here
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
+ */
 SEE_EXPORT int
 see_duration_new(SeeDuration** out, SeeError** error_out);
 
+/**
+ * @brief Create a new duration with a default value of in seconds
+ *
+ * @param [out] out The newly generated duration
+ * @param [out] error_out If an error occurs it will be returned here
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
+ */
 SEE_EXPORT int
 see_duration_new_s(SeeDuration** out, int64_t s, SeeError** error_out);
 
+/**
+ * @brief Create a new duration with a default value of 0
+ *
+ * @param [out] out The newly generated duration
+ * @param [out] error_out If an error occurs it will be returned here
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
+ */
 SEE_EXPORT int
 see_duration_new_ms(SeeDuration** out, int64_t ms, SeeError** error_out);
 
+/**
+ * @brief Create a new duration with a default value of 0
+ *
+ * @param [out] out The newly generated duration
+ * @param [out] error_out If an error occurs it will be returned here
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
+ */
 SEE_EXPORT int
 see_duration_new_us(SeeDuration** out, int64_t us, SeeError** error_out);
 
+/**
+ * @brief Create a new duration with a default value of 0
+ *
+ * @param [out] out The newly generated duration
+ * @param [out] error_out If an error occurs it will be returned here
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
+ */
 SEE_EXPORT int
 see_duration_new_ns(SeeDuration** out, int64_t ns, SeeError** error_out);
 
+/**
+ * @brief Set the current duration equal to another duration
+ *
+ * @param [in]  self
+ * @param [in]  other
+ * @param [out] error_out
+ *
+ * @return SEE_SUCCES, SEE_INVALID_ARGUMENT, SEE_ERROR_RUNTIME
+ */
 SEE_EXPORT int
 see_duration_set(
     SeeDuration* self,
@@ -105,6 +174,19 @@ see_duration_set(
     SeeError** error_out
     );
 
+/**
+ * @brief Add two durations
+ *
+ * Adding self + other (communicative)
+ *
+ * @param [in] self may not be null
+ * @param [in] other may not be null
+ * @param [in, out] result may not be NULL, if *result is NULL, a new result
+ *                  will be returned, otherwise the old one will be used to
+ *                  store the result of self + other.
+ * @param error_out If an error occurs it will be returned here.
+ * @return SEE_SUCCESS, SEE_INVALID_ARUGMENT, SEE_ERROR_RUNTIME
+ */
 SEE_EXPORT int
 see_duration_add(
     const SeeDuration*  self,
@@ -112,6 +194,20 @@ see_duration_add(
     SeeDuration**       result,
     SeeError**          error_out
     );
+
+/**
+ * @brief Subtract two durations
+ *
+ * subtract other from self. self - other (not communicative)
+ *
+ * @param [in] self may not be null
+ * @param [in] other may not be null
+ * @param [in, out] result may not be NULL, if *result is NULL, a new result
+ *                  will be returned, otherwise the old one will be used to
+ *                  store the result of self - other.
+ * @param error_out If an error occurs it will be returned here.
+ * @return SEE_SUCCESS, SEE_INVALID_ARUGMENT, SEE_ERROR_RUNTIME
+ */
 
 SEE_EXPORT int
 see_duration_sub(
@@ -186,19 +282,50 @@ see_duration_gt(
     int* result
     );
 
-
+/**
+ * @brief Obtain the duration in seconds.
+ *
+ * @param self
+ * @return a floating point number of the duration in seconds.
+ */
 SEE_EXPORT double
 see_duration_seconds_f(const SeeDuration* self);
 
+/**
+ * @brief obtain the number of seconds a duration is. The result is floored.
+ * if the duration is 1.0001 or 1.99999, 1 will be returned.
+ * @param self
+ * @return the floored number of seconds of the duration
+ */
 SEE_EXPORT int64_t
 see_duration_seconds(const SeeDuration* self);
 
+/**
+ * @brief obtain the number of milli seconds a duration is. The result is floored.
+ * if the duration is 1.0001 or 1.99999, 1 will be returned.
+ * @param self
+ * @return the floored number of milli seconds of the duration
+ */
 SEE_EXPORT int64_t
 see_duration_millis(const SeeDuration* self);
 
+/**
+ * @brief obtain the number of micro seconds a duration is. The result is floored.
+ * if the duration is 1.0001 or 1.99999, 1 will be returned.
+ * @param self
+ * @return the floored number of micro seconds of the duration
+ */
 SEE_EXPORT int64_t
 see_duration_micros(const SeeDuration* self);
 
+/**
+ * @brief obtain the number of nano seconds a duration is.
+ *
+ * This is the precision that SeeDuration object use to do calculations.
+ *
+ * @param self
+ * @return The number of nanoseconds the duration is.
+ */
 SEE_EXPORT int64_t
 see_duration_nanos(const SeeDuration* self);
 

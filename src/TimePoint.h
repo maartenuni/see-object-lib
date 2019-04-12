@@ -15,6 +15,17 @@
  * along with see-object.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file TimePoint.h Implements the API of SeeTimePoint
+ *
+ * @brief TimePoints are points in time for which some arithmetic
+ * operations are defined.
+ *
+ * Typically two time points can be subtracted from each other in order to
+ * obtain the duration between the two points. Additionally a Duration can
+ * be added or subtracted from a time point in order to get a new
+ * time point that is precisely that duration away.
+ */
 
 #ifndef SEE_TIME_POINT_H
 #define SEE_TIME_POINT_H
@@ -29,18 +40,24 @@ extern "C" {
 
 typedef struct _SeeTimePoint SeeTimePoint;
 typedef struct _SeeTimePointClass SeeTimePointClass;
-
+/**
+ * \brief An instance of SeeTimePoint
+ */
 struct _SeeTimePoint {
     SeeObject parent_obj;
     /*expand SeeTimePoint data here*/
 
     /**
      * @brief the implementation of the timepoint
+     * \private
      */
     void*     priv_time;
         
 };
 
+/**
+ *
+ */
 struct _SeeTimePointClass {
     SeeObjectClass parent_cls;
     
@@ -53,7 +70,11 @@ struct _SeeTimePointClass {
     /* expand SeeTimePoint class with extra functions here.*/
 
     /**
-     * @brief Turn the timepoint to a human readable format
+     * @brief Turn the timepoint to a human readable format.
+     *
+     * TODO (remove) Not implemented yet, since it aint no wall time.
+     * perhaps is is possible to obtain the difference (a duration) with the
+     * wall clock time and then compute a meaning full date/time etc.
      */
     int (*to_string)(const SeeTimePoint*, char** out);
 
@@ -68,7 +89,8 @@ struct _SeeTimePointClass {
         );
 
     /**
-     * @brief
+     * @brief Subtract a duration from a timepoint in order to obtain a
+     * new timepoint
      */
     int(*sub_dur)(
         const SeeTimePoint* self,
@@ -78,7 +100,8 @@ struct _SeeTimePointClass {
         );
 
     /**
-     * @brief Subtract another timepoint from this one.
+     * @brief Subtract another timepoint from this one, that the duration
+     * difference between the two timepoints can be calculated.
      */
     int (*sub)(
         const SeeTimePoint* self,
@@ -133,8 +156,11 @@ SEE_EXPORT int
 see_time_point_new(SeeTimePoint** out, SeeError** error_out);
 
 /**
- * @brief assign a new timepoint to this value
- *
+ * @brief Set the timepoint of self equal to another.
+ * @param [in, out] self
+ * @param [in]      other
+ * @param [out]     error_out
+ * @return SEE_SUCCESS, SEE_ERROR_RUNTIME, SEE_INVALID_ARGUMENT
  */
 SEE_EXPORT int
 see_time_point_set(

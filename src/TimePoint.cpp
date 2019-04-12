@@ -15,6 +15,10 @@
  * along with see-object.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * \file TimePoint.cpp The implementation of SeeTimePoint and class
+ * \private
+ */
 
 #include "MetaClass.h"
 #include "TimePoint.h"
