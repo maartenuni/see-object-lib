@@ -47,6 +47,10 @@ clock_init(
         SEE_OBJECT_CLASS(clock_cls)
         );
 
+    ret = see_time_point_new(&clock->base_time, error_out);
+    if (ret)
+        return ret;
+
     try {
         clock->priv_clk = (void*) new Clock;
     }
@@ -78,8 +82,11 @@ static void
 clock_destroy(SeeObject* obj)
 {
     SeeClock* c = SEE_CLOCK(obj);
+
     Clock* clk = static_cast<Clock*>(c->priv_clk);
     delete clk;
+
+    see_object_decref(SEE_OBJECT(c->base_time));
 
     see_object_class()->destroy(obj);
 }
@@ -102,6 +109,43 @@ clock_time(
     }
     time = static_cast<TimePoint*>((*inout)->priv_time);
     *time = clk->time();
+    return ret;
+}
+
+static int
+clock_duration(
+        const SeeClock* self,
+        SeeDuration**   inout,
+        SeeError**      error_out
+        )
+{
+    const SeeClockClass* cls = SEE_CLOCK_GET_CLASS(self);
+    int ret;
+    SeeTimePoint* time = nullptr;
+    ret = cls->time(self, &time, error_out);
+    if (ret)
+        return ret;
+
+    ret = see_time_point_sub(time, self->base_time, inout, error_out);
+    see_object_decref(SEE_OBJECT(time));
+    return ret;
+}
+
+static int
+clock_set_base_time(
+        SeeClock* self,
+        const SeeTimePoint* tp,
+        SeeError** error_out
+        )
+{
+    const SeeClockClass* cls = SEE_CLOCK_GET_CLASS(self);
+    int ret;
+    if (tp) {
+        ret = see_time_point_set(self->base_time, tp, error_out);
+    }
+    else {
+        ret = cls->time(self, &self->base_time, error_out);
+    }
     return ret;
 }
 
@@ -145,6 +189,38 @@ see_clock_time(
     return cls->time(self, inout, error_out);
 }
 
+int
+see_clock_duration(
+    const SeeClock* self,
+    SeeDuration**   dur_out,
+    SeeError**      error_out
+    )
+{
+    if (!self || !error_out || *error_out)
+        return SEE_INVALID_ARGUMENT;
+
+    if (!dur_out)
+        return SEE_INVALID_ARGUMENT;
+
+    const SeeClockClass* cls = SEE_CLOCK_GET_CLASS(self);
+
+    return cls->duration(self, dur_out, error_out);
+}
+
+int see_clock_set_base_time(
+    SeeClock*       self,
+    SeeTimePoint*   tp,
+    SeeError**      error
+    )
+{
+    if (!self || !error || *error)
+        return SEE_INVALID_ARGUMENT;
+
+    const SeeClockClass* cls = SEE_CLOCK_GET_CLASS(self);
+
+    return cls->set_base_time(self, tp, error);
+}
+
 /* **** initialization of the class **** */
 
 SeeClockClass* g_SeeClockClass = NULL;
@@ -161,6 +237,8 @@ static int see_clock_class_init(SeeObjectClass* new_cls)
     SeeClockClass* cls  = (SeeClockClass*) new_cls;
     cls->clock_init     = clock_init;
     cls->time           = clock_time;
+    cls->duration       = clock_duration;
+    cls->set_base_time  = clock_set_base_time;
     
     return ret;
 }

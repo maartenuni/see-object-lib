@@ -424,6 +424,42 @@ fail:
     see_object_decref(SEE_OBJECT(tres));
 }
 
+void clock_duration(void)
+{
+    int ret, result;
+    SeeClock*       clk     = NULL;
+    SeeError*       error   = NULL;
+    SeeDuration*    d1      = NULL;
+    SeeDuration*    d2      = NULL;
+
+    ret = see_clock_new(&clk, &error);
+    UNIT_HANDLE_ERROR();
+    ret = see_clock_duration(clk, &d1, &error);
+    UNIT_HANDLE_ERROR();
+    ret = see_clock_duration(clk, &d2, &error);
+    UNIT_HANDLE_ERROR();
+
+    int64_t s1 = see_duration_seconds(d1);
+    int64_t s2 = see_duration_seconds(d2);
+    see_duration_lt(d1, d2, &result);
+    CU_ASSERT_TRUE(result);
+    ret = see_clock_set_base_time(clk, NULL, &error);
+    UNIT_HANDLE_ERROR();
+    ret = see_clock_duration(clk, &d2, &error);
+    UNIT_HANDLE_ERROR();
+    see_duration_gt(d1, d2, &result);
+    CU_ASSERT_TRUE(result);
+    s1 = see_duration_seconds(d1);
+    s2 = see_duration_seconds(d2);
+
+    fail:
+
+    see_object_decref(SEE_OBJECT(clk));
+    see_object_decref(SEE_OBJECT(error));
+    see_object_decref(SEE_OBJECT(d1));
+    see_object_decref(SEE_OBJECT(d2));
+}
+
 int add_time_suite()
 {
     SEE_UNIT_SUITE_CREATE(NULL, NULL);
@@ -434,6 +470,7 @@ int add_time_suite()
     SEE_UNIT_TEST_CREATE(dur_init);
     SEE_UNIT_TEST_CREATE(time_comparison);
     SEE_UNIT_TEST_CREATE(time_calculations);
+    SEE_UNIT_TEST_CREATE(clock_duration);
 
     return 0;
 }

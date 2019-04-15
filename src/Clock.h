@@ -51,7 +51,8 @@ struct _SeeClock {
      * \private
      * The implementation of the clock.
      */
-    void*     priv_clk;
+    void*           priv_clk;
+    SeeTimePoint*   base_time;
 };
 
 /**
@@ -89,8 +90,43 @@ struct _SeeClockClass {
         SeeTimePoint**      out,
         SeeError**          error_out
         );
-        
-    /* expand SeeClock class with extra functions here.*/
+
+
+    /**
+     * @brief Get the duration since the base time.
+     *
+     * The clock stores an internal timepoint. This is by default the time
+     * since clock started, which is most likely since the pc has booted.
+     * The base time can be set by the user via the set_base_time() function.
+     *
+     * @param [in]  clock
+     * @param [out] out  The duration since the basetime
+     * @param [out] error_out
+     * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
+     */
+    int (*duration) (
+            const SeeClock* clock,
+            SeeDuration**   out,
+            SeeError**      error_out
+            );
+
+    /**
+     * @brief Reset the base time to a new value.
+     *
+     * @param [in] clock
+     * @param [in] base_time May be null, then the clock will set the basetime
+     *                       to the current time of the clock. Otherwise,
+     *                       it will be set to base_time.
+     * @param [out] If an error occurs it will be returned here.
+     *
+     * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
+     */
+    int (*set_base_time)(
+            SeeClock*           clock,
+            const SeeTimePoint* base_time,
+            SeeError**          error_out
+            );
+
 };
 
 /* **** function style macro casts **** */
@@ -175,6 +211,37 @@ see_clock_resolution(
     SeeDuration** resolution,
     SeeError** error_out
     );
+
+/**
+ * @brief Get the duration since the base time of the clock.
+ * @param [in]  clk         The pointer to the clock
+ * @param [out] dur_out     A Reference to a SeeDuration, *dur_out may be NULL,
+ *                          then a new duration will be returned.
+ * @param [out] error_out   If an error occurs it will be returned here.
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_ERROR_RUNTIME
+ */
+SEE_EXPORT int
+see_clock_duration(
+    const SeeClock* clk,
+    SeeDuration**   dur_out,
+    SeeError**      error_out
+    );
+
+/**
+ * @brief Set a new basetime for the clock.
+ * @param [in]  clk        The clock whose basetime we would like to set.
+ * @param [in]  tp         The new timepoint for the clock or null to take
+ *                         the current time as base time.
+ * @param [out] error_out  If an error occurs it might be returned here.
+ * @return
+ */
+SEE_EXPORT int
+see_clock_set_base_time(
+    SeeClock*       clk,
+    SeeTimePoint*   tp,
+    SeeError**      error_out
+    );
+
 
 /**
  * Gets the pointer to the SeeClockClass table.
