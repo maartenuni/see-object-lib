@@ -27,6 +27,8 @@
 #cmakedefine HAVE_STDLIB_H      1
 #cmakedefine HAVE_STRING_H      1
 #cmakedefine HAVE_SYS_STAT_H    1
+#cmakedefine HAVE_UNISTD_H      1
+#cmakedefine HAVE_TERMIOS_H     1
 
 
 // Check whether it is possible to link against these functions

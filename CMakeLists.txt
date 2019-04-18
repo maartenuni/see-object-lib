@@ -31,6 +31,8 @@ check_include_files(stdio.h     HAVE_STDIO_H)
 check_include_files(stdlib.h    HAVE_STDLIB_H)
 check_include_files(string.h    HAVE_STRING_H)
 check_include_files(sys/stat.h  HAVE_SYS_STAT_H)
+check_include_files(unistd.h    HAVE_TERMIOS_H)
+check_include_files(termios.h   HAVE_UNISTD_H)
 
 check_function_exists(strerror_s HAVE_STRERROR_S)
 check_function_exists(strerror_r HAVE_STRERROR_R)

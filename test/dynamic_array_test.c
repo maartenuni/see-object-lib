@@ -375,8 +375,9 @@ void array_exception(void)
     // allocation error straight away. The divide by to is to clear the top
     // most bit, because otherwise valgrind thinks the sign bit is set.
     size_t bits = sizeof(size_t) * 8;
-    size_t one = 1;
+    size_t one  = 1;
     bits = (one << (bits - 10)) - 1;
+    bits = 100; // Otherwise this test makes -fsanitze=address builds fail.
 
     ret = see_dynamic_array_reserve(array, bits, &error);
     CU_ASSERT_EQUAL(ret, SEE_ERROR_RUNTIME);

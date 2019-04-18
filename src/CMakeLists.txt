@@ -25,8 +25,11 @@ set (SEE_OBJ_SRC
     MetaClass.c
     RuntimeError.c
     SeeObject.c
+    Serial.c
     TimePoint.cpp
     atomic_operations.c
+    posix/PosixSerial.c
+    windows/WindowsSerial.c
     #priv/see_mutex.cpp
     )
 
@@ -42,6 +45,7 @@ set (SEE_OBJ_HDR_PUBLIC
     MetaClass.h
     RuntimeError.h
     SeeObject.h
+    Serial.h
     TimePoint.h
     atomic_operations.h
     ${CMAKE_CURRENT_BINARY_DIR}/see_export.h
@@ -52,6 +56,8 @@ set (SEE_OBJ_HDR_PRIVATE
     cpp/Clock.hpp
     cpp/Duration.hpp
     cpp/TimePoint.hpp
+    posix/PosixSerial.h
+    windows/WindowsSerial.h
     )
 
 set (SEE_OBJ_HDR ${SEE_OBJ_HDR_PUBLIC} ${SEE_OBJ_HDR_PRIVATE})

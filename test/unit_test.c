@@ -42,6 +42,12 @@ int add_suites()
         return res;
 
     res = add_time_suite();
+    if (res)
+        return res;
+
+    res = add_serial_suite();
+    if (res)
+        return res;
     
     return res;
 }

@@ -31,6 +31,7 @@
 #include "IndexError.h"
 #include "RuntimeError.h"
 #include "TimePoint.h"
+#include "Serial.h"
 
 int g_init_count = 0;
 int g_is_init = 0;
@@ -68,6 +69,10 @@ initialize() {
     if (ret)
         return ret;
 
+    ret = see_serial_init();
+    if (ret)
+        return ret;
+
     ret = see_time_point_init();
     if (ret)
         return ret;
@@ -86,6 +91,7 @@ deinit()
     see_error_deinit();
     see_index_error_deinit();
     see_runtime_error_deinit();
+    see_serial_deinit();
     see_time_point_deinit();
 
     see_meta_class_deinit();

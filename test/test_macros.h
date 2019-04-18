@@ -67,4 +67,50 @@
     }
 
 
+/**
+ * \brief Check if the previous call succeeded and go to cleanup/fail when
+ *        the previous call was unsuccessful.
+ *
+ * In order to make this macro work, you need a int ret; SeeError error; and
+ * a fail: label to goto where the all resources are freed.
+ *
+ * @code {.c}
+ *
+ * void test_func(void)
+ * {
+ *     int ret;
+ *     SeeError error = NULL;
+ *     SeeMyObj* obj  = NULL;
+ *
+ *     ret = see_my_obj_new(&obj, &error);
+ *     SEE_UNIT_HANDLE_ERROR() // no ";" required.
+ *
+ *     // Run further tests here.
+ *
+ * fail:
+ *      // Cleanup
+ *      see_object_decref(SEE_OBJECT(error));
+ *      see_object_decref(SEE_OBJECT(obj));
+ * }
+ *
+ * @endcode
+ *
+ *
+ * \private
+ */
+#define SEE_UNIT_HANDLE_ERROR()                             \
+    if (ret != SEE_SUCCESS) {                               \
+        CU_ASSERT(ret == SEE_SUCCESS);                      \
+        if (error){                                         \
+            fprintf(stderr, "%s:%d: oops \"%s\"\n",         \
+                __FILE__, __LINE__, see_error_msg(error)    \
+                );                                          \
+        }                                                   \
+        else {                                              \
+            fprintf(stderr, "%s:%d: oops...\n",             \
+                __FILE__, __LINE__);                        \
+        }                                                   \
+        goto fail;                                          \
+    }
+
 #endif
