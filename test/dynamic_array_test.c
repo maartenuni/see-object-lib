@@ -367,34 +367,6 @@ void array_exception(void)
         SEE_OBJECT_CLASS(see_index_error_class())
     );
 
-    // Clear the error.
-    see_object_decref(SEE_OBJECT(error));
-    error = NULL;
-
-    // I would expect that allocating SIZE_MAX/2 would result in a memory
-    // allocation error straight away. The divide by to is to clear the top
-    // most bit, because otherwise valgrind thinks the sign bit is set.
-    size_t bits = sizeof(size_t) * 8;
-    size_t one  = 1;
-    bits = (one << (bits - 10)) - 1;
-    bits = 100; // Otherwise this test makes -fsanitze=address builds fail.
-
-    ret = see_dynamic_array_reserve(array, bits, &error);
-    CU_ASSERT_EQUAL(ret, SEE_ERROR_RUNTIME);
-    CU_ASSERT_EQUAL(
-        SEE_ERROR_GET_CLASS(error),
-        SEE_ERROR_CLASS(see_runtime_error_class())
-        );
-    CU_ASSERT_PTR_NOT_EQUAL(error, NULL);
-    if (!error)
-        goto run_error;
-
-    char strerrorbuf[BUFSIZ];
-    snprintf(strerrorbuf, BUFSIZ, "SeeRuntimeError: %s", strerror(ENOMEM));
-    const char* msg = see_error_msg(error);
-    CU_ASSERT_STRING_EQUAL(msg, strerrorbuf);
-
-
 run_error:
 
     see_object_decref(SEE_OBJECT(error));
