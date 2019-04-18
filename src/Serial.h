@@ -169,7 +169,7 @@ struct _SeeSerialClass {
      * @param [in]  self    The serial device to flush
      * @param [out] q       Whether the input or output
      * @param [out] error_out If an error occurs it will be returned here
-     * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_RUNTIME_ERROR
+     * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_ERROR_RUNTIME
      * @private
      */
     int (*flush) (
@@ -183,7 +183,7 @@ struct _SeeSerialClass {
      * @param [in]  self      Wait for this serial device to be drained.
      * @param [out] error_out Errors are returned here.
      * @private
-     * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_RUNTIME_ERROR
+     * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_ERROR_RUNTIME
      */
     int (*drain) (
         const SeeSerial*    self,
@@ -219,7 +219,7 @@ struct _SeeSerialClass {
      * @return
      */
     int (*get_speed) (
-        SeeSerial*          self,
+        const SeeSerial*    self,
         see_serial_dir_t    dir,
         see_speed_t*        speed,
         SeeError**          error_out
@@ -239,6 +239,41 @@ struct _SeeSerialClass {
         int*                result
         );
 
+    /**
+     * \brief Set a timeout for when read/writes should finish within. Note that eg
+     * on linux/posix are terminal, read writes can only be specified in .1 s
+     * precision.
+     *
+     * @param [in] self          The serial connection
+     * @param [in] ms            The number of milliseconds before the read/write
+     *                           should timeout.
+     * @param [out] error_out    Error are returned here.
+     *
+     * @return  SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_ERROR_RUNTIME.
+     *
+     * @private
+     */
+    int (*set_timeout) (
+        SeeSerial*  self,
+        int         ms,
+        SeeError**  error_out
+        );
+
+    /**
+     * @brief return the timeout in ms.
+     *
+     * @param [in]  self
+     * @param [out] ms_out
+     * @param [out] error_out
+     * @return  SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_ERROR_RUNTIME.
+     *
+     * @private
+     */
+    int (*get_timeout)(
+        const SeeSerial* self,
+        int*             ms_out,
+        SeeError**       error_out
+        );
 };
 
 /* **** function style macro casts **** */
@@ -284,7 +319,8 @@ struct _SeeSerialClass {
  *
  * @param [out] serial    serial must not be NULL, whereas *serial should.
  * @param [out] error_out error_ot must not be NULL, whereas *error_out should.
- * @return SEE_SUCCESS
+ *
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_ERROR_RUNTIME
  */
 SEE_EXPORT int
 see_serial_new(
@@ -293,36 +329,75 @@ see_serial_new(
     );
 
 /**
+ * @brief Create a new serial device and try to open it immediately.
+ *
+ * Create a new serial device. The device (dev) should be a platform specific serial
+ * device. Eeg "/dev/ttyACM0" or "COM2" note that higher comports on windows
+ * have more specific names.
+ *
+ * @param [out] serial      A pointer to a SeeSerial* that points to NULL.
+ * @param [in]  dev         eeg "/dev/tty1/" or "COM1"
+ * @param [out] error_out   A pointer to a SeeError* that points to NULL.
+ *
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_ERROR_RUNTIME
+ */
+SEE_EXPORT int
+see_serial_new_dev(
+    SeeSerial** serial,
+    const char* dev,
+    SeeError**  error_out
+    );
+
+/**
+ * @brief closes a serial connection and frees some of the internal resources.
+ *
+ * If the device is already closed this function shouldn't do anything, but
+ * return SEE_SUCCESS.
+ *
+ * @param [in]  self      The serial device to close
+ * @param [out] error_out Errors are returned here.
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
+ */
+SEE_EXPORT int
+see_serial_close(
+    SeeSerial*  self,
+    SeeError**  error_out
+    );
+
+
+/**
  * \brief Open a serial device
  *
  * @param [in]  self The serial device to open
  * @param [in]  dev The name of the serial device "/dev/tty1" or "COM1"
  * @param [out] error_out if there is an error opening the device it is
  *              returned here.
- * @return  SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_RUNTIME_ERROR
+ * @return  SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_ERROR_RUNTIME
  */
 SEE_EXPORT int
 see_serial_open(
-    const SeeSerial*    self,
-    const char*         dev,
-    SeeError**          error_out
+    SeeSerial*  self,
+    const char* dev,
+    SeeError**  error_out
     );
 
 /**
  * \brief Write a number of bytes to the serial device.
  *
- * @param [in] self     The serial device to which you would like to write.
- * @param [in] bytes    a pointer to the bytes you want to write.
- * @param [in] length   The number of bytes you want to write.
- * @param error_out     If an error occurs it will be returned here.
+ * @param [in]      self        The serial device to which you would like to write.
+ * @param [in]      bytes       a pointer to the bytes you want to write.
+ * @param [in,out]  length      The number of bytes you want to write. The
+ *                              number of bytes written will be returned
+ *                              here.
+ * @param [out]     error_out   If an error occurs it will be returned here.
  *
- * @return  SEE_SUCCESS, SEE_RUNTIME_ERROR
+ * @return  SEE_SUCCESS, SEE_ERROR_RUNTIME
  */
 SEE_EXPORT int
 see_serial_write (
     const SeeSerial*    self,
     const void*         bytes,
-    size_t              length,
+    size_t*             length,
     SeeError**          error_out
     );
 
@@ -331,23 +406,25 @@ see_serial_write (
  *
  * @param [in] self     The serial device from which you would like to read.
  * @param [in] bytes    a pointer to the bytes you want to write.
- * @param [in] length   The number of bytes you want to write.
- * @param error_out     If an error occurs it will be returned here.
+ * @param [in] length   The number of bytes you want to read. The number of
+ *                      bytes that are actually read are returned here.
+ * @param [out]error_out If an error occurs it will be returned here.
  *
- * @return  SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_RUNTIME_ERROR,
+ * @return  SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_ERROR_RUNTIME,
  */
 SEE_EXPORT int
 see_serial_read (
     const SeeSerial*    self,
     void*               buffer,
-    size_t              length
+    size_t*             length,
+    SeeError**          out
     );
 
 /**
  * \brief flush the serial device
  * @param [in]  self The serial device to flush
  * @param [in]  direction whether you want to flush the in-, output or both
- * @return  SEE_SUCCESS, SEE_RUNTIME_ERROR
+ * @return  SEE_SUCCESS, SEE_ERROR_RUNTIME
  */
 SEE_EXPORT int
 see_serial_flush (
@@ -362,7 +439,7 @@ see_serial_flush (
  * @param [in]  direction whether you want to flush the in-, output or both
  * @param [in]  speed, the speed at which the device is desired to operate.
  *
- * @return  SEE_SUCCESS, SEE_RUNTIME_ERROR
+ * @return  SEE_SUCCESS, SEE_ERROR_RUNTIME
  */
 SEE_EXPORT int
 see_serial_set_speed (
@@ -375,12 +452,13 @@ see_serial_set_speed (
 /**
  * \brief Get the speed at which the device operates.
  *
- * @param self
- * @param dir
- * @param [out] speed
- * @param error_out
+ * @param [in]  self    The serial device.
+ * @param [in]  dir     Since a serial device can have different settings for
+ *                      both the in and output, one need to specify one.
+ * @param [out] speed   The speed is returned here.
+ * @param [out] error_out Errors are returned here.
  *
- * @return  SEE_SUCCESS, SEE_RUNTIME_ERROR
+ * @return  SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_ERROR_RUNTIME
  */
 SEE_EXPORT int
 see_serial_get_speed (
@@ -395,13 +473,50 @@ see_serial_get_speed (
  * @param [in] self The device of which you would like to know whether it
  *              is open
  * @param [out] result The result will be posted here.
- * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_ERROR_RUNTIME
  */
 SEE_EXPORT int
 see_serial_is_open(
     const SeeSerial*    self,
     int*                result
     );
+
+/**
+ * @brief Set the timeout, for when a read should timeout.
+ *
+ * Note on linux eg, the timeout is actually specified int tenths of a second,
+ * so when entering 0 < ms < 100, the entered value is actually 1 tenth
+ * if you want to set the time to 0 (no timeout) specify 0 precisely 25 ms
+ * will be rounded up. while 125, 175 will all be rounded down via integer
+ * devision.
+ *
+ * @param [in] self
+ * @param [in] ms
+ * @param [out] error_out
+ * @return  SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_ERROR_RUNTIME
+ */
+SEE_EXPORT int
+see_serial_set_timeout(
+    SeeSerial*  self,
+    int         ms,
+    SeeError**  error_out
+    );
+
+/**
+ * @brief obtain the timeout in ms
+ *
+ * @param [in]  self
+ * @param [out] ms
+ * @param [out] error_out
+ * @return  SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_ERROR_RUNTIME
+ */
+SEE_EXPORT int
+see_serial_get_timeout(
+    const SeeSerial*    self,
+    int*                ms,
+    SeeError**          error_out
+    );
+
 
 /**
  * Gets the pointer to the SeeSerialClass table.

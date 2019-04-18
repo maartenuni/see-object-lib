@@ -56,7 +56,7 @@ serial_init(
     return ret;
 }
 
-// TODO exmine only do this in derived classes.
+// TODO examine only do this in derived classes.
 static int
 init(const SeeObjectClass* cls, SeeObject* obj, va_list args)
 {
@@ -85,17 +85,183 @@ void serial_destroy(SeeObject* obj)
         see_object_get_class(obj)
         );
 
+    assert(cls->is_open);
     ret  = cls->is_open(serial, &open);
     assert(ret == SEE_SUCCESS);
     SeeError* error = NULL;
     if (open)
         cls->close(serial, &error);
-    assert (error == NULL);
 
     see_object_class()->destroy(obj);
 }
 
 /* **** implementation of the public API **** */
+
+int
+see_serial_new_dev(SeeSerial** out, const char* dev, SeeError** error_out)
+{
+    const SeeSerialClass* cls = NULL;
+
+#if defined(HAVE_TERMIOS_H) && defined(HAVE_UNISTD_H)
+    cls = SEE_SERIAL_CLASS(see_posix_serial_class());
+#elif defined(_WIN32)
+    cls = see_windows_serial_class();
+#else
+#pragma warning "No serial classes defined."
+#endif
+
+    if (!cls)
+        return SEE_NOT_INITIALIZED;
+
+    if (!out || *out)
+        return SEE_INVALID_ARGUMENT;
+
+    if (!error_out || *error_out)
+        return SEE_INVALID_ARGUMENT;
+
+    return SEE_OBJECT_CLASS(cls)->new_obj(
+        SEE_OBJECT_CLASS(cls),
+        0,
+        SEE_OBJECT_REF(out),
+        dev,
+        error_out
+        );
+}
+
+int
+see_serial_new(SeeSerial** out, SeeError** error_out)
+{
+    return see_serial_new_dev(out, NULL, error_out);
+}
+
+int see_serial_open(SeeSerial* self, const char* devfn, SeeError** error_out)
+{
+    if(!self || !error_out || *error_out || !devfn)
+        return SEE_INVALID_ARGUMENT;
+
+    const SeeSerialClass* cls = SEE_SERIAL_GET_CLASS(self);
+
+    return cls->open(self, devfn, error_out);
+}
+
+int
+see_serial_close(SeeSerial* dev, SeeError** error_out)
+{
+    if (!dev || !error_out || *error_out)
+        return SEE_INVALID_ARGUMENT;
+
+    const SeeSerialClass* cls = SEE_SERIAL_GET_CLASS(dev);
+
+    return cls->close(dev, error_out);
+}
+
+int see_serial_write(
+    const SeeSerial*    self,
+    const void*         bytes,
+    size_t*             length,
+    SeeError**          error_out
+    )
+{
+    if (!self || !error_out || *error_out)
+        return SEE_INVALID_ARGUMENT;
+
+    if (!bytes || !length)
+        return SEE_INVALID_ARGUMENT;
+
+    const SeeSerialClass* cls = SEE_SERIAL_GET_CLASS(self);
+
+    return cls->write(self, bytes, length, error_out);
+}
+
+int see_serial_read(
+    const SeeSerial*    self,
+    void*               bytes,
+    size_t*             length,
+    SeeError**          error_out
+    )
+{
+    if (!self || !error_out || *error_out)
+        return SEE_INVALID_ARGUMENT;
+
+    if (!bytes || !length)
+        return SEE_INVALID_ARGUMENT;
+
+    const SeeSerialClass* cls = SEE_SERIAL_GET_CLASS(self);
+
+    return cls->read(self, bytes, length, error_out);
+}
+
+int
+see_serial_set_speed(
+    SeeSerial* self,
+    see_serial_dir_t dir,
+    speed_t    speed,
+    SeeError** error_out
+    )
+{
+    if (!self || !error_out || *error_out)
+        return SEE_INVALID_ARGUMENT;
+
+    const SeeSerialClass* cls = SEE_SERIAL_GET_CLASS(self);
+
+    return cls->set_speed(self, dir, speed, error_out);
+}
+
+int
+see_serial_get_speed(
+    SeeSerial*          self,
+    see_serial_dir_t    dir,
+    see_speed_t*        speed_out,
+    SeeError**          error_out
+    )
+{
+
+    if (!self || !error_out || *error_out)
+        return SEE_INVALID_ARGUMENT;
+
+    if (!speed_out)
+        return SEE_INVALID_ARGUMENT;
+
+    const SeeSerialClass* cls = SEE_SERIAL_GET_CLASS(self);
+
+    return cls->get_speed(self, dir, speed_out, error_out);
+}
+
+int
+see_serial_is_open(
+    const SeeSerial*    self,
+    int*                result
+    )
+{
+    if (!self || !result)
+        return SEE_INVALID_ARGUMENT;
+
+    const SeeSerialClass* cls = SEE_SERIAL_GET_CLASS(self);
+
+    return cls->is_open(self, result);
+}
+
+int
+see_serial_set_timeout(SeeSerial* self, int ms, SeeError** error_out)
+{
+    if (!self || !error_out || *error_out)
+        return SEE_INVALID_ARGUMENT;
+
+    const SeeSerialClass* cls = SEE_SERIAL_GET_CLASS(self);
+
+    return cls->set_timeout(self, ms, error_out);
+}
+
+int see_serial_get_timeout(const SeeSerial* self, int* ms, SeeError** error_out)
+{
+    if (!self || !ms || !error_out || *error_out)
+        return SEE_INVALID_ARGUMENT;
+
+    const SeeSerialClass* cls = SEE_SERIAL_GET_CLASS(self);
+
+    return cls->get_timeout(self, ms, error_out);
+}
+
 
 /* **** initialization of the class **** */
 
@@ -107,8 +273,8 @@ static int see_serial_class_init(SeeObjectClass* new_cls)
     int ret = SEE_SUCCESS;
 
     /* Override the functions on the parent here */
-    new_cls->init = init;
-    new_cls->destroy = serial_destroy;
+    new_cls->init       = init;
+    new_cls->destroy    = serial_destroy;
 
     /* Set the function pointers of the own class here */
     SeeSerialClass* cls = (SeeSerialClass*) new_cls;
@@ -144,7 +310,7 @@ see_serial_init()
         return ret;
 
     // init private subclasses.
-#if defined(HAVE_TERMIOS_H)
+#if defined(HAVE_TERMIOS_H) && defined(HAVE_UNISTD_H)
     ret = see_posix_serial_init();
 #elif defined(_WIN32)
     ret = see_windows_serial_init();
@@ -160,16 +326,17 @@ see_serial_deinit()
 #elif defined(_WIN32)
     see_windows_serial_deinit();
 #endif
+
+    if (!g_SeeSerialClass)
+        return;
+
+    see_object_decref(SEE_OBJECT(g_SeeSerialClass));
+    g_SeeSerialClass = NULL;
 }
 
 const SeeSerialClass*
 see_serial_class()
 {
-#if defined(HAVE_TERMIOS_H)
-    return SEE_SERIAL_CLASS(see_posix_serial_class());
-#elif
-    return SEE_SERIAL_CLASS(see_windows_serial_class());
-#endif
-    return NULL;
+    return g_SeeSerialClass;
 }
 

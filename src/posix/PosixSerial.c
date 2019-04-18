@@ -100,10 +100,9 @@ get_see_speed(speed_t s)
             return SEE_B230400;
         default:
             assert(0 == 1);
+            return -1;
     }
 }
-
-
 
 /* **** functions that implement SeePosixSerial or override SeeSerial **** */
 
@@ -160,22 +159,23 @@ posix_serial_open(SeeSerial* self, const char* dev, SeeError** error_out)
         see_runtime_error_create(error_out, errno);
         return SEE_ERROR_RUNTIME;
     }
-
-    if (tcgetattr(pself->fd, &pself->settings) == -1) {
+    if (!isatty(pself->fd)) {
         see_runtime_error_create(error_out, errno);
+        close(pself->fd);
         return SEE_ERROR_RUNTIME;
     }
 
-    memcpy(&out_settings, &pself->settings, sizeof(struct termios));
+    if (tcgetattr(pself->fd, &out_settings) == -1) {
+        see_runtime_error_create(error_out, errno);
+        close(pself->fd);
+        pself->fd = -1;
+        return SEE_ERROR_RUNTIME;
+    }
+
+    tcflush(pself->fd, TCIOFLUSH);
+
     cfmakeraw(&out_settings);
     if (tcsetattr(pself->fd, TCSANOW, &out_settings) == -1)  {
-        see_runtime_error_create(error_out, errno);
-        return SEE_ERROR_RUNTIME;
-    }
-
-    tcdrain(pself->fd);
-
-    if (tcgetattr(pself->fd, &pself->settings) == -1)  {
         see_runtime_error_create(error_out, errno);
         return SEE_ERROR_RUNTIME;
     }
@@ -190,20 +190,23 @@ posix_serial_close(SeeSerial* self, SeeError** error_out)
         see_object_get_class(SEE_OBJECT(self))
         );
     SeePosixSerial* pself = SEE_POSIX_SERIAL(self);
-    struct termios new_settings;
+    struct termios settings;
     int open;
     cls->is_open(self, &open);
 
     if (!open)
         return SEE_SUCCESS;
 
-    // Hangup by setting baudrate to 0.
-    memcpy(&new_settings, &pself->settings, sizeof(new_settings));
-    cfsetispeed(&new_settings, B0);
-    cfsetospeed(&new_settings, B0);
-    if (tcsetattr(pself->fd, TCSANOW, &new_settings) == -1) {
-        int oops = 1;
-        assert(oops != 1);
+    if (tcgetattr(pself->fd, &settings) < 0) {
+        see_runtime_error_create(error_out, errno);
+        return SEE_ERROR_RUNTIME;
+    }
+
+    cfsetispeed(&settings, B0);
+    cfsetospeed(&settings, B0);
+    if (tcsetattr(pself->fd, TCSAFLUSH, &settings) == -1) {
+        see_runtime_error_create(error_out, errno);
+        return SEE_ERROR_RUNTIME;
     }
 
     if (close(pself->fd)) {
@@ -288,8 +291,10 @@ posix_serial_flush(
         queue = TCOFLUSH;
     else if (d == SEE_SERIAL_INOUT)
         queue = TCIOFLUSH;
-    else
+    else {
         assert("Unhandled condition" == NULL);
+        queue = TCIOFLUSH;
+    }
 
     int ret = tcflush(pself->fd, queue);
     if (ret < 0) {
@@ -317,58 +322,66 @@ posix_serial_drain(
 
 static int
 posix_serial_set_speed(
-    SeeSerial* self,
-    see_serial_dir_t d,
-    see_speed_t s,
-    SeeError** error_out
+    SeeSerial*          self,
+    see_serial_dir_t    d,
+    see_speed_t         s,
+    SeeError**          error_out
     )
 {
     speed_t speed;
     SeePosixSerial* pself = SEE_POSIX_SERIAL(self);
-    struct termios new_settings;
+    struct termios settings;
 
-    memcpy(&new_settings, &pself->settings, sizeof(new_settings));
+    int ret = tcgetattr(pself->fd, &settings);
+    if (ret < 0) {
+        see_runtime_error_create(error_out, errno);
+        return SEE_ERROR_RUNTIME;
+    }
+
     if (d & SEE_SERIAL_INPUT) {
         speed = get_posix_speed(s);
-        cfsetispeed(&new_settings, speed);
+        cfsetispeed(&settings, speed);
     }
     if (d & SEE_SERIAL_OUTPUT) {
         speed = get_posix_speed(s);
-        cfsetospeed(&new_settings, speed);
+        cfsetospeed(&settings, speed);
     }
-    if (tcsetattr(pself->fd, TCSADRAIN, &new_settings)) {
+    if (tcsetattr(pself->fd, TCSAFLUSH, &settings)) {
         see_runtime_error_create(error_out, errno);
         return SEE_ERROR_RUNTIME;
     }
-    tcdrain(pself->fd);
-    if (tcgetattr(pself->fd, &pself->settings)) {
-        see_runtime_error_create(error_out, errno);
-        return SEE_ERROR_RUNTIME;
-    }
+
     return SEE_SUCCESS;
 }
 
 static int
 posix_serial_get_speed(
-    SeeSerial*          self,
+    const SeeSerial*    self,
     see_serial_dir_t    d,
     see_speed_t*        s,
     SeeError**          error_out
     )
 {
-    (void) error_out;
-    const SeeSerialClass* cls = SEE_SERIAL_CLASS(
-        see_object_get_class(SEE_OBJECT(self))
-    );
-    speed_t speed;
+    speed_t speed = 0;
     SeePosixSerial* pself = SEE_POSIX_SERIAL(self);
-    int open;
-    cls->is_open(self, &open);
+    struct termios settings;
+
+    if (d == SEE_SERIAL_INOUT) {
+        errno = EINVAL;
+        see_runtime_error_create(error_out, errno);
+        return SEE_ERROR_RUNTIME;
+    }
+
+    int ret = tcgetattr(pself->fd, &settings);
+    if (ret < 0) {
+        see_runtime_error_create(error_out, errno);
+        return SEE_ERROR_RUNTIME;
+    }
 
     if (d & SEE_SERIAL_INPUT)
-        speed = cfgetispeed(&pself->settings);
+        speed = cfgetispeed(&settings);
     if (d & SEE_SERIAL_OUTPUT)
-        speed = cfgetispeed(&pself->settings);
+        speed = cfgetispeed(&settings);
 
     *s = get_see_speed(speed);
     return SEE_SUCCESS;
@@ -385,8 +398,58 @@ posix_serial_is_open(const SeeSerial* self, int* result)
         *result = 1;
     else
         *result = 0;
+
     return SEE_SUCCESS;
 }
+
+static int
+posix_serial_set_timeout(SeeSerial* self, int ms, SeeError** error)
+{
+    SeePosixSerial* pself = (SeePosixSerial*) self;
+    int ret;
+    if (!self)
+        return SEE_INVALID_ARGUMENT;
+
+    struct termios settings;
+    ret = tcgetattr(pself->fd, &settings);
+    if (ret < 0) {
+        see_runtime_error_create(error, errno);
+        return SEE_ERROR_RUNTIME;
+    }
+
+    int tenths = ms / 100;
+    if (tenths > 255)
+        tenths = 255;
+    if (ms > 0 && tenths == 0) // just give the smallest possible timeout
+        tenths = 1;
+    settings.c_cc[VTIME] = tenths;
+
+    ret = tcsetattr(pself->fd, TCSANOW, &settings);
+    if (ret != 0) {
+        see_runtime_error_create(error, errno);
+        return ret;
+    }
+
+    return SEE_SUCCESS;
+}
+
+static int
+posix_serial_get_timeout(const SeeSerial* self, int* ms, SeeError** error)
+{
+    const SeePosixSerial* pself = (const SeePosixSerial*) self;
+    struct termios settings;
+    int ret = tcgetattr(pself->fd, &settings);
+    if (ret < 0) {
+        see_runtime_error_create(error, errno);
+        return SEE_ERROR_RUNTIME;
+    }
+
+    int tenths = settings.c_cc[VTIME];
+    *ms = tenths * 100;
+
+    return SEE_SUCCESS;
+}
+
 
 /* **** implementation of the public API **** */
 
@@ -427,6 +490,8 @@ static int see_posix_serial_class_init(SeeObjectClass* new_cls)
     serial_cls->set_speed   = posix_serial_set_speed;
     serial_cls->get_speed   = posix_serial_get_speed;
     serial_cls->is_open     = posix_serial_is_open;
+    serial_cls->set_timeout = posix_serial_set_timeout;
+    serial_cls->get_timeout = posix_serial_get_timeout;
 
     /* Set the function pointers of the own class here */
     SeePosixSerialClass* cls = (SeePosixSerialClass*) new_cls;

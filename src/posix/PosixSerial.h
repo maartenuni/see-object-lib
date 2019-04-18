@@ -35,8 +35,7 @@ typedef struct _SeePosixSerialClass SeePosixSerialClass;
 struct _SeePosixSerial {
     SeeSerial parent_obj;
 
-    struct termios  settings;
-    int             fd;
+    int fd;
 };
 
 struct _SeePosixSerialClass {
