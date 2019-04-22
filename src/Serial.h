@@ -22,6 +22,7 @@
 #ifndef SEE_SERIAL_H
 #define SEE_SERIAL_H
 
+#include <stdint.h>
 #include "SeeObject.h"
 #include "Error.h"
 
@@ -274,6 +275,41 @@ struct _SeeSerialClass {
         int*             ms_out,
         SeeError**       error_out
         );
+
+    /**
+     * @brief Set the minimal number of characters to read before termination.
+     *
+     * @param [in]  self        The serial device.
+     * @param [in]  nchars      The number of characters that must be read
+     *                          before see_serial_read returns.
+     * @param [out] error_out   If an error occurs, it will be returned here.
+     *
+     * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_RUNTIME_ERROR
+     * @private
+     */
+    int (*set_min_rd_chars)(
+        SeeSerial*       self,
+        uint8_t          nchars,
+        SeeError**       error_out
+        );
+
+    /**
+     * @brief Obtain the number of characters that must be read before
+     * the read returns.
+     *
+     * @param [in] self     The serial device.
+     * @param [out]nchars   The number of characters read before the read
+     *                      is returned here.
+     * @param [out] error_out if an error occurs it will be returned here.
+     *
+     * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_RUNTIME_ERROR
+     * @private
+     */
+    int (*get_min_rd_chars)(
+        const SeeSerial* self,
+        uint8_t*         nchars,
+        SeeError**       error_out
+        );
 };
 
 /* **** function style macro casts **** */
@@ -433,6 +469,19 @@ see_serial_flush (
     SeeError**          error_out
     );
 
+
+/**
+ * @brief Wait for the bytes to be send.
+ * @param [in] self
+ * @param [out]error_out
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_ERROR_RUNTIME
+ */
+SEE_EXPORT int
+see_serial_drain(
+    const SeeSerial*    self,
+    SeeError**          error_out
+    );
+
 /**
  * \brief Set the desired speed of the device.
  * @param [in]  self The serial device to modify
@@ -517,17 +566,58 @@ see_serial_get_timeout(
     SeeError**          error_out
     );
 
+/**
+ * @brief Set the minimal number of characters to read before termination.
+ *
+ * @param [in]  self        The serial device.
+ * @param [in]  nchars      The number of characters that must be read
+ *                          before see_serial_read returns.
+ * @param [out] error_out   If an error occurs, it will be returned here.
+ *
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_RUNTIME_ERROR
+ * @private
+ */
+SEE_EXPORT int
+see_serial_set_min_rd_chars (
+    SeeSerial*       self,
+    uint8_t          nchars,
+    SeeError**       error_out
+    );
+
+/**
+ * @brief Obtain the number of characters that must be read before
+ * the read returns.
+ *
+ * @param [in] self     The serial device.
+ * @param [out]nchars   The number of characters read before the read
+ *                      is returned here.
+ * @param [out] error_out if an error occurs it will be returned here.
+ *
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_RUNTIME_ERROR
+ */
+SEE_EXPORT int
+see_serial_get_min_rd_chars(
+    SeeSerial*       self,
+    uint8_t*         nchars,
+    SeeError**       error_out
+    );
+
+/**
+ * Take an input and return a precise baudrate for a given speed.
+ *
+ * The input speed is ceiled to the nearest baudrate eg 1 becomes B50 0 remains
+ * 0
+ * @param speed A rough baudrate.
+ * @return a ceiled see_speed_t that is suitable for see_serial_set_speed.
+ */
+SEE_EXPORT see_speed_t
+see_serial_nearest_speed(unsigned speed);
 
 /**
  * Gets the pointer to the SeeSerialClass table.
  */
 SEE_EXPORT const SeeSerialClass*
 see_serial_class();
-
-/* Expand the class with public functions here, don't forget the SEE_EXPORT
- * macro, because otherwise you'll run into troubles when exporting function
- * in a windows dll.
- */
 
 /* **** class initialization functions **** */
 

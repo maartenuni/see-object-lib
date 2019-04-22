@@ -192,6 +192,35 @@ int see_serial_read(
 }
 
 int
+see_serial_flush(
+    const SeeSerial* self,
+    see_serial_dir_t dir,
+    SeeError**       error_out
+    )
+{
+    if (!self || !error_out || *error_out)
+        return SEE_INVALID_ARGUMENT;
+
+    const SeeSerialClass* cls = SEE_SERIAL_GET_CLASS(self);
+
+    return cls->flush(self, dir, error_out);
+}
+
+int
+see_serial_drain(
+    const SeeSerial* self,
+    SeeError**       error_out
+)
+{
+    if (!self || !error_out || *error_out)
+        return SEE_INVALID_ARGUMENT;
+
+    const SeeSerialClass* cls = SEE_SERIAL_GET_CLASS(self);
+
+    return cls->drain(self, error_out);
+}
+
+int
 see_serial_set_speed(
     SeeSerial* self,
     see_serial_dir_t dir,
@@ -260,6 +289,79 @@ int see_serial_get_timeout(const SeeSerial* self, int* ms, SeeError** error_out)
     const SeeSerialClass* cls = SEE_SERIAL_GET_CLASS(self);
 
     return cls->get_timeout(self, ms, error_out);
+}
+
+int see_serial_set_min_rd_chars(
+    SeeSerial*  self,
+    uint8_t     nchars,
+    SeeError**  error_out
+    )
+{
+    const SeeSerialClass* cls;
+
+    if (!self || !error_out || *error_out)
+        return SEE_INVALID_ARGUMENT;
+
+    cls = SEE_SERIAL_GET_CLASS(self);
+    return cls->set_min_rd_chars(self, nchars, error_out);
+}
+
+int see_serial_get_min_rd_chars(
+    SeeSerial*  self,
+    uint8_t*    nchars,
+    SeeError**  error_out
+)
+{
+    const SeeSerialClass* cls;
+
+    if (!self || !nchars || !error_out || *error_out)
+        return SEE_INVALID_ARGUMENT;
+
+    cls = SEE_SERIAL_GET_CLASS(self);
+    return cls->get_min_rd_chars(self, nchars, error_out);
+}
+
+see_speed_t
+see_serial_nearest_speed(unsigned speed)
+{
+    if (speed == 0)
+        return SEE_B0;
+    else if(speed <= 50)
+        return SEE_B50;
+    else if(speed <= 75)
+        return SEE_B75;
+    else if(speed <= 110)
+        return SEE_B110;
+    else if(speed <= 134)
+        return SEE_B134;
+    else if(speed <= 150)
+        return SEE_B150;
+    else if(speed <= 200)
+        return SEE_B200;
+    else if(speed <= 300)
+        return SEE_B300;
+    else if(speed <= 600)
+        return SEE_B600;
+    else if(speed <= 1200)
+        return SEE_B1200;
+    else if(speed <= 1800)
+        return SEE_B1800;
+    else if(speed <= 2400)
+        return SEE_B2400;
+    else if(speed <= 4800)
+        return SEE_B4800;
+    else if(speed <= 9600)
+        return SEE_B9600;
+    else if(speed <= 19200)
+        return SEE_B19200;
+    else if(speed <= 38400)
+        return SEE_B38400;
+    else if(speed <= 57600)
+        return SEE_B57600;
+    else if(speed <= 115200)
+        return SEE_B115200;
+    else
+        return SEE_B230400;
 }
 
 

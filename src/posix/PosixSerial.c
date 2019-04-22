@@ -175,7 +175,7 @@ posix_serial_open(SeeSerial* self, const char* dev, SeeError** error_out)
     tcflush(pself->fd, TCIOFLUSH);
 
     cfmakeraw(&out_settings);
-    if (tcsetattr(pself->fd, TCSANOW, &out_settings) == -1)  {
+    if (tcsetattr(pself->fd, TCSADRAIN, &out_settings) == -1)  {
         see_runtime_error_create(error_out, errno);
         return SEE_ERROR_RUNTIME;
     }
@@ -346,7 +346,7 @@ posix_serial_set_speed(
         speed = get_posix_speed(s);
         cfsetospeed(&settings, speed);
     }
-    if (tcsetattr(pself->fd, TCSAFLUSH, &settings)) {
+    if (tcsetattr(pself->fd, TCSADRAIN, &settings)) {
         see_runtime_error_create(error_out, errno);
         return SEE_ERROR_RUNTIME;
     }
@@ -450,6 +450,52 @@ posix_serial_get_timeout(const SeeSerial* self, int* ms, SeeError** error)
     return SEE_SUCCESS;
 }
 
+static int
+posix_serial_set_min_rd_chars(
+    SeeSerial*  self,
+    uint8_t     nchars,
+    SeeError**  error_out
+    )
+{
+    SeePosixSerial* pself = SEE_POSIX_SERIAL(self);
+    struct termios settings;
+    int ret = tcgetattr(pself->fd, &settings);
+    if (ret < 0) {
+        see_runtime_error_create(error_out, errno);
+        return SEE_ERROR_RUNTIME;
+    }
+
+    settings.c_cc[VMIN] = nchars;
+
+    ret = tcsetattr(pself->fd, TCSANOW, &settings);
+    if (ret < 0) {
+        see_runtime_error_create(error_out, errno);
+        return SEE_ERROR_RUNTIME;
+    }
+
+    return SEE_SUCCESS;
+}
+
+
+static int
+posix_serial_get_min_rd_chars(
+    const SeeSerial*    self,
+    uint8_t*            nchars,
+    SeeError**          error_out
+    )
+{
+    SeePosixSerial* pself = SEE_POSIX_SERIAL(self);
+    struct termios settings;
+    int ret = tcgetattr(pself->fd, &settings);
+    if (ret < 0) {
+        see_runtime_error_create(error_out, errno);
+        return SEE_ERROR_RUNTIME;
+    }
+
+    *nchars = settings.c_cc[VMIN];
+    return SEE_SUCCESS;
+}
+
 
 /* **** implementation of the public API **** */
 
@@ -492,6 +538,8 @@ static int see_posix_serial_class_init(SeeObjectClass* new_cls)
     serial_cls->is_open     = posix_serial_is_open;
     serial_cls->set_timeout = posix_serial_set_timeout;
     serial_cls->get_timeout = posix_serial_get_timeout;
+    serial_cls->set_min_rd_chars = posix_serial_set_min_rd_chars;
+    serial_cls->get_min_rd_chars = posix_serial_get_min_rd_chars;
 
     /* Set the function pointers of the own class here */
     SeePosixSerialClass* cls = (SeePosixSerialClass*) new_cls;
