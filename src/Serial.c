@@ -271,24 +271,32 @@ see_serial_is_open(
 }
 
 int
-see_serial_set_timeout(SeeSerial* self, int ms, SeeError** error_out)
+see_serial_set_timeout(
+    SeeSerial* self,
+    const SeeDuration* dur,
+    SeeError** error_out
+    )
 {
-    if (!self || !error_out || *error_out)
+    if (!self || !dur ||!error_out || *error_out)
         return SEE_INVALID_ARGUMENT;
 
     const SeeSerialClass* cls = SEE_SERIAL_GET_CLASS(self);
 
-    return cls->set_timeout(self, ms, error_out);
+    return cls->set_timeout(self, dur, error_out);
 }
 
-int see_serial_get_timeout(const SeeSerial* self, int* ms, SeeError** error_out)
+int see_serial_get_timeout(
+    const SeeSerial* self,
+    SeeDuration** dur,
+    SeeError** error_out
+    )
 {
-    if (!self || !ms || !error_out || *error_out)
+    if (!self || !dur || !error_out || *error_out)
         return SEE_INVALID_ARGUMENT;
 
     const SeeSerialClass* cls = SEE_SERIAL_GET_CLASS(self);
 
-    return cls->get_timeout(self, ms, error_out);
+    return cls->get_timeout(self, dur, error_out);
 }
 
 int see_serial_set_min_rd_chars(

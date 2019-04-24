@@ -15,6 +15,11 @@
  * along with see-object.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file PosixSerial.c Implementation of a serial device on Posix platforms
+ * @private
+ */
+
 #include "see_object_config.h"
 
 // Only compile on for a POSIX platform
@@ -403,7 +408,11 @@ posix_serial_is_open(const SeeSerial* self, int* result)
 }
 
 static int
-posix_serial_set_timeout(SeeSerial* self, int ms, SeeError** error)
+posix_serial_set_timeout(
+    SeeSerial* self,
+    const SeeDuration* dur,
+    SeeError** error
+    )
 {
     SeePosixSerial* pself = (SeePosixSerial*) self;
     int ret;
@@ -417,10 +426,14 @@ posix_serial_set_timeout(SeeSerial* self, int ms, SeeError** error)
         return SEE_ERROR_RUNTIME;
     }
 
-    int tenths = ms / 100;
+    int64_t ns = see_duration_nanos(dur);
+    if (ns < 0)
+        ns = 0;
+
+    int64_t tenths = ns / 100000000;
     if (tenths > 255)
         tenths = 255;
-    if (ms > 0 && tenths == 0) // just give the smallest possible timeout
+    if (ns > 0 && tenths == 0) // just give the smallest possible timeout
         tenths = 1;
     settings.c_cc[VTIME] = tenths;
 
@@ -434,7 +447,7 @@ posix_serial_set_timeout(SeeSerial* self, int ms, SeeError** error)
 }
 
 static int
-posix_serial_get_timeout(const SeeSerial* self, int* ms, SeeError** error)
+posix_serial_get_timeout(const SeeSerial* self, SeeDuration** dur, SeeError** error)
 {
     const SeePosixSerial* pself = (const SeePosixSerial*) self;
     struct termios settings;
@@ -445,9 +458,22 @@ posix_serial_get_timeout(const SeeSerial* self, int* ms, SeeError** error)
     }
 
     int tenths = settings.c_cc[VTIME];
-    *ms = tenths * 100;
+    int64_t ms = tenths * 100;
 
-    return SEE_SUCCESS;
+
+    if (*dur == NULL) {
+        ret = see_duration_new_ms(dur, ms, error);
+    }
+    else {
+        SeeDuration* temp = NULL;
+        ret = see_duration_new_ms(&temp, ms, error);
+        if (ret)
+            return ret;
+        ret = see_duration_set(*dur, temp, error);
+        see_object_decref(SEE_OBJECT(temp));
+    }
+
+    return ret;
 }
 
 static int

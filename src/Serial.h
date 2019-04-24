@@ -16,7 +16,14 @@
  */
 
 /**
- * \file Serial.h Export the API of a serial device.
+ * @file Serial.h
+ * @brief Export the API of a serial device.
+ *
+ * This file defines the public interface to serial devices. The current
+ * implementation uses raw non-canonical interface to the serial device.
+ * So it is not ment to emulate terminals, but rather as a communication
+ * class. So the driver shouldn't change any character etc.
+ * Currently, a implementation exists for posix platforms.
  */
 
 #ifndef SEE_SERIAL_H
@@ -25,6 +32,7 @@
 #include <stdint.h>
 #include "SeeObject.h"
 #include "Error.h"
+#include "Duration.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,36 +48,36 @@ typedef enum see_serial_dir{
  * \brief The predefined baudrates of the connection
  */
 typedef enum see_speed {
-    SEE_B0,         /** terminates the connection */
-    SEE_B50,
-    SEE_B75,
-    SEE_B110,
-    SEE_B134,
-    SEE_B150,
-    SEE_B200,
-    SEE_B300,
-    SEE_B600,
-    SEE_B1200,
-    SEE_B1800,
-    SEE_B2400,
-    SEE_B4800,
-    SEE_B9600,
-    SEE_B19200,
-    SEE_B38400,
-    SEE_B57600,
-    SEE_B115200,
-    SEE_B230400
+    SEE_B0,      /**< terminates the connection */
+    SEE_B50,     /**< baudrate 50 */
+    SEE_B75,     /**< baudrate of 75 */
+    SEE_B110,    /**< baudrate of 110 */
+    SEE_B134,    /**< baudrate of 134 */
+    SEE_B150,    /**< baudrate of 150 */
+    SEE_B200,    /**< baudrate of 200 */
+    SEE_B300,    /**< baudrate of 300 */
+    SEE_B600,    /**< baudrate of 600 */
+    SEE_B1200,   /**< baudrate of 1200 */
+    SEE_B1800,   /**< baudrate of 1800 */
+    SEE_B2400,   /**< baudrate of 2400 */
+    SEE_B4800,   /**< baudrate of 4800 */
+    SEE_B9600,   /**< baudrate of 9600 */
+    SEE_B19200,  /**< baudrate of 19200 */
+    SEE_B38400,  /**< baudrate of 38400 */
+    SEE_B57600,  /**< baudrate of 57600 */
+    SEE_B115200, /**< baudrate of 115200 */
+    SEE_B230400  /**< baudrate 230400 */
 }see_speed_t;
 
 typedef struct _SeeSerial SeeSerial;
 typedef struct _SeeSerialClass SeeSerialClass;
 
 struct _SeeSerial {
-    SeeObject parent_obj;
+    SeeObject parent_obj; /**< the parent instance*/
 };
 
 struct _SeeSerialClass {
-    SeeObjectClass parent_cls;
+    SeeObjectClass parent_cls; /**< The parent class */
 
     /**
      * @brief Initializes the serial class.
@@ -241,12 +249,12 @@ struct _SeeSerialClass {
         );
 
     /**
-     * \brief Set a timeout for when read/writes should finish within. Note that eg
+     * \brief Set a timeout for when reads should finish. Note that eg
      * on linux/posix are terminal, read writes can only be specified in .1 s
      * precision.
      *
      * @param [in] self          The serial connection
-     * @param [in] ms            The number of milliseconds before the read/write
+     * @param [in] dur           The number amount of time before the read
      *                           should timeout.
      * @param [out] error_out    Error are returned here.
      *
@@ -256,7 +264,7 @@ struct _SeeSerialClass {
      */
     int (*set_timeout) (
         SeeSerial*  self,
-        int         ms,
+        const SeeDuration* dur,
         SeeError**  error_out
         );
 
@@ -264,7 +272,8 @@ struct _SeeSerialClass {
      * @brief return the timeout in ms.
      *
      * @param [in]  self
-     * @param [out] ms_out
+     * @param [out] dur_out A valid reference to a SeeDuration, if *duration == NULL
+     *                      A new duration will be created and returned.
      * @param [out] error_out
      * @return  SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_ERROR_RUNTIME.
      *
@@ -272,7 +281,7 @@ struct _SeeSerialClass {
      */
     int (*get_timeout)(
         const SeeSerial* self,
-        int*             ms_out,
+        SeeDuration**    dur_out,
         SeeError**       error_out
         );
 
@@ -539,30 +548,31 @@ see_serial_is_open(
  * will be rounded up. while 125, 175 will all be rounded down via integer
  * devision.
  *
- * @param [in] self
- * @param [in] ms
+ * @param [in]  self
+ * @param [in]  A specified duration, use see_serial_get_timeout to see
+ *              which duration you have actually obtained.
  * @param [out] error_out
- * @return  SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_ERROR_RUNTIME
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_ERROR_RUNTIME
  */
 SEE_EXPORT int
 see_serial_set_timeout(
-    SeeSerial*  self,
-    int         ms,
-    SeeError**  error_out
+    SeeSerial*          self,
+    const SeeDuration*  ms,
+    SeeError**          error_out
     );
 
 /**
- * @brief obtain the timeout in ms
+ * @brief obtain the duration before a read should timeout.
  *
  * @param [in]  self
- * @param [out] ms
+ * @param [out] The duration before a read should timeout.
  * @param [out] error_out
  * @return  SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_ERROR_RUNTIME
  */
 SEE_EXPORT int
 see_serial_get_timeout(
     const SeeSerial*    self,
-    int*                ms,
+    SeeDuration**       dur,
     SeeError**          error_out
     );
 
