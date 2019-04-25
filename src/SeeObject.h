@@ -294,6 +294,11 @@ struct _SeeObjectClass {
 #define SEE_OBJECT_GET_CLASS(obj)\
     SEE_OBJECT_CLASS(see_object_get_class(SEE_OBJECT(obj)))
 
+/**
+ * \brief short for see_object_decref(SEE_OBJECT(objj));
+ */
+#define SEE_OBJECT_DECREF(obj)\
+    see_object_decref(SEE_OBJECT(obj))
 
 /* **** public interface **** */
 
@@ -368,6 +373,26 @@ SEE_EXPORT void see_object_decref(SeeObject* obj);
  * Returns SEE_SUCCESS or SEE_RUNTIME_ERROR
  */
 SEE_EXPORT int see_object_repr(const SeeObject* obj, char** out);
+
+/**
+ * \brief Examine whether this instance is of a given class.
+ *
+ * In theory all instances of a SeeObject are an instance of
+ * SeeObjectClass. Of course in order for this function to operate
+ * the instance should be instantiated.
+ *
+ * @param [in] obj The object if obj == NULL, this function returns false
+ * @param [in] cls The class whether or not the instance is
+ *                 an instance of.
+ * @param [out] result The result is non zero when obj is an instance of
+ *                  cls 0 otherwise.
+ * @return SEE_SUCCESS or SEE_INVALID_ARGUMENT
+ */
+SEE_EXPORT int see_object_is_instance_of(
+    const SeeObject*        obj,
+    const SeeObjectClass*   cls,
+    int*                    result
+    );
 
 /* **** class management **** */
 
