@@ -140,7 +140,7 @@ static void object_destroy(SeeObject* obj)
 static const SeeObjectClass g_class = {
 	.obj = {
 		.cls		= &g_class,
-		.refcount	=	1
+		.refcount	= 1
 	},
 	.psuper		= NULL,
 	.name		= "SeeObject",
@@ -222,3 +222,24 @@ void see_object_decref(SeeObject* obj)
     const SeeObjectClass* cls = see_object_get_class(obj);
     cls->decref(obj);
 }
+
+int
+see_object_is_instance_of(
+    const SeeObject*        obj,
+    const SeeObjectClass*   cls,
+    int*                    result
+    )
+{
+    if (!cls)
+        return SEE_INVALID_ARGUMENT;
+
+    const SeeObjectClass* temp_cls = SEE_OBJECT_GET_CLASS(obj);
+    while (temp_cls) {
+        if (temp_cls == cls) {
+            *result = 1;
+        }
+        temp_cls = temp_cls->psuper;
+    }
+    return 0;
+}
+
