@@ -83,7 +83,7 @@ static void instance_of(void)
     ret = see_object_is_instance_of(obj, see_obj_cls, &instance_of);
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
     CU_ASSERT_EQUAL(instance_of, 1);
-    if (!ret)
+    if (ret  != SEE_SUCCESS)
         goto fail;
 
     ret = see_object_is_instance_of(
@@ -91,7 +91,7 @@ static void instance_of(void)
         );
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
     CU_ASSERT_EQUAL(instance_of, 1);
-    if (!ret)
+    if (ret != SEE_SUCCESS)
         goto fail;
 
     ret = see_object_is_instance_of(
@@ -99,7 +99,7 @@ static void instance_of(void)
     );
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
     CU_ASSERT_EQUAL(instance_of, 1);
-    if (!ret)
+    if (ret != SEE_SUCCESS)
         goto fail;
 
     ret = see_object_is_instance_of(
@@ -107,7 +107,7 @@ static void instance_of(void)
     );
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
     CU_ASSERT_EQUAL(instance_of, 0);
-    if (!ret)
+    if (ret != SEE_SUCCESS)
         goto fail;
 
     ret = see_object_is_instance_of(
@@ -115,7 +115,7 @@ static void instance_of(void)
     );
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
     CU_ASSERT_EQUAL(instance_of, 0);
-    if (!ret)
+    if (ret != SEE_SUCCESS)
         goto fail;
 
     ret = see_object_is_instance_of(
@@ -123,7 +123,7 @@ static void instance_of(void)
     );
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
     CU_ASSERT_EQUAL(instance_of, 1);
-    if (!ret)
+    if (ret != SEE_SUCCESS)
         goto fail;
 
     ret = see_object_is_instance_of(
@@ -131,7 +131,15 @@ static void instance_of(void)
     );
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
     CU_ASSERT_EQUAL(instance_of, 1);
-    if (!ret)
+    if (ret != SEE_SUCCESS)
+        goto fail;
+
+    ret = see_object_is_instance_of(
+        NULL, see_obj_cls, &instance_of
+    );
+    CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
+    CU_ASSERT_EQUAL(instance_of, 0);
+    if (ret != SEE_SUCCESS)
         goto fail;
 
 fail:

@@ -233,13 +233,18 @@ see_object_is_instance_of(
     if (!cls)
         return SEE_INVALID_ARGUMENT;
 
+    *result = 0;
+    if (!obj)
+        return SEE_SUCCESS;
+
     const SeeObjectClass* temp_cls = SEE_OBJECT_GET_CLASS(obj);
     while (temp_cls) {
         if (temp_cls == cls) {
             *result = 1;
+            break;
         }
         temp_cls = temp_cls->psuper;
     }
-    return 0;
+    return SEE_SUCCESS;
 }
 
