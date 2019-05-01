@@ -24,7 +24,7 @@
 #if defined(HAVE_TERMIOS_H)
 #include "posix/PosixSerial.h"
 #elif defined(_WIN32)
-#include "window/WindowsSerial.h"
+#include "windows/WindowsSerial.h"
 #endif
 
 /* **** functions that implement SeeSerial or override SeeObject **** */
@@ -105,7 +105,7 @@ see_serial_new_dev(SeeSerial** out, const char* dev, SeeError** error_out)
 #if defined(HAVE_TERMIOS_H) && defined(HAVE_UNISTD_H)
     cls = SEE_SERIAL_CLASS(see_posix_serial_class());
 #elif defined(_WIN32)
-    cls = see_windows_serial_class();
+    cls = SEE_SERIAL_CLASS(see_windows_serial_class());
 #else
 #pragma warning "No serial classes defined."
 #endif
@@ -222,10 +222,10 @@ see_serial_drain(
 
 int
 see_serial_set_speed(
-    SeeSerial* self,
+    SeeSerial*      self,
     see_serial_dir_t dir,
-    speed_t    speed,
-    SeeError** error_out
+    see_speed_t     speed,
+    SeeError**      error_out
     )
 {
     if (!self || !error_out || *error_out)

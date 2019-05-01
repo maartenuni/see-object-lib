@@ -25,9 +25,10 @@
 
 static int
 windows_serial_init(
-    SeeWindowsSerial* windows_serial,
+    SeeWindowsSerial*           windows_serial,
     const SeeWindowsSerialClass* windows_serial_cls,
-    /*Add your parameters here and make sure you obtain them in init below*/
+    const char*                 devfn,
+    SeeError**                  error
     )
 {
     int ret = SEE_SUCCESS;
@@ -35,27 +36,12 @@ windows_serial_init(
         windows_serial
         );
         
-    /* Because every class has its own members to initialize, you have
-     * to check how your parent is initialized and pass through all relevant
-     * parameters here. Typically, this should be parent_name_init, where
-     * parent_name is the name of the parent and it should be the first function
-     * that extends the parent above its parent.
-     * Check how the parent is initialized and pass through the right parameters.
-     */
-    parent_cls->parent_init(windows_serial, windows_serial_cls);
-    
-     /*
-     * Check if the parent initialization was successful.
-     * if not return a useful error value.
-     */
-     
-    /*
-     * Initialize whatever the parents initializer function didn't initialize.
-     * Typically, SeeWindowsSerial extends SeeSerial with one or 
-     * a few new members. Those bytes should be 0, since the default 
-     * SeeObjectClass->new() uses calloc to allocate 1 instance.
-     * However, this is the place to give them a sensible value.
-     */
+    ret = parent_cls->serial_init(
+        SEE_SERIAL(windows_serial),
+        SEE_SERIAL_CLASS(windows_serial_cls),
+        devfn,
+        error
+        );
     
     return ret;
 }
@@ -67,11 +53,14 @@ init(const SeeObjectClass* cls, SeeObject* obj, va_list args)
     SeeWindowsSerial* windows_serial = SEE_WINDOWS_SERIAL(obj);
     
     /*Extract parameters here from va_list args here.*/
+    const char* dev         = va_arg(args, const char*);
+    SeeError**  error_out   = va_arg(args, SeeError**);
     
     return windows_serial_cls->windows_serial_init(
         windows_serial,
-        windows_serial_cls
-        /*Add your extra parameters here.*/
+        windows_serial_cls,
+        dev,
+        error_out
         );
 }
 

@@ -21,7 +21,7 @@
 
 #if defined(_WIN32)
 
-#include "SeeSerial.h"
+#include "../Serial.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,8 +41,9 @@ struct _SeeWindowsSerialClass {
     
     int (*windows_serial_init)(
         SeeWindowsSerial*            windows_serial,
-        const SeeWindowsSerialClass* windows_serial_cls
-        /* Put instance specific arguments here and remove this comment. */
+        const SeeWindowsSerialClass* windows_serial_cls,
+        const char*                  devfn,
+        SeeError**                   error
         );
         
     /* expand SeeWindowsSerial class with extra functions here.*/

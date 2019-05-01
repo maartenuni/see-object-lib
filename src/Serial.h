@@ -38,11 +38,11 @@
 extern "C" {
 #endif
 
-typedef enum see_serial_dir{
+typedef enum see_serial_dir {
     SEE_SERIAL_INPUT    = 1u << 0u,
     SEE_SERIAL_OUTPUT   = 1u << 1u,
     SEE_SERIAL_INOUT     = SEE_SERIAL_INPUT | SEE_SERIAL_OUTPUT
-}see_serial_dir_t;
+} see_serial_dir_t;
 
 /**
  * \brief The predefined baudrates of the connection
@@ -67,7 +67,7 @@ typedef enum see_speed {
     SEE_B57600,  /**< baudrate of 57600 */
     SEE_B115200, /**< baudrate of 115200 */
     SEE_B230400  /**< baudrate 230400 */
-}see_speed_t;
+} see_speed_t;
 
 typedef struct _SeeSerial SeeSerial;
 typedef struct _SeeSerialClass SeeSerialClass;
