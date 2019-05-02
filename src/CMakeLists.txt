@@ -22,12 +22,14 @@ set (SEE_OBJ_SRC
     Duration.cpp
     Error.c
     IndexError.c
+    MsgBuffer.c
     MetaClass.c
     RuntimeError.c
     SeeObject.c
     Serial.c
     TimePoint.cpp
     atomic_operations.c
+    utilities.c
     posix/PosixSerial.c
     windows/WindowsSerial.c
     #priv/see_mutex.cpp
@@ -42,12 +44,14 @@ set (SEE_OBJ_HDR_PUBLIC
     Error.h
     IndexError.h
     see_init.h
+    MsgBuffer.h
     MetaClass.h
     RuntimeError.h
     SeeObject.h
     Serial.h
     TimePoint.h
     atomic_operations.h
+    utilities.h
     ${CMAKE_CURRENT_BINARY_DIR}/see_export.h
     )
 

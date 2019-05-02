@@ -29,6 +29,7 @@ int add_dynamic_array_suite();
 int add_error_suite();
 int add_time_suite();
 int add_serial_suite();
+int add_utilities_suite();
 
 #ifdef __cplusplus
 }

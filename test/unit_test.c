@@ -49,6 +49,8 @@ int add_suites()
     if (res)
         return res;
     
+    res = add_utilities_suite();
+    
     return res;
 }
 
