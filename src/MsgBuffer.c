@@ -848,7 +848,7 @@ init(const SeeObjectClass* cls, SeeObject* obj, va_list args)
 static void
 msg_buffer_destroy(SeeObject* obj)
 {
-    const SeeObjectClass* cls = SEE_OBJECT_GET_CLASS(obj);
+    const SeeObjectClass* cls = see_object_class();
     SeeMsgBuffer* msg = SEE_MSG_BUFFER(obj);
 
     see_msg_buffer_destroy_buffer(msg);
@@ -920,6 +920,19 @@ msg_buffer_num_parts(
 }
 
 /* **** implementation of the public API **** */
+
+int see_msg_buffer_new(SeeMsgBuffer** buf, SeeError** error_out)
+{
+    const SeeObjectClass* cls = SEE_OBJECT_CLASS(see_msg_buffer_class());
+
+    if (!cls)
+        return SEE_NOT_INITIALIZED;
+
+    if (!buf || *buf || !error_out || *error_out)
+        return SEE_INVALID_ARGUMENT;
+
+    return cls->new_obj(cls, 0, SEE_OBJECT_REF(buf), error_out);
+}
 
 /* **** initialization of the class **** */
 

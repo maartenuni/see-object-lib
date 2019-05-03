@@ -626,15 +626,24 @@ struct _SeeMsgBufferClass {
 /* **** public functions **** */
 
 /**
+ * @brief Create a new message buffer.
+ *
+ * @param [out] buf_out   If successful a new buffer is returned here.
+ * @param [out] error_out If unsuccessful a error might be returned here.
+ *
+ * @return SEE_SUCCESS, SEE_NOT_INITIALISED, SEE_INVALID_ARGUMENT
+ */
+SEE_EXPORT int
+see_msg_buffer_new(
+    SeeMsgBuffer**  buf_out,
+    SeeError**      error_out
+    );
+
+/**
  * Gets the pointer to the SeeMsgBufferClass table.
  */
 SEE_EXPORT const SeeMsgBufferClass*
 see_msg_buffer_class();
-
-/* Expand the class with public functions here, don't forget the SEE_EXPORT
- * macro, because otherwise you'll run into troubles when exporting function
- * in a windows dll.
- */
 
 /* **** class initialization functions **** */
 

@@ -24,7 +24,22 @@
 static const char* SUITE_NAME = "SeeMsgBuffer suite";
 
 static void
-msg_part_equal_in_output(void)
+msg_buffer_create(void)
+{
+    SeeError*       error   = NULL;
+    SeeMsgBuffer*   buffer  = NULL;
+    int ret;
+
+    ret = see_msg_buffer_new(&buffer, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    fail:
+    see_object_decref(SEE_OBJECT(error));
+    see_object_decref(SEE_OBJECT(buffer));
+}
+
+static void
+msg_part_create(void)
 {
     SeeError*   error = NULL;
     SeeMsgPart* part  = NULL;
@@ -33,16 +48,16 @@ msg_part_equal_in_output(void)
     ret = see_msg_part_new(&part, &error);
     SEE_UNIT_HANDLE_ERROR();
 
-fail:
+    fail:
     see_object_decref(SEE_OBJECT(error));
     see_object_decref(SEE_OBJECT(part));
 }
 
-
 int add_msg_buffer_suite()
 {
     SEE_UNIT_SUITE_CREATE(NULL,NULL);
-    SEE_UNIT_TEST_CREATE(msg_part_equal_in_output);
+    SEE_UNIT_TEST_CREATE(msg_buffer_create);
+    SEE_UNIT_TEST_CREATE(msg_part_create);
 
     return 0;
 }
