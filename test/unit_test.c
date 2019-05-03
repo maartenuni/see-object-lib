@@ -41,6 +41,10 @@ int add_suites()
     if (res)
         return res;
 
+    res = add_msg_buffer_suite();
+    if (res)
+        return res;
+
     res = add_time_suite();
     if (res)
         return res;

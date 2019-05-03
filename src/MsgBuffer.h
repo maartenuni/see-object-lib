@@ -31,11 +31,11 @@ extern "C" {
 
 /**
  * These enumerated values are used to indicate what kind of value is stored
- * in 1 SeeMsgBufferPart.
+ * in 1 SeeMsgPart.
  */
 enum msg_part_value_t {
     /**
-     * \brief The SeeMsgBufferPart is currently not initialized.
+     * \brief The SeeMsgPart is currently not initialized.
      */
     SEE_MSG_PART_NOT_INIT,
     /**
@@ -75,10 +75,10 @@ enum msg_part_value_t {
     SEE_MSG_PART_TRAILER,
 };
 
-typedef struct _SeeMsgBufferPart SeeMsgBufferPart;
-typedef struct _SeeMsgBufferPartClass SeeMsgBufferPartClass;
+typedef struct _SeeMsgPart SeeMsgPart;
+typedef struct _SeeMsgPartClass SeeMsgPartClass;
 
-struct _SeeMsgBufferPart {
+struct _SeeMsgPart {
 
     /**
      * \brief The parent object
@@ -111,101 +111,112 @@ struct _SeeMsgBufferPart {
      *
      * \private
      */
-    uint32_t    length;
+    uint16_t    length;
 
     /**
      * This value defines the values that this package contains.
      */
-    uint32_t    value_type;
+    uint16_t    value_type;
 };
 
-struct _SeeMsgBufferPartClass {
+struct _SeeMsgPartClass {
 
     SeeObjectClass parent_cls;
 
-    int (*msg_buffer_part_init) (
-        SeeMsgBufferPart*            msg_buffer_part,
-        const SeeMsgBufferPartClass* msg_buffer_part_cls
+    int (*msg_part_init) (
+        SeeMsgPart*            msg_part,
+        const SeeMsgPartClass* msg_part_cls
         /* Put instance specific arguments here and remove this comment. */
         );
 
+    int (*length) (
+        const SeeMsgPart* part,
+        uint16_t*         length,
+        SeeError**        error_out
+        );
+
+    int (*value_type) (
+        const SeeMsgPart* part,
+        uint16_t*         type
+        );
+
     int (*write_int32) (
-        SeeMsgBufferPart*       msg_buf_p,
-        int32_t                 value,
-        SeeError**              error_out
+        SeeMsgPart*       msg_buf_p,
+        int32_t           value,
+        SeeError**        error_out
         );
 
     int (*get_int32) (
-        const SeeMsgBufferPart* msg_buf_p,
-        int32_t*                value,
-        SeeError**              error_out
+        const SeeMsgPart* msg_buf_p,
+        int32_t*          value,
+        SeeError**        error_out
         );
 
     int (*write_uint32) (
-        SeeMsgBufferPart*       msg_buf_p,
-        uint32_t                value,
-        SeeError**              error_out
+        SeeMsgPart*       msg_buf_p,
+        uint32_t          value,
+        SeeError**        error_out
         );
 
     int (*get_uint32) (
-        const SeeMsgBufferPart* msg_buf_p,
-        uint32_t*               value_out,
-        SeeError**              error_out
+        const SeeMsgPart* msg_buf_p,
+        uint32_t*         value_out,
+        SeeError**        error_out
         );
 
     int (*write_int64) (
-        SeeMsgBufferPart*       msg_buf_p,
-        int64_t                 value,
-        SeeError**              error_out
-    );
+        SeeMsgPart*       msg_buf_p,
+        int64_t           value,
+        SeeError**        error_out
+        );
 
     int (*get_int64) (
-        const SeeMsgBufferPart* msg_buf_p,
-        int64_t*                value,
-        SeeError**              error_out
-    );
+        const SeeMsgPart* msg_buf_p,
+        int64_t*          value,
+        SeeError**        error_out
+        );
 
     int (*write_uint64) (
-        SeeMsgBufferPart*       msg_buf_p,
-        uint64_t                value,
-        SeeError**              error_out
-    );
+        SeeMsgPart*       msg_buf_p,
+        uint64_t          value,
+        SeeError**        error_out
+        );
 
     int (*get_uint64) (
-        const SeeMsgBufferPart* msg_buf_p,
-        uint64_t*               value_out,
-        SeeError**              error_out
-    );
+        const SeeMsgPart* msg_buf_p,
+        uint64_t*         value_out,
+        SeeError**        error_out
+        );
 
     int (*write_string) (
-        SeeMsgBufferPart*       msg_buf_p,
-        const char*             value,
-        size_t                  length,
-        SeeError**              error_out
+        SeeMsgPart*       msg_buf_p,
+        const char*       value,
+        size_t            length,
+        SeeError**        error_out
         );
 
     int (*get_string) (
-        SeeMsgBufferPart*       msg_buf_p,
-        char**                  value_out,
-        SeeError**              error_out
+        const SeeMsgPart* msg_buf_p,
+        char**            value_out,
+        SeeError**        error_out
         );
 
     int (*write_float) (
-        SeeMsgBufferPart*       msg_buf,
-        double                  value,
-        SeeError**              error_out
+        SeeMsgPart*       msg_buf,
+        double            value,
+        SeeError**        error_out
         );
 
     int (*get_float) (
-        const SeeMsgBufferPart* msg_buf_p,
-        double*                 value_out,
-        SeeError**              error_out
+        const SeeMsgPart* msg_buf_p,
+        double*           value_out,
+        SeeError**        error_out
         );
 
     int (*buffer_length) (
-        const SeeMsgBufferPart* msg_buf_p,
-        size_t*                 size_out,
-        SeeError**              error_out
+        const SeeMsgPart* msg_buf_p,
+        size_t*           size_out,
+        SeeError**        error_out
         );
 
 };
@@ -213,65 +224,298 @@ struct _SeeMsgBufferPartClass {
 /* **** function style macro casts **** */
 
 /**
- * \brief cast a pointer from a SeeMsgBufferPart derived instance back to a
- *        pointer to SeeMsgBufferPart.
+ * \brief cast a pointer from a SeeMsgPart derived instance back to a
+ *        pointer to SeeMsgPart.
  */
-#define SEE_MSG_BUFFER_PART(obj)                      \
-    ((SeeMsgBufferPart*) obj)
+#define SEE_MSG_PART(obj)                      \
+    ((SeeMsgPart*) obj)
 
 /**
- * \brief cast a pointer to pointer from a SeeMsgBufferPart derived instance back to a
- *        reference to SeeMsgBufferPart*.
+ * \brief cast a pointer to pointer from a SeeMsgPart derived instance back to a
+ *        reference to SeeMsgPart*.
  */
-#define SEE_MSG_BUFFER_PART_REF(ref)                      \
-    ((SeeMsgBufferPart**) ref)
+#define SEE_MSG_PART_REF(ref)                      \
+    ((SeeMsgPart**) ref)
 
 /**
- * \brief cast a pointer to SeeMsgBufferPartClass derived class back to a
- *        pointer to SeeMsgBufferPartClass.
+ * \brief cast a pointer to SeeMsgPartClass derived class back to a
+ *        pointer to SeeMsgPartClass.
  */
-#define SEE_MSG_BUFFER_PART_CLASS(cls)                      \
-    ((const SeeMsgBufferPartClass*) cls)
+#define SEE_MSG_PART_CLASS(cls)                      \
+    ((const SeeMsgPartClass*) cls)
 
 /**
- * \brief obtain a pointer to SeeMsgBufferPartClass from a instance of
- *        derived from SeeMsgBufferPart. This macro is preferably
+ * \brief obtain a pointer to SeeMsgPartClass from a instance of
+ *        derived from SeeMsgPart. This macro is preferably
  *        used when obtaining the class of a instance. When this
  *        macro is used. Calling methods on the class will enable
  *        polymorphism, because you'll get the derived class.
  */
-#define SEE_MSG_BUFFER_PART_GET_CLASS(obj)                \
-    (SEE_MSG_BUFFER_PART_CLASS(see_object_get_class(SEE_OBJECT(obj)) )  )
+#define SEE_MSG_PART_GET_CLASS(obj)                \
+    (SEE_MSG_PART_CLASS(see_object_get_class(SEE_OBJECT(obj)) )  )
 
 /* **** public functions **** */
 
 /**
- * Gets the pointer to the SeeMsgBufferPartClass table.
+ * @brief Create a new message buffer part.
+ *
+ * A message buffer contains 0 or more of these parts.
+ *
+ * @param [out] part A pointer to a SeeMsgPart Pointer*
+ * @param [out] error_out
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_ERROR_RUNTIME
  */
-SEE_EXPORT const SeeMsgBufferPartClass*
-see_msg_buffer_part_class();
+SEE_EXPORT int
+see_msg_part_new(SeeMsgPart** part, SeeError** error_out);
 
-/* Expand the class with public functions here, don't forget the SEE_EXPORT
- * macro, because otherwise you'll run into troubles when exporting function
- * in a windows dll.
+/**
+ * @brief Obtain the length in byte of the message part
+ *
+ * @param [in]  part      The part whose length you would like to know.
+ * @param [out] length    The length of the message part is returned here.
+ * @param [out] error_out If an error occurs it is returned here.
+ *
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT or ...
  */
+SEE_EXPORT int
+see_msg_part_length(
+    const SeeMsgPart* part,
+    uint16_t*         length,
+    SeeError**        error_out
+    );
+
+/**
+ * @brief Obtain the type of a part, this can be used to see what information
+ *        is included in the part.
+ * @param [in]  part The part whose type you would like to know.
+ * @param [out] val_type The value type is returned here.
+ *
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
+ */
+SEE_EXPORT int
+see_msg_part_value_type(
+    const SeeMsgPart*   part,
+    uint16_t*           val_type
+    );
+
+/**
+ * @brief write a signed integer with 32 bits precisions to the part
+ *
+ * @param [in,out]  part        The part to which you would like to write the int.
+ * @param [in]      value       The value to write
+ * @param [out]     error_out   If an error occurs it is returned here.
+ *
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
+ */
+SEE_EXPORT int
+see_msg_write_int32(
+    SeeMsgPart*       part,
+    int32_t           value,
+    SeeError**        error_out
+    );
+
+/**
+ * @brief Obtain a signed integer with 32 bits precisions from the part
+ *
+ * @param [in,out]  part        The part to which you would like to obtain the int.
+ * @param [out]     value       The value is returned here
+ * @param [out]     error_out   If an error occurs it is returned here.
+ *
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
+ */
+SEE_EXPORT int
+see_msg_get_int32(
+    const SeeMsgPart* part,
+    int32_t*          value,
+    SeeError**        error_out
+    );
+
+/**
+ * @brief write a unsigned integer with 32 bits precisions to the part
+ *
+ * @param [in,out]  part        The part to which you would like to write the int.
+ * @param [in]      value       The value to write
+ * @param [out]     error_out   If an error occurs it is returned here.
+ *
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
+ */
+SEE_EXPORT int
+see_msg_write_uint32(
+    SeeMsgPart*       part,
+    uint32_t           value,
+    SeeError**        error_out
+    );
+
+/**
+ * @brief Obtain a unsigned integer with 32 bits precisions from the part
+ *
+ * @param [in,out]  part        The part to which you would like to obtain the int.
+ * @param [out]     value       The value is returned here
+ * @param [out]     error_out   If an error occurs it is returned here.
+ *
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
+ */
+SEE_EXPORT int
+see_msg_get_uint32(
+    const SeeMsgPart* part,
+    uint32_t*         value,
+    SeeError**        error_out
+    );
+
+/**
+ * @brief write a signed integer with 64 bits precisions to the part
+ *
+ * @param [in,out]  part        The part to which you would like to write the int.
+ * @param [in]      value       The value to write
+ * @param [out]     error_out   If an error occurs it is returned here.
+ *
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
+ */
+SEE_EXPORT int
+see_msg_write_int64(
+    SeeMsgPart*       part,
+    int64_t           value,
+    SeeError**        error_out
+    );
+
+/**
+ * @brief Obtain a signed integer with 64 bits precisions from the part
+ *
+ * @param [in,out]  part        The part to which you would like to obtain the int.
+ * @param [out]     value       The value is returned here
+ * @param [out]     error_out   If an error occurs it is returned here.
+ *
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
+ */
+SEE_EXPORT int
+see_msg_get_int64(
+    const SeeMsgPart* part,
+    int64_t*          value,
+    SeeError**        error_out
+    );
+
+/**
+ * @brief write a unsigned integer with 64 bits precisions to the part
+ *
+ * @param [in,out]  part        The part to which you would like to write the int.
+ * @param [in]      value       The value to write
+ * @param [out]     error_out   If an error occurs it is returned here.
+ *
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
+ */
+SEE_EXPORT int
+see_msg_write_uint64(
+    SeeMsgPart*       part,
+    uint64_t           value,
+    SeeError**        error_out
+    );
+
+/**
+ * @brief Obtain a unsigned integer with 64 bits precisions from the part
+ *
+ * @param [in,out]  part        The part to which you would like to obtain the int.
+ * @param [out]     value       The value is returned here
+ * @param [out]     error_out   If an error occurs it is returned here.
+ *
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
+ */
+SEE_EXPORT int
+see_msg_get_uint64(
+    const SeeMsgPart* part,
+    uint64_t*         value,
+    SeeError**        error_out
+    );
+
+/**
+ * @brief write a string to the part
+ *
+ * @param [in,out]  part        The part to which you would like to write the int.
+ * @param [in]      value       The string to write.
+ * @param [in]      size        The length in bytes of the string.
+ * @param [out]     error_out   If an error occurs it is returned here.
+ *
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
+ */
+SEE_EXPORT int
+see_msg_write_string(
+    SeeMsgPart*     part,
+    const char*     value,
+    size_t          size,
+    SeeError**      error_out
+    );
+
+/**
+ * @brief Obtain a string from the message part.
+ * @param [in] part      The part from which to obtain a message
+ * @param [out]value     The value is returned here, free it after use.
+ * @param [out]error_out If an error occurs info about is returned here.
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_ERROR_RUNTIME
+ */
+SEE_EXPORT int
+see_msg_get_string(
+    const SeeMsgPart*   part,
+    char**              value,
+    SeeError**          error_out
+    );
+
+/**
+ * @brief write a floating point number to the part.
+ *
+ * @param [in,out]  part        The part to which you would like to write the int.
+ * @param [in]      value       The value to write
+ * @param [out]     error_out   If an error occurs it is returned here.
+ *
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
+ */
+SEE_EXPORT int
+see_msg_write_float(
+    SeeMsgPart*         part,
+    double              value,
+    SeeError**          error_out
+    );
+
+/**
+ * @brief Obtain a floating point number from the part
+ *
+ * @param [in,out]  part        The part to which you would like to obtain the int.
+ * @param [out]     value       The value is returned here
+ * @param [out]     error_out   If an error occurs it is returned here.
+ *
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
+ */
+SEE_EXPORT int
+see_msg_get_float(
+    const SeeMsgPart*   part,
+    double*             value,
+    SeeError**          error_out
+    );
+
+
+/**
+ * Gets the pointer to the SeeMsgPartClass table.
+ */
+SEE_EXPORT const SeeMsgPartClass*
+see_msg_part_class();
 
 /* **** class initialization functions **** */
 
 /**
- * Initialize SeeMsgBufferPart; make it ready for use.
+ * Initialize SeeMsgPart; make it ready for use.
  */
 SEE_EXPORT
-int see_msg_buffer_part_init();
+int see_msg_part_init();
 
 /**
- * Deinitialize SeeMsgBufferPart, after SeeMsgBufferPart has been deinitialized,
+ * Deinitialize SeeMsgPart, after SeeMsgPart has been deinitialized,
  * all functions in this header shouldn't be used anymore.
  */
 SEE_EXPORT
-void see_msg_buffer_part_deinit();
+void see_msg_part_deinit();
 
+
+/* ************************ */
 /* **** Message Buffer **** */
+/* ************************ */
 
 typedef struct _SeeMsgBuffer SeeMsgBuffer;
 typedef struct _SeeMsgBufferClass SeeMsgBufferClass;
@@ -298,7 +542,7 @@ struct _SeeMsgBuffer {
      */
     void*               buffer;
 
-    int                 msg_type;
+    uint16_t            msg_type;
 };
 
 struct _SeeMsgBufferClass {
@@ -307,23 +551,43 @@ struct _SeeMsgBufferClass {
     
     int (*msg_buffer_init)(
         SeeMsgBuffer*            msg_buffer,
-        const SeeMsgBufferClass* msg_buffer_cls
-        /* Put instance specific arguments here and remove this comment. */
+        const SeeMsgBufferClass* msg_buffer_cls,
+        SeeError**               error_out
         );
-        
-    /* expand SeeMsgBuffer class with extra functions here.*/
+
+    int (*set_msg_type) (
+        SeeMsgBuffer*       msg,
+        uint16_t            msg_type
+        );
+
+    int (*get_msg_type) (
+        const SeeMsgBuffer* msg,
+        uint16_t*           msg_type
+        );
 
     int (*add_part) (
         SeeMsgBuffer*       msg,
-        SeeMsgBufferPart*   buf,
+        SeeMsgPart*   buf,
         SeeError**          error
         );
 
     int (*get_part) (
         SeeMsgBuffer*       msg,
-        SeeMsgBuffer**      part_out,
+        size_t              size,
+        SeeMsgPart**  part_out,
         SeeError**          error_out
         );
+
+    int (*num_parts) (
+        const SeeMsgBuffer* msg,
+        size_t*             size
+        );
+
+//    int (*get_buffer) (
+//        SeeMsgBuffer*   msg,
+//        void**          buffer_out,
+//        SeeError**      error_out
+//        );
 };
 
 /* **** function style macro casts **** */

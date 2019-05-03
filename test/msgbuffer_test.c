@@ -15,36 +15,34 @@
  * along with see-object.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * \file see_functions.c implementations of some standard functions.
- *
- *
- */
 
-#include <string.h>
-#include <stdint.h>
-#include "SeeObject.h"
-#include "see_functions.h"
+#include <stdio.h>
+#include <CUnit/CUnit.h>
+#include "../src/MsgBuffer.h"
+#include "test_macros.h"
 
-void* see_copy_by_ref(void* dest_seeobj, const void* src, size_t unused)
+static const char* SUITE_NAME = "SeeMsgBuffer suite";
+
+static void
+msg_part_equal_in_output(void)
 {
-    (void) unused;
-    memcpy(dest_seeobj, src, sizeof(SeeObject*));
-    see_object_ref(dest_seeobj);
-    return dest_seeobj;
+    SeeError*   error = NULL;
+    SeeMsgPart* part  = NULL;
+    int ret;
+
+    ret = see_msg_part_new(&part, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+fail:
+    see_object_decref(SEE_OBJECT(error));
+    see_object_decref(SEE_OBJECT(part));
 }
 
-int
-see_init_memset(void* obj, size_t nbytes, void* byte)
-{
-    int byte_value = 0;
-    if (byte)
-        byte_value = *((uint8_t*) byte);
-    memset(obj, byte_value, nbytes);
-    return SEE_SUCCESS;
-}
 
-void see_free_see_object(void* object)
+int add_msg_buffer_suite()
 {
-    see_object_decref(object);
+    SEE_UNIT_SUITE_CREATE(NULL,NULL);
+    SEE_UNIT_TEST_CREATE(msg_part_equal_in_output);
+
+    return 0;
 }

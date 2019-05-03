@@ -82,6 +82,19 @@ see_copy_by_ref(void* dest_seeobj, const void* src_seeobj, size_t unused);
 SEE_EXPORT int
 see_init_memset(void* object, size_t nbytes, void* byte);
 
+/**
+ * \brief A function that will free a see object from a pointer.
+ *
+ * Sometimes it might be handy to have a function that is able to destroy
+ * another see_object, for instance when a container object is destroy, it
+ * might want to see_object_decref() all instances it contains. This function
+ * does exactly that.
+ *
+ * @param see_object, this must be a see_object.
+ */
+SEE_EXPORT void
+see_free_see_object(void* see_object);
+
 #ifdef __cplusplus
 }
 #endif

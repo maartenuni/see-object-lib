@@ -83,7 +83,7 @@
  *     SeeMyObj* obj  = NULL;
  *
  *     ret = see_my_obj_new(&obj, &error);
- *     SEE_UNIT_HANDLE_ERROR() // no ";" required.
+ *     SEE_UNIT_HANDLE_ERROR();
  *
  *     // Run further tests here.
  *
@@ -99,6 +99,8 @@
  * \private
  */
 #define SEE_UNIT_HANDLE_ERROR()                             \
+do                                                          \
+{                                                           \
     if (ret != SEE_SUCCESS) {                               \
         CU_ASSERT(ret == SEE_SUCCESS);                      \
         if (error){                                         \
@@ -111,6 +113,7 @@
                 __FILE__, __LINE__);                        \
         }                                                   \
         goto fail;                                          \
-    }
+    }                                                       \
+}while(0)
 
 #endif

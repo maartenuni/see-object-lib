@@ -26,6 +26,7 @@ if (BUILD_UNIT_TESTS)
         dynamic_array_test.c
         error_test.c
         meta_test.c
+        msgbuffer_test.c
         see_object_test.c
         serial_test.c
         utilities_tests.c
