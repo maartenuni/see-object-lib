@@ -74,6 +74,10 @@ initialize() {
     if (ret)
         return ret;
 
+    ret = see_msg_part_type_error_init();
+    if (ret)
+        return ret;
+
     ret = see_runtime_error_init();
     if (ret)
         return ret;

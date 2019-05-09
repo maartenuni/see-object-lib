@@ -42,7 +42,14 @@ enum see_error {
     SEE_ERROR_RUNTIME,         /**< Inspect errno for clue.*/
     SEE_NOT_INITIALIZED,       /**< making use of an uninitialized class/function.*/
     SEE_ERROR_INDEX,           /**< Index is out of the valid range. */
-    SEE_ERROR_MSG_PART_TYPE    /**< Incorrect usage of the msg type */
+    SEE_ERROR_MSG_PART_TYPE,   /**< Incorrect usage of the msg type */
+    /**
+     * Some unspecified error occurred.
+     *
+     * It would be best to have a specific error for everything.
+     * Perhaps the see_error_msg() yields useful information.
+     */
+    SEE_ERROR_UNEXPECTED
 };
 
 #ifdef __cplusplus

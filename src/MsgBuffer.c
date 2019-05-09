@@ -159,8 +159,12 @@ msg_part_get_int32 (
     )
 {
     if (part->value_type != SEE_MSG_PART_INT32_T) {
-        int toto_create_a_error;
-        return; // SEE_ERROR_MESSAGE;
+        see_msg_part_type_error_new(
+            SEE_MSG_PART_TYPE_ERROR_REF(error_out),
+            SEE_MSG_PART_INT32_T,
+            part->value_type
+            );
+        return SEE_ERROR_MSG_PART_TYPE;
     }
 
     int32_t host_val = see_network_to_host32(part->value.int32_val);
@@ -196,8 +200,12 @@ msg_part_get_uint32 (
     )
 {
     if (part->value_type != SEE_MSG_PART_UINT32_T) {
-        int toto_create_a_error;
-        return; // SEE_ERROR_MESSAGE;
+        see_msg_part_type_error_new(
+            SEE_MSG_PART_TYPE_ERROR_REF(error_out),
+            SEE_MSG_PART_UINT32_T,
+            part->value_type
+        );
+        return SEE_ERROR_MSG_PART_TYPE;
     }
 
     uint32_t host_val = see_network_to_host32(part->value.uint32_val);
@@ -233,8 +241,12 @@ msg_part_get_int64 (
     )
 {
     if (part->value_type != SEE_MSG_PART_INT64_T) {
-        int toto_create_a_error;
-        return; // SEE_ERROR_MESSAGE;
+        see_msg_part_type_error_new(
+            SEE_MSG_PART_TYPE_ERROR_REF(error_out),
+            SEE_MSG_PART_INT64_T,
+            part->value_type
+        );
+        return SEE_ERROR_MSG_PART_TYPE;
     }
 
     int64_t host_val = see_network_to_host64(part->value.int64_val);
@@ -270,10 +282,10 @@ msg_part_get_uint64 (
     )
 {
     if (part->value_type != SEE_MSG_PART_UINT64_T) {
-        int toto_create_a_error;
         see_msg_part_type_error_new(
-            error_out,
-            "MsgPart is not a uint64_t"
+            SEE_MSG_PART_TYPE_ERROR_REF(error_out),
+            SEE_MSG_PART_UINT64_T,
+            part->value_type
             );
         return SEE_ERROR_MSG_PART_TYPE;
     }
@@ -309,18 +321,12 @@ msg_part_write_string(
 }
 
 static int
-msg_part_get_string(
+msg_part_retrieve_string(
     const SeeMsgPart* part,
-    char**                  value_out,
-    SeeError**              error_out
+    char**            value_out,
+    SeeError**        error_out
     )
 {
-    // floats are also encoded as string
-    if ( part->value_type != SEE_MSG_PART_STRING_T &&
-         part->value_type != SEE_MSG_PART_FLOAT_T ) {
-        return SEE_ERROR_RUNTIME;
-    }
-
     size_t length = part->length - msg_part_header_length();
     char*out = malloc(length + 1);
     if (!out) {
@@ -332,6 +338,26 @@ msg_part_get_string(
     *value_out = out;
 
     return SEE_SUCCESS;
+}
+
+static int
+msg_part_get_string(
+    const SeeMsgPart* part,
+    char**                  value_out,
+    SeeError**              error_out
+    )
+{
+    // floats are also encoded as string
+    if (part->value_type != SEE_MSG_PART_STRING_T) {
+        see_msg_part_type_error_new(
+            SEE_MSG_PART_TYPE_ERROR_REF(error_out),
+            SEE_MSG_PART_STRING_T,
+            part->value_type
+        );
+        return SEE_ERROR_MSG_PART_TYPE;
+    }
+
+    return msg_part_retrieve_string(part, value_out, error_out);
 }
 
 static int
@@ -364,18 +390,36 @@ msg_part_get_float(
     const SeeMsgPartClass* cls = SEE_MSG_PART_GET_CLASS(part);
     char* text_double = NULL;
     double output;
+    if (part->value_type != SEE_MSG_PART_FLOAT_T) {
+        see_msg_part_type_error_new(
+            SEE_MSG_PART_TYPE_ERROR_REF(error_out),
+            SEE_MSG_PART_STRING_T,
+            part->value_type
+        );
+        return SEE_ERROR_MSG_PART_TYPE;
+    }
 
-    int ret = cls->get_string(part, &text_double, error_out);
+    int ret = msg_part_retrieve_string(part, &text_double, error_out);
     if (ret)
         return ret;
 
     assert(text_double != NULL);
     int num_matched = sscanf(text_double, "%lg", &output);
     if (num_matched == 0) {
-        int create_error;
-        return SEE_ERROR_RUNTIME;
+        SeeError* error = NULL;
+        char buffer[128];
+        snprintf(
+            buffer,
+            sizeof(buffer),
+            "The string \"%10.s\", doesn't contain a float",
+            text_double
+            );
+        see_error_new_msg(error_out, buffer);
+        free(text_double);
+        return SEE_ERROR_UNEXPECTED;
     }
     *value_out = output;
+    free(text_double);
 
     return SEE_SUCCESS;
 }
@@ -383,8 +427,8 @@ msg_part_get_float(
 static int
 msg_part_buffer_length(
     const SeeMsgPart* part,
-    size_t*                 size,
-    SeeError**              error_out
+    size_t*           size,
+    SeeError**        error_out
     )
 {
     if ( part->value_type == SEE_MSG_PART_NOT_INIT ||
@@ -882,9 +926,9 @@ msg_buffer_get_type(
 
 static int
 msg_buffer_add_part(
-    SeeMsgBuffer*       mbuf,
+    SeeMsgBuffer* mbuf,
     SeeMsgPart*   mpart,
-    SeeError**          error_out
+    SeeError**    error_out
     )
 {
     return see_dynamic_array_add(mbuf->parts, &mpart, error_out);
@@ -892,10 +936,10 @@ msg_buffer_add_part(
 
 static int
 msg_buffer_get_part(
-    SeeMsgBuffer*       mbuf,
-    size_t              n,
-    SeeMsgPart**  mbpart,
-    SeeError**          error_out
+    SeeMsgBuffer*   mbuf,
+    size_t          n,
+    SeeMsgPart**    mbpart,
+    SeeError**      error_out
     )
 {
     SeeMsgPart* part = NULL;
@@ -1002,5 +1046,163 @@ const SeeMsgBufferClass*
 see_msg_buffer_class()
 {
     return g_SeeMsgBufferClass;
+}
+
+/* ********************************* */
+/* **** Message Part Type Error **** */
+/* ********************************* */
+
+static const char*
+msg_part_value_type_to_string(see_msg_part_value_t value)
+{
+    switch(value) {
+        case SEE_MSG_PART_NOT_INIT:
+            return "Uninitialized";
+        case SEE_MSG_PART_INT32_T:
+            return "int32_t";
+        case SEE_MSG_PART_INT64_T:
+            return "int64_t";
+        case SEE_MSG_PART_UINT32_T:
+            return "uint32_t";
+        case SEE_MSG_PART_UINT64_T:
+            return "uint64_t";
+        case SEE_MSG_PART_STRING_T:
+            return "string";
+        case SEE_MSG_PART_FLOAT_T:
+            return "float";
+        default:
+            assert(0 == 1);
+            return NULL;
+    }
+}
+
+static int
+msg_part_type_error_init(
+    SeeMsgPartTypeError*            msg_part_type_error,
+    const SeeMsgPartTypeErrorClass* msg_part_type_error_cls,
+    see_msg_part_value_t            expected,
+    see_msg_part_value_t            asked
+    )
+{
+    int ret = SEE_SUCCESS;
+    const SeeErrorClass* parent_cls = SEE_ERROR_GET_CLASS(
+        msg_part_type_error
+        );
+
+    char msg[1024];
+
+    snprintf(msg, sizeof(msg), "MessagePart is a %s, but it is used as an %s",
+        msg_part_value_type_to_string(expected),
+        msg_part_value_type_to_string(asked)
+        );
+
+    parent_cls->error_init(
+        SEE_ERROR(msg_part_type_error),
+        SEE_ERROR_CLASS(msg_part_type_error_cls),
+        msg
+        );
+
+    return ret;
+}
+
+static int
+type_error_init(const SeeObjectClass* cls, SeeObject* obj, va_list args)
+{
+    const SeeMsgPartTypeErrorClass* msg_part_type_error_cls = SEE_MSG_PART_TYPE_ERROR_CLASS(cls);
+    SeeMsgPartTypeError* msg_part_type_error = SEE_MSG_PART_TYPE_ERROR(obj);
+
+    /*Extract parameters here from va_list args here.*/
+
+    see_msg_part_value_t expected = va_arg(args, see_msg_part_value_t);
+    see_msg_part_value_t asked    = va_arg(args, see_msg_part_value_t);
+
+    return msg_part_type_error_cls->msg_part_type_error_init(
+        msg_part_type_error,
+        cls,
+        expected,
+        asked
+        );
+}
+
+/* **** implementation of the public API **** */
+int
+see_msg_part_type_error_new(
+    SeeMsgPartTypeError** error,
+    see_msg_part_value_t  expected,
+    see_msg_part_value_t  asked
+    )
+{
+    const SeeObjectClass* cls = SEE_OBJECT_CLASS(
+        see_msg_part_type_error_class()
+        );
+
+    if (!cls) {
+        assert(cls != NULL);
+        return SEE_NOT_INITIALIZED;
+    }
+
+    if (!error || *error)
+        return SEE_INVALID_ARGUMENT;
+
+    return cls->new_obj(cls, 0, SEE_OBJECT_REF(error), expected, asked);
+}
+
+/* **** initialization of the class **** */
+
+SeeMsgPartTypeErrorClass* g_SeeMsgPartTypeErrorClass = NULL;
+
+static int see_msg_part_type_error_class_init(SeeObjectClass* new_cls)
+{
+    int ret = SEE_SUCCESS;
+
+    /* Override the functions on the parent here */
+    new_cls->init = type_error_init;
+
+    /* Set the function pointers of the own class here */
+    SeeMsgPartTypeErrorClass* cls = (SeeMsgPartTypeErrorClass*) new_cls;
+    cls->msg_part_type_error_init = msg_part_type_error_init;
+
+    return ret;
+}
+
+/**
+ * \private
+ * \brief this class initializes SeeMsgPartTypeError(Class).
+ *
+ * You might want to call this from the library initialization func.
+ */
+int
+see_msg_part_type_error_init()
+{
+    int ret;
+    const SeeMetaClass* meta = see_meta_class_class();
+
+    ret = see_meta_class_new_class(
+        meta,
+        (SeeObjectClass**) &g_SeeMsgPartTypeErrorClass,
+        sizeof(SeeMsgPartTypeErrorClass),
+        sizeof(SeeMsgPartTypeError),
+        SEE_OBJECT_CLASS(see_error_class()),
+        sizeof(SeeErrorClass),
+        see_msg_part_type_error_class_init
+        );
+
+    return ret;
+}
+
+void
+see_msg_part_type_error_deinit()
+{
+    if(!g_SeeMsgPartTypeErrorClass)
+        return;
+
+    see_object_decref(SEE_OBJECT(g_SeeMsgPartTypeErrorClass));
+    g_SeeMsgPartTypeErrorClass = NULL;
+}
+
+const SeeMsgPartTypeErrorClass*
+see_msg_part_type_error_class()
+{
+    return g_SeeMsgPartTypeErrorClass;
 }
 

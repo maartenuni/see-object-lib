@@ -33,7 +33,7 @@ extern "C" {
  * These enumerated values are used to indicate what kind of value is stored
  * in 1 SeeMsgPart.
  */
-enum msg_part_value_t {
+typedef enum msg_part_value_t {
     /**
      * \brief The SeeMsgPart is currently not initialized.
      */
@@ -73,7 +73,7 @@ enum msg_part_value_t {
      * package is invalid.
      */
     SEE_MSG_PART_TRAILER,
-};
+} see_msg_part_value_t;
 
 typedef struct _SeeMsgPart SeeMsgPart;
 typedef struct _SeeMsgPartClass SeeMsgPartClass;
@@ -659,6 +659,100 @@ int see_msg_buffer_init();
  */
 SEE_EXPORT
 void see_msg_buffer_deinit();
+
+
+/* ********************************* */
+/* **** Message Part Type Error **** */
+/* ********************************* */
+
+typedef struct _SeeMsgPartTypeError SeeMsgPartTypeError;
+typedef struct _SeeMsgPartTypeErrorClass SeeMsgPartTypeErrorClass;
+
+struct _SeeMsgPartTypeError {
+    SeeError parent_obj;
+    /*expand SeeMsgPartTypeError data here*/
+
+};
+
+struct _SeeMsgPartTypeErrorClass {
+    SeeErrorClass parent_cls;
+
+    int (*msg_part_type_error_init)(
+        SeeMsgPartTypeError*            msg_part_type_error,
+        const SeeMsgPartTypeErrorClass* msg_part_type_error_cls,
+        see_msg_part_value_t            expected,
+        see_msg_part_value_t            asked
+        );
+
+};
+
+/* **** function style macro casts **** */
+
+/**
+ * \brief cast a pointer from a SeeMsgPartTypeError derived instance back to a
+ *        pointer to SeeMsgPartTypeError.
+ */
+#define SEE_MSG_PART_TYPE_ERROR(obj)                      \
+    ((SeeMsgPartTypeError*) obj)
+
+/**
+ * \brief cast a pointer to pointer from a SeeMsgPartTypeError derived instance back to a
+ *        reference to SeeMsgPartTypeError*.
+ */
+#define SEE_MSG_PART_TYPE_ERROR_REF(ref)                      \
+    ((SeeMsgPartTypeError**) ref)
+
+/**
+ * \brief cast a pointer to SeeMsgPartTypeErrorClass derived class back to a
+ *        pointer to SeeMsgPartTypeErrorClass.
+ */
+#define SEE_MSG_PART_TYPE_ERROR_CLASS(cls)                      \
+    ((const SeeMsgPartTypeErrorClass*) cls)
+
+/**
+ * \brief obtain a pointer to SeeMsgPartTypeErrorClass from a instance of
+ *        derived from SeeMsgPartTypeError. This macro is preferably
+ *        used when obtaining the class of a instance. When this
+ *        macro is used. Calling methods on the class will enable
+ *        polymorphism, because you'll get the derived class.
+ */
+#define SEE_MSG_PART_TYPE_ERROR_GET_CLASS(obj)                \
+    (SEE_MSG_PART_TYPE_ERROR_CLASS(see_object_get_class(SEE_OBJECT(obj)) )  )
+
+/* **** public functions **** */
+
+SEE_EXPORT int
+see_msg_part_type_error_new(
+    SeeMsgPartTypeError**   error,
+    see_msg_part_value_t    expected,
+    see_msg_part_value_t    asked
+    );
+
+/**
+ * Gets the pointer to the SeeMsgPartTypeErrorClass table.
+ */
+SEE_EXPORT const SeeMsgPartTypeErrorClass*
+see_msg_part_type_error_class();
+
+/* Expand the class with public functions here, don't forget the SEE_EXPORT
+ * macro, because otherwise you'll run into troubles when exporting function
+ * in a windows dll.
+ */
+
+/* **** class initialization functions **** */
+
+/**
+ * Initialize SeeMsgPartTypeError; make it ready for use.
+ */
+SEE_EXPORT
+int see_msg_part_type_error_init();
+
+/**
+ * Deinitialize SeeMsgPartTypeError, after SeeMsgPartTypeError has been deinitialized,
+ * all functions in this header shouldn't be used anymore.
+ */
+SEE_EXPORT
+void see_msg_part_type_error_deinit();
 
 #ifdef __cplusplus
 }
