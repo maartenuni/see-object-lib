@@ -33,15 +33,16 @@ extern "C" {
 /**
  * \public
  * \brief This enumeration exports the errors that are returned when a
- * see_object_do_someting(object, param1, ... paramn) is unsuccessful.
+ * see_object_do_something(object, param1, ... paramn) is unsuccessful.
  */
 enum see_error {
-    SEE_SUCCESS = 0,       /**< Everything looks dandy! */
-    SEE_ERROR_INTERNAL,    /**< Something inside the library is broken */
-    SEE_INVALID_ARGUMENT,  /**< Inspect arguments given to function*/
-    SEE_ERROR_RUNTIME,     /**< Inspect errno for clue.*/
-    SEE_NOT_INITIALIZED,   /**< making use of an uninitialized class/function.*/
-    SEE_ERROR_INDEX,       /**< Index is out of the valid range. */
+    SEE_SUCCESS = 0,           /**< Everything looks dandy! */
+    SEE_ERROR_INTERNAL,        /**< Something inside the library is broken */
+    SEE_INVALID_ARGUMENT,      /**< Inspect arguments given to function*/
+    SEE_ERROR_RUNTIME,         /**< Inspect errno for clue.*/
+    SEE_NOT_INITIALIZED,       /**< making use of an uninitialized class/function.*/
+    SEE_ERROR_INDEX,           /**< Index is out of the valid range. */
+    SEE_ERROR_MSG_PART_TYPE    /**< Incorrect usage of the msg type */
 };
 
 #ifdef __cplusplus

@@ -308,7 +308,7 @@ see_msg_part_value_type(
  * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
  */
 SEE_EXPORT int
-see_msg_write_int32(
+see_msg_part_write_int32(
     SeeMsgPart*       part,
     int32_t           value,
     SeeError**        error_out
@@ -324,7 +324,7 @@ see_msg_write_int32(
  * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
  */
 SEE_EXPORT int
-see_msg_get_int32(
+see_msg_part_get_int32(
     const SeeMsgPart* part,
     int32_t*          value,
     SeeError**        error_out
@@ -340,7 +340,7 @@ see_msg_get_int32(
  * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
  */
 SEE_EXPORT int
-see_msg_write_uint32(
+see_msg_part_write_uint32(
     SeeMsgPart*       part,
     uint32_t           value,
     SeeError**        error_out
@@ -356,7 +356,7 @@ see_msg_write_uint32(
  * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
  */
 SEE_EXPORT int
-see_msg_get_uint32(
+see_msg_part_get_uint32(
     const SeeMsgPart* part,
     uint32_t*         value,
     SeeError**        error_out
@@ -372,7 +372,7 @@ see_msg_get_uint32(
  * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
  */
 SEE_EXPORT int
-see_msg_write_int64(
+see_msg_part_write_int64(
     SeeMsgPart*       part,
     int64_t           value,
     SeeError**        error_out
@@ -388,7 +388,7 @@ see_msg_write_int64(
  * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
  */
 SEE_EXPORT int
-see_msg_get_int64(
+see_msg_part_get_int64(
     const SeeMsgPart* part,
     int64_t*          value,
     SeeError**        error_out
@@ -404,7 +404,7 @@ see_msg_get_int64(
  * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
  */
 SEE_EXPORT int
-see_msg_write_uint64(
+see_msg_part_write_uint64(
     SeeMsgPart*       part,
     uint64_t           value,
     SeeError**        error_out
@@ -420,7 +420,7 @@ see_msg_write_uint64(
  * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
  */
 SEE_EXPORT int
-see_msg_get_uint64(
+see_msg_part_get_uint64(
     const SeeMsgPart* part,
     uint64_t*         value,
     SeeError**        error_out
@@ -437,7 +437,7 @@ see_msg_get_uint64(
  * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
  */
 SEE_EXPORT int
-see_msg_write_string(
+see_msg_part_write_string(
     SeeMsgPart*     part,
     const char*     value,
     size_t          size,
@@ -452,7 +452,7 @@ see_msg_write_string(
  * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_ERROR_RUNTIME
  */
 SEE_EXPORT int
-see_msg_get_string(
+see_msg_part_get_string(
     const SeeMsgPart*   part,
     char**              value,
     SeeError**          error_out
@@ -468,7 +468,7 @@ see_msg_get_string(
  * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
  */
 SEE_EXPORT int
-see_msg_write_float(
+see_msg_part_write_float(
     SeeMsgPart*         part,
     double              value,
     SeeError**          error_out
@@ -484,7 +484,7 @@ see_msg_write_float(
  * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
  */
 SEE_EXPORT int
-see_msg_get_float(
+see_msg_part_get_float(
     const SeeMsgPart*   part,
     double*             value,
     SeeError**          error_out

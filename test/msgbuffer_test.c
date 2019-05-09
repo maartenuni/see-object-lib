@@ -53,11 +53,40 @@ msg_part_create(void)
     see_object_decref(SEE_OBJECT(part));
 }
 
+static void
+msg_part_get_set_equal(void)
+{
+    SeeError*   error = NULL;
+    SeeMsgPart* part  = NULL;
+    int32_t in32 = 10245, out32;
+    uint32_t generates_error;
+    int ret;
+
+    ret = see_msg_part_new(&part, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_msg_part_write_int32(part, in32, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_msg_part_get_int32(part, &out32, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_msg_part_get_uint32(part, &generates_error, &error);
+    CU_ASSERT_EQUAL(ret, SEE_ERROR_MSG_PART_TYPE);
+
+    CU_ASSERT_EQUAL(in32, out32);
+
+fail:
+    see_object_decref(SEE_OBJECT(error));
+    see_object_decref(SEE_OBJECT(part));
+}
+
 int add_msg_buffer_suite()
 {
     SEE_UNIT_SUITE_CREATE(NULL,NULL);
     SEE_UNIT_TEST_CREATE(msg_buffer_create);
     SEE_UNIT_TEST_CREATE(msg_part_create);
+    SEE_UNIT_TEST_CREATE(msg_part_get_set_equal);
 
     return 0;
 }

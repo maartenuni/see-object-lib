@@ -271,7 +271,11 @@ msg_part_get_uint64 (
 {
     if (part->value_type != SEE_MSG_PART_UINT64_T) {
         int toto_create_a_error;
-        return; // SEE_ERROR_MESSAGE;
+        see_msg_part_type_error_new(
+            error_out,
+            "MsgPart is not a uint64_t"
+            );
+        return SEE_ERROR_MSG_PART_TYPE;
     }
 
     int64_t host_val = see_network_to_host64(part->value.int64_val);
@@ -448,7 +452,7 @@ see_msg_part_value_type(
 }
 
 int
-see_msg_write_int32(
+see_msg_part_write_int32(
     SeeMsgPart*       part,
     int32_t           value,
     SeeError**        error_out
@@ -467,7 +471,7 @@ see_msg_write_int32(
 }
 
 int
-see_msg_get_int32(
+see_msg_part_get_int32(
     const SeeMsgPart* part,
     int32_t*                value,
     SeeError**              error_out
@@ -486,7 +490,7 @@ see_msg_get_int32(
 }
 
 int
-see_msg_write_uint32(
+see_msg_part_write_uint32(
     SeeMsgPart*       part,
     uint32_t                value,
     SeeError**              error_out
@@ -505,7 +509,7 @@ see_msg_write_uint32(
 }
 
 int
-see_msg_get_uint32(
+see_msg_part_get_uint32(
     const SeeMsgPart* part,
     uint32_t*               value,
     SeeError**              error_out
@@ -524,7 +528,7 @@ see_msg_get_uint32(
 }
 
 int
-see_msg_write_int64(
+see_msg_part_write_int64(
     SeeMsgPart*       part,
     int64_t                 value,
     SeeError**              error_out
@@ -543,7 +547,7 @@ see_msg_write_int64(
 }
 
 int
-see_msg_get_int64(
+see_msg_part_get_int64(
     const SeeMsgPart* part,
     int64_t*                value,
     SeeError**              error_out
@@ -562,7 +566,7 @@ see_msg_get_int64(
 }
 
 int
-see_msg_write_uint64(
+see_msg_part_write_uint64(
     SeeMsgPart*       part,
     uint64_t                value,
     SeeError**              error_out
@@ -581,7 +585,7 @@ see_msg_write_uint64(
 }
 
 int
-see_msg_get_uint64(
+see_msg_part_get_uint64(
     const SeeMsgPart* part,
     uint64_t*               value,
     SeeError**              error_out
@@ -600,7 +604,7 @@ see_msg_get_uint64(
 }
 
 int
-see_msg_write_string(
+see_msg_part_write_string(
     SeeMsgPart*       part,
     const char*             value,
     size_t                  length,
@@ -620,7 +624,7 @@ see_msg_write_string(
 }
 
 int
-see_msg_get_string(
+see_msg_part_get_string(
     const SeeMsgPart*   part,
     char**              value,
     SeeError**          error_out
@@ -639,7 +643,7 @@ see_msg_get_string(
 }
 
 int
-see_msg_write_float(
+see_msg_part_write_float(
     SeeMsgPart*       part,
     double                  value,
     SeeError**              error_out
@@ -658,7 +662,7 @@ see_msg_write_float(
 }
 
 int
-see_msg_get_float(
+see_msg_part_get_float(
     const SeeMsgPart* part,
     double*                 value,
     SeeError**              error_out
@@ -677,7 +681,7 @@ see_msg_get_float(
 }
 
 int
-see_msg_buffer_length(
+see_msg_part_buffer_length(
     const SeeMsgPart* part,
     size_t*                 value,
     SeeError**              error_out
