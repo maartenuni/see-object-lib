@@ -81,12 +81,94 @@ fail:
     see_object_decref(SEE_OBJECT(part));
 }
 
+static void
+msg_part_get_set_string(void)
+{
+    SeeError*   error   = NULL;
+    SeeMsgPart* part    = NULL;
+    const char* input   = "Hello World";
+    char* output        = NULL;
+    int ret;
+
+    ret = see_msg_part_new(&part, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_msg_part_write_string(part, input, strlen(input), &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_msg_part_write_string(part, input, strlen(input), &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_msg_part_get_string(part, &output, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    CU_ASSERT_STRING_EQUAL(input, output);
+
+fail:
+    see_object_decref(SEE_OBJECT(error));
+    see_object_decref(SEE_OBJECT(part));
+    free(output);
+}
+
+static void
+msg_part_get_set_float(void)
+{
+    SeeError*   error   = NULL;
+    SeeMsgPart* part    = NULL;
+    float       input   = M_E;
+    float       output;
+    int ret;
+
+    ret = see_msg_part_new(&part, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_msg_part_write_float(part, input, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_msg_part_get_float(part, &output, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    CU_ASSERT_EQUAL(input, output);
+
+fail:
+    see_object_decref(SEE_OBJECT(error));
+    see_object_decref(SEE_OBJECT(part));
+}
+
+static void
+msg_part_get_set_double(void)
+{
+    SeeError*   error   = NULL;
+    SeeMsgPart* part    = NULL;
+    double      input   = M_PI;
+    double      output;
+    int ret;
+
+    ret = see_msg_part_new(&part, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_msg_part_write_double(part, input, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_msg_part_get_double(part, &output, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    CU_ASSERT_EQUAL(input, output);
+
+fail:
+    see_object_decref(SEE_OBJECT(error));
+    see_object_decref(SEE_OBJECT(part));
+}
+
 int add_msg_buffer_suite()
 {
-    SEE_UNIT_SUITE_CREATE(NULL,NULL);
+    SEE_UNIT_SUITE_CREATE(NULL, NULL);
     SEE_UNIT_TEST_CREATE(msg_buffer_create);
     SEE_UNIT_TEST_CREATE(msg_part_create);
     SEE_UNIT_TEST_CREATE(msg_part_get_set_equal);
+    SEE_UNIT_TEST_CREATE(msg_part_get_set_string);
+    SEE_UNIT_TEST_CREATE(msg_part_get_set_float);
+    SEE_UNIT_TEST_CREATE(msg_part_get_set_double);
 
     return 0;
 }

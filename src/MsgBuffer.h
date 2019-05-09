@@ -61,12 +61,15 @@ typedef enum msg_part_value_t {
      * encoded inside of the buffer.
      */
     SEE_MSG_PART_STRING_T,
+
     /**
-     * \brief The part contains a floating point number. The number is encoded
-     * as a string message part. So the string should be converted back to a
-     * double/float.
+     * \brief The part contains a floating point number.
      */
     SEE_MSG_PART_FLOAT_T,
+    /**
+     * \brief The part contains a floating point number.
+     */
+    SEE_MSG_PART_DOUBLE_T,
 
     /**
      * \brief If a type larger or equal to this type is received we know the
@@ -78,6 +81,9 @@ typedef enum msg_part_value_t {
 typedef struct _SeeMsgPart SeeMsgPart;
 typedef struct _SeeMsgPartClass SeeMsgPartClass;
 
+/**
+ * \brief a structure to send one specific element over a wire.
+ */
 struct _SeeMsgPart {
 
     /**
@@ -90,9 +96,10 @@ struct _SeeMsgPart {
     /**
      * \brief The value is put in this union.
      *
-     * floating point number are transformed to string and subsequently stored
-     * as a string.
-     * Integers are stored in network order.
+     * The integers are put in network order into this union.
+     * The same goes for the floating point numbers. The string is a pointer
+     * to a string. The 0 byte is not send over the connection, hence the length
+     * of the SeeMsgPart should be used to deduce the length.
      * \private
      */
     union {
@@ -101,6 +108,8 @@ struct _SeeMsgPart {
         int64_t     int64_val;
         uint64_t    uint64_val;
         char*       str_val;
+        double      double_val;
+        float       float_val;
     } value;
 
     /**
@@ -109,14 +118,22 @@ struct _SeeMsgPart {
      * The length is consists of the length of the header of the part
      * which is sizeof(length) + sizeof(value_type) + sizeof the payload.
      *
+     * The length of the package is only used to determine the length of the
+     * string. In all other cases the number of bytes that the c type uses
+     * defines the length of the part. Then the length of one part is:
+     * length = sizeof(value_type) + sizeof(c-type)
+     * length = 1 + the number of bytes for a int32_t or double etc.
+     *
      * \private
      */
-    uint16_t    length;
+    uint32_t    length;
 
     /**
-     * This value defines the values that this package contains.
+     * \brief This value defines the value that this package contains.
+     *
+     * For non string types this also determines the length of the part.
      */
-    uint16_t    value_type;
+    uint8_t    value_type;
 };
 
 struct _SeeMsgPartClass {
@@ -203,11 +220,23 @@ struct _SeeMsgPartClass {
 
     int (*write_float) (
         SeeMsgPart*       msg_buf,
-        double            value,
+        float             value,
         SeeError**        error_out
         );
 
     int (*get_float) (
+        const SeeMsgPart* msg_buf_p,
+        float*            value_out,
+        SeeError**        error_out
+        );
+
+    int (*write_double) (
+        SeeMsgPart*       msg_buf,
+        double            value,
+        SeeError**        error_out
+        );
+
+    int (*get_double) (
         const SeeMsgPart* msg_buf_p,
         double*           value_out,
         SeeError**        error_out
@@ -342,7 +371,7 @@ see_msg_part_get_int32(
 SEE_EXPORT int
 see_msg_part_write_uint32(
     SeeMsgPart*       part,
-    uint32_t           value,
+    uint32_t          value,
     SeeError**        error_out
     );
 
@@ -470,14 +499,14 @@ see_msg_part_get_string(
 SEE_EXPORT int
 see_msg_part_write_float(
     SeeMsgPart*         part,
-    double              value,
+    float               value,
     SeeError**          error_out
     );
 
 /**
  * @brief Obtain a floating point number from the part
  *
- * @param [in,out]  part        The part to which you would like to obtain the int.
+ * @param [in,out]  part        The part to which you would like to obtain the float.
  * @param [out]     value       The value is returned here
  * @param [out]     error_out   If an error occurs it is returned here.
  *
@@ -486,10 +515,41 @@ see_msg_part_write_float(
 SEE_EXPORT int
 see_msg_part_get_float(
     const SeeMsgPart*   part,
-    double*             value,
+    float*              value,
     SeeError**          error_out
     );
 
+/**
+ * @brief write a double precision floating point number to the part.
+ *
+ * @param [in,out]  part        The part to which you would like to write the double.
+ * @param [in]      value       The value to write
+ * @param [out]     error_out   If an error occurs it is returned here.
+ *
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
+ */
+SEE_EXPORT int
+see_msg_part_write_double(
+    SeeMsgPart*         part,
+    double              value,
+    SeeError**          error_out
+    );
+
+/**
+ * @brief Obtain a double precision floating point number from the part
+ *
+ * @param [in,out]  part        The part to which you would like to obtain the int.
+ * @param [out]     value       The value is returned here
+ * @param [out]     error_out   If an error occurs it is returned here.
+ *
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
+ */
+SEE_EXPORT int
+see_msg_part_get_double(
+    const SeeMsgPart*   part,
+    double*             value,
+    SeeError**          error_out
+    );
 
 /**
  * Gets the pointer to the SeeMsgPartClass table.
@@ -567,14 +627,14 @@ struct _SeeMsgBufferClass {
 
     int (*add_part) (
         SeeMsgBuffer*       msg,
-        SeeMsgPart*   buf,
+        SeeMsgPart*         buf,
         SeeError**          error
         );
 
     int (*get_part) (
         SeeMsgBuffer*       msg,
         size_t              size,
-        SeeMsgPart**  part_out,
+        SeeMsgPart**        part_out,
         SeeError**          error_out
         );
 

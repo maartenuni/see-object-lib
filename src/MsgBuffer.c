@@ -42,17 +42,17 @@
 #include "utilities.h"
 #include "RuntimeError.h"
 
-/**
- * \brief Returns the length of the header of one SeeMsgPart
- * @return The length of the header
- * \private
- */
-static size_t
-msg_part_header_length()
-{
-    // sizeof(SeeMsgPart.value_type) + sizeof(SeeMsgPart.length);
-    return sizeof(uint16_t) + sizeof(uint16_t);
-}
+///**
+// * \brief Returns the length of the header of one SeeMsgPart
+// * @return The length of the header
+// * \private
+// */
+//static size_t
+//msg_part_header_length()
+//{
+//    // sizeof(SeeMsgPart.value_type) + sizeof(SeeMsgPart.length);
+//    return sizeof(uint16_t) + sizeof(uint16_t);
+//}
 
 /**
  * \brief If the message part needs to allocate resources they are freed here
@@ -74,9 +74,10 @@ msg_part_destroy_content(SeeMsgPart* mbp)
         case SEE_MSG_PART_INT64_T:
         case SEE_MSG_PART_UINT32_T:
         case SEE_MSG_PART_UINT64_T:
+        case SEE_MSG_PART_FLOAT_T:
+        case SEE_MSG_PART_DOUBLE_T:
             break; // nothing to free.
         case SEE_MSG_PART_STRING_T:
-        case SEE_MSG_PART_FLOAT_T:
             free(mbp->value.str_val);
             break;
         default:
@@ -92,7 +93,7 @@ static int
 msg_part_init(
     SeeMsgPart* msg_part,
     const SeeMsgPartClass* msg_part_cls
-)
+    )
 {
     int ret = SEE_SUCCESS;
     const SeeObjectClass* parent_cls = SEE_OBJECT_GET_CLASS(
@@ -146,7 +147,7 @@ msg_part_write_int32(
     part->value_type        = SEE_MSG_PART_INT32_T;
     part->value.int32_val   = see_host_to_network32(value);
 
-    part->length = msg_part_header_length() + sizeof(int32_t);
+    part->length = sizeof(int32_t) + sizeof(uint8_t);
 
     return SEE_SUCCESS;
 }
@@ -187,7 +188,7 @@ msg_part_write_uint32(
     part->value_type        = SEE_MSG_PART_UINT32_T;
     part->value.uint32_val  = see_host_to_network32(value);
 
-    part->length = msg_part_header_length() + sizeof(uint32_t);
+    part->length = sizeof(uint32_t) + sizeof(uint8_t);
 
     return SEE_SUCCESS;
 }
@@ -228,7 +229,7 @@ msg_part_write_int64(
     part->value_type        = SEE_MSG_PART_INT64_T;
     part->value.int64_val   = see_host_to_network64(value);
 
-    part->length = msg_part_header_length() + sizeof(int64_t);
+    part->length = sizeof(uint8_t) + sizeof(int64_t);
 
     return SEE_SUCCESS;
 }
@@ -258,8 +259,8 @@ msg_part_get_int64 (
 static int
 msg_part_write_uint64(
     SeeMsgPart*   part,
-    uint64_t            value,
-    SeeError**          error_out
+    uint64_t      value,
+    SeeError**    error_out
     )
 {
     (void) error_out;
@@ -269,7 +270,7 @@ msg_part_write_uint64(
     part->value_type        = SEE_MSG_PART_UINT64_T;
     part->value.uint64_val  = see_host_to_network64(value);
 
-    part->length = msg_part_header_length() + sizeof(uint64_t);
+    part->length = sizeof(uint8_t) + sizeof(uint64_t);
 
     return SEE_SUCCESS;
 }
@@ -277,8 +278,8 @@ msg_part_write_uint64(
 static int
 msg_part_get_uint64 (
     const SeeMsgPart* part,
-    uint64_t*               value,
-    SeeError**              error_out
+    uint64_t*         value,
+    SeeError**        error_out
     )
 {
     if (part->value_type != SEE_MSG_PART_UINT64_T) {
@@ -299,9 +300,9 @@ msg_part_get_uint64 (
 static int
 msg_part_write_string(
     SeeMsgPart*   part,
-    const char*         value,
-    size_t              length,
-    SeeError**          error_out
+    const char*   value,
+    size_t        length,
+    SeeError**    error_out
     )
 {
 
@@ -315,7 +316,9 @@ msg_part_write_string(
 
     memcpy(duplicate, value, length);
 
-    part->length = msg_part_header_length() + length;
+    part->length        = sizeof(uint8_t) + sizeof(uint32_t) + length;
+    part->value_type    = SEE_MSG_PART_STRING_T;
+    part->value.str_val = duplicate;
 
     return SEE_SUCCESS;
 }
@@ -327,7 +330,7 @@ msg_part_retrieve_string(
     SeeError**        error_out
     )
 {
-    size_t length = part->length - msg_part_header_length();
+    size_t length = part->length - (sizeof(uint8_t)  + sizeof(uint32_t));
     char*out = malloc(length + 1);
     if (!out) {
         see_runtime_error_create(error_out, errno);
@@ -343,8 +346,8 @@ msg_part_retrieve_string(
 static int
 msg_part_get_string(
     const SeeMsgPart* part,
-    char**                  value_out,
-    SeeError**              error_out
+    char**            value_out,
+    SeeError**        error_out
     )
 {
     // floats are also encoded as string
@@ -362,34 +365,26 @@ msg_part_get_string(
 
 static int
 msg_part_write_float(
-    SeeMsgPart*   part,
-    double              value,
-    SeeError**          error_out
+    SeeMsgPart* part,
+    float       value,
+    SeeError**  error_out
     )
 {
-    const SeeMsgPartClass* cls = SEE_MSG_PART_GET_CLASS(part);
-
-    char buffer[64];
-    snprintf(buffer, sizeof(buffer), "%g", value);
-    size_t length = strlen(buffer);
-    int ret = cls->write_string(part, buffer, length, error_out);
-    if(ret)
-        return ret;
-    part->value_type = SEE_MSG_PART_FLOAT_T;
-
+    (void) error_out;
+    assert(sizeof(float) == sizeof(uint32_t));
+    part->value.float_val   = value;
+    part->value.uint32_val  = see_swap_endianess32(part->value.uint32_val);
+    part->value_type        = SEE_MSG_PART_FLOAT_T;
     return SEE_SUCCESS;
 }
 
 static int
 msg_part_get_float(
-    const SeeMsgPart* part,
-    double*                 value_out,
-    SeeError**              error_out
+    const SeeMsgPart*   part,
+    float*              value_out,
+    SeeError**          error_out
     )
 {
-    const SeeMsgPartClass* cls = SEE_MSG_PART_GET_CLASS(part);
-    char* text_double = NULL;
-    double output;
     if (part->value_type != SEE_MSG_PART_FLOAT_T) {
         see_msg_part_type_error_new(
             SEE_MSG_PART_TYPE_ERROR_REF(error_out),
@@ -399,27 +394,57 @@ msg_part_get_float(
         return SEE_ERROR_MSG_PART_TYPE;
     }
 
-    int ret = msg_part_retrieve_string(part, &text_double, error_out);
-    if (ret)
-        return ret;
+    union {
+        float       flt_val;
+        uint32_t    int_val;
+    } temp;
 
-    assert(text_double != NULL);
-    int num_matched = sscanf(text_double, "%lg", &output);
-    if (num_matched == 0) {
-        SeeError* error = NULL;
-        char buffer[128];
-        snprintf(
-            buffer,
-            sizeof(buffer),
-            "The string \"%10.s\", doesn't contain a float",
-            text_double
-            );
-        see_error_new_msg(error_out, buffer);
-        free(text_double);
-        return SEE_ERROR_UNEXPECTED;
+    temp.int_val = see_swap_endianess32(part->value.uint32_val);
+
+    *value_out = temp.flt_val;
+
+    return SEE_SUCCESS;
+}
+
+static int
+msg_part_write_double(
+    SeeMsgPart* part,
+    double      value,
+    SeeError**  error_out
+    )
+{
+    (void) error_out;
+    assert(sizeof (double) == sizeof(uint64_t));
+    part->value.double_val   = value;
+    part->value.uint64_val  = see_swap_endianess64(part->value.uint64_val);
+    part->value_type        = SEE_MSG_PART_DOUBLE_T;
+    return SEE_SUCCESS;
+}
+
+static int
+msg_part_get_double(
+    const SeeMsgPart*   part,
+    double*              value_out,
+    SeeError**          error_out
+    )
+{
+    if (part->value_type != SEE_MSG_PART_DOUBLE_T) {
+        see_msg_part_type_error_new(
+            SEE_MSG_PART_TYPE_ERROR_REF(error_out),
+            SEE_MSG_PART_STRING_T,
+            part->value_type
+        );
+        return SEE_ERROR_MSG_PART_TYPE;
     }
-    *value_out = output;
-    free(text_double);
+
+    union {
+        double      flt_val;
+        uint64_t    int_val;
+    } temp;
+
+    temp.int_val = see_swap_endianess64(part->value.uint64_val);
+
+    *value_out = temp.flt_val;
 
     return SEE_SUCCESS;
 }
@@ -433,11 +458,12 @@ msg_part_buffer_length(
 {
     if ( part->value_type == SEE_MSG_PART_NOT_INIT ||
          part->value_type >= SEE_MSG_PART_TRAILER ) {
-        SeeError* error = NULL;
+        errno = EINVAL;
+        see_runtime_error_create(error_out, errno);
         return SEE_ERROR_RUNTIME;
     }
 
-    *size = part->length - msg_part_header_length();
+    *size = part->length;
 
     return SEE_SUCCESS;
 }
@@ -689,8 +715,8 @@ see_msg_part_get_string(
 int
 see_msg_part_write_float(
     SeeMsgPart*       part,
-    double                  value,
-    SeeError**              error_out
+    float             value,
+    SeeError**        error_out
     )
 {
     const SeeMsgPartClass* cls;
@@ -708,8 +734,8 @@ see_msg_part_write_float(
 int
 see_msg_part_get_float(
     const SeeMsgPart* part,
-    double*                 value,
-    SeeError**              error_out
+    float*            value,
+    SeeError**        error_out
     )
 {
     const SeeMsgPartClass* cls;
@@ -722,6 +748,44 @@ see_msg_part_get_float(
     cls = SEE_MSG_PART_GET_CLASS(part);
 
     return cls->get_float(part, value, error_out);
+}
+
+int
+see_msg_part_write_double(
+    SeeMsgPart*       part,
+    double            value,
+    SeeError**        error_out
+    )
+{
+    const SeeMsgPartClass* cls;
+    if (!part || !value)
+        return SEE_INVALID_ARGUMENT;
+
+    if (!error_out || *error_out)
+        return SEE_INVALID_ARGUMENT;
+
+    cls = SEE_MSG_PART_GET_CLASS(part);
+
+    return cls->write_double(part, value, error_out);
+}
+
+int
+see_msg_part_get_double(
+    const SeeMsgPart* part,
+    double*           value,
+    SeeError**        error_out
+    )
+{
+    const SeeMsgPartClass* cls;
+    if (!part || !value)
+        return SEE_INVALID_ARGUMENT;
+
+    if (!error_out || *error_out)
+        return SEE_INVALID_ARGUMENT;
+
+    cls = SEE_MSG_PART_GET_CLASS(part);
+
+    return cls->get_double(part, value, error_out);
 }
 
 int
@@ -775,6 +839,8 @@ static int see_msg_part_class_init(SeeObjectClass* new_cls)
 
     cls->write_float            = msg_part_write_float;
     cls->get_float              = msg_part_get_float;
+    cls->write_double           = msg_part_write_double;
+    cls->get_double             = msg_part_get_double;
 
     cls->buffer_length          = msg_part_buffer_length;
 
@@ -1070,6 +1136,8 @@ msg_part_value_type_to_string(see_msg_part_value_t value)
             return "string";
         case SEE_MSG_PART_FLOAT_T:
             return "float";
+        case SEE_MSG_PART_DOUBLE_T:
+            return "double";
         default:
             assert(0 == 1);
             return NULL;
@@ -1118,7 +1186,7 @@ type_error_init(const SeeObjectClass* cls, SeeObject* obj, va_list args)
 
     return msg_part_type_error_cls->msg_part_type_error_init(
         msg_part_type_error,
-        cls,
+        msg_part_type_error_cls,
         expected,
         asked
         );
