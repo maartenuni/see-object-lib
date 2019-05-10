@@ -135,6 +135,44 @@ part_init(const SeeObjectClass* cls, SeeObject* obj, va_list args)
 }
 
 static int
+msg_part_length(
+    const SeeMsgPart*   part,
+    uint32_t*           size,
+    SeeError**          error
+    )
+{
+    if (part->value_type == SEE_MSG_PART_NOT_INIT ||
+        part->value_type >= SEE_MSG_PART_TRAILER) {
+        errno = EINVAL;
+        see_runtime_error_create(error, errno);
+        return SEE_ERROR_RUNTIME;
+    }
+
+    assert(sizeof(uint32_t) == sizeof(float));
+    assert(sizeof(uint64_t) == sizeof(double));
+    switch (part->value_type) {
+        case SEE_MSG_PART_INT32_T:
+        case SEE_MSG_PART_UINT32_T:
+        case SEE_MSG_PART_FLOAT_T:
+            *size = sizeof(int32_t);
+            break;
+        case SEE_MSG_PART_INT64_T:
+        case SEE_MSG_PART_UINT64_T:
+        case SEE_MSG_PART_DOUBLE_T:
+            *size = sizeof(int64_t);
+            break;
+        case SEE_MSG_PART_STRING_T:
+            *size = part->length;
+            break;
+        default:
+            assert(0 == 1);
+            return SEE_ERROR_INTERNAL;
+    }
+
+    return SEE_SUCCESS;
+}
+
+static int
 msg_part_write_int32(
     SeeMsgPart*   part,
     int32_t             value,
@@ -490,8 +528,8 @@ see_msg_part_new(SeeMsgPart** mbp, SeeError** error_out)
 int
 see_msg_part_length(
     const SeeMsgPart* part,
-    uint16_t*               length,
-    SeeError**              error_out
+    uint32_t*         length,
+    SeeError**        error_out
     )
 {
     const SeeMsgPartClass* cls;
@@ -509,7 +547,7 @@ see_msg_part_length(
 int
 see_msg_part_value_type(
     const SeeMsgPart* part,
-    uint16_t*               val_type
+    uint8_t*          val_type
     )
 {
     const SeeMsgPartClass* cls;
@@ -822,27 +860,29 @@ static int see_msg_part_class_init(SeeObjectClass* new_cls)
 
     /* Set the function pointers of the own class here */
     SeeMsgPartClass* cls = (SeeMsgPartClass*) new_cls;
-    cls->msg_part_init   = msg_part_init;
 
-    cls->write_int32            = msg_part_write_int32;
-    cls->get_int32              = msg_part_get_int32;
-    cls->write_uint32           = msg_part_write_uint32;
-    cls->get_uint32             = msg_part_get_uint32;
+    cls->msg_part_init  = msg_part_init;
+    cls->length         = msg_part_length;
 
-    cls->write_int64            = msg_part_write_int64;
-    cls->get_int64              = msg_part_get_int64;
-    cls->write_uint64           = msg_part_write_uint64;
-    cls->get_uint64             = msg_part_get_uint64;
+    cls->write_int32    = msg_part_write_int32;
+    cls->get_int32      = msg_part_get_int32;
+    cls->write_uint32   = msg_part_write_uint32;
+    cls->get_uint32     = msg_part_get_uint32;
 
-    cls->write_string           = msg_part_write_string;
-    cls->get_string             = msg_part_get_string;
+    cls->write_int64    = msg_part_write_int64;
+    cls->get_int64      = msg_part_get_int64;
+    cls->write_uint64   = msg_part_write_uint64;
+    cls->get_uint64     = msg_part_get_uint64;
 
-    cls->write_float            = msg_part_write_float;
-    cls->get_float              = msg_part_get_float;
-    cls->write_double           = msg_part_write_double;
-    cls->get_double             = msg_part_get_double;
+    cls->write_string   = msg_part_write_string;
+    cls->get_string     = msg_part_get_string;
 
-    cls->buffer_length          = msg_part_buffer_length;
+    cls->write_float    = msg_part_write_float;
+    cls->get_float      = msg_part_get_float;
+    cls->write_double   = msg_part_write_double;
+    cls->get_double     = msg_part_get_double;
+
+    cls->buffer_length  = msg_part_buffer_length;
 
     return ret;
 }

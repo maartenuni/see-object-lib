@@ -148,13 +148,13 @@ struct _SeeMsgPartClass {
 
     int (*length) (
         const SeeMsgPart* part,
-        uint16_t*         length,
+        uint32_t*         length,
         SeeError**        error_out
         );
 
     int (*value_type) (
         const SeeMsgPart* part,
-        uint16_t*         type
+        uint8_t*          type
         );
 
     int (*write_int32) (
@@ -309,7 +309,7 @@ see_msg_part_new(SeeMsgPart** part, SeeError** error_out);
 SEE_EXPORT int
 see_msg_part_length(
     const SeeMsgPart* part,
-    uint16_t*         length,
+    uint32_t*         length,
     SeeError**        error_out
     );
 
@@ -324,7 +324,7 @@ see_msg_part_length(
 SEE_EXPORT int
 see_msg_part_value_type(
     const SeeMsgPart*   part,
-    uint16_t*           val_type
+    uint8_t*            val_type
     );
 
 /**
