@@ -70,6 +70,10 @@ initialize() {
     if (ret)
         return ret;
 
+    ret = see_msg_invalid_error_init();
+    if (ret)
+        return ret;
+
     ret = see_msg_part_init();
     if (ret)
         return ret;
@@ -104,7 +108,9 @@ deinit()
     see_error_deinit();
     see_index_error_deinit();
     see_msg_buffer_deinit();
+    see_msg_invalid_error_deinit();
     see_msg_part_deinit();
+    see_msg_part_type_error_deinit();
     see_runtime_error_deinit();
     see_serial_deinit();
     see_time_point_deinit();
