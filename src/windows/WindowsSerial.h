@@ -20,6 +20,8 @@
 #define SEE_WINDOWS_SERIAL_H
 
 #if defined(_WIN32)
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
 
 #include "../Serial.h"
 
@@ -32,8 +34,8 @@ typedef struct _SeeWindowsSerialClass SeeWindowsSerialClass;
 
 struct _SeeWindowsSerial {
     SeeSerial parent_obj;
-    /*expand SeeWindowsSerial data here*/
-        
+
+    HANDLE fd;
 };
 
 struct _SeeWindowsSerialClass {

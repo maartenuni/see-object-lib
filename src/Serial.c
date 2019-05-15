@@ -102,6 +102,7 @@ see_serial_new_dev(SeeSerial** out, const char* dev, SeeError** error_out)
 {
     const SeeSerialClass* cls = NULL;
 
+    // examine which backends are available and load the right one.
 #if defined(HAVE_TERMIOS_H) && defined(HAVE_UNISTD_H)
     cls = SEE_SERIAL_CLASS(see_posix_serial_class());
 #elif defined(_WIN32)

@@ -55,8 +55,6 @@ void serial_use_unopened(void)
     SEE_UNIT_HANDLE_ERROR()
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
 
-
-
     ret = see_serial_write(serial, buffer, &bufsz, &error);
     CU_ASSERT_EQUAL(ret, SEE_ERROR_RUNTIME);
     CU_ASSERT_EQUAL(
@@ -89,7 +87,7 @@ fail:
     see_object_decref(SEE_OBJECT(error));
 }
 
-int add_serial_suite()
+int add_serial_suite(void)
 {
     SEE_UNIT_SUITE_CREATE(NULL, NULL);
     SEE_UNIT_TEST_CREATE(serial_create);

@@ -157,8 +157,17 @@ static int
 posix_serial_open(SeeSerial* self, const char* dev, SeeError** error_out)
 {
     struct termios out_settings;
-
+    const SeeSerialClass* cls = SEE_SERIAL_GET_CLASS(self);
     SeePosixSerial* pself = SEE_POSIX_SERIAL(self);
+
+    int open;
+    cls->is_open(self, &open);
+    if (open) {
+        ret = cls->close(self, error_out);
+        if (ret)
+            return ret;
+    }
+
     pself->fd = open(dev, O_RDWR | O_NOCTTY);
     if (pself->fd < 0) {
         see_runtime_error_create(error_out, errno);
