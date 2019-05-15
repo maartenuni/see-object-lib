@@ -18,6 +18,11 @@
 #include "test_macros.h"
 #include "../src/Serial.h"
 #include "../src/RuntimeError.h"
+#include "see_object_config.h"
+
+#if HAVE_WINDOWS_H
+#include "../src/windows/WindowsRuntimeError.h"
+#endif
 
 static const char* SUITE_NAME = "Serial Suite";
 
@@ -57,10 +62,17 @@ void serial_use_unopened(void)
 
     ret = see_serial_write(serial, buffer, &bufsz, &error);
     CU_ASSERT_EQUAL(ret, SEE_ERROR_RUNTIME);
+#if HAVE_WINDOWS_H
+    CU_ASSERT_EQUAL(
+        SEE_OBJECT_CLASS(see_windows_runtime_error_class()),
+        SEE_OBJECT_GET_CLASS(error)
+    );
+#else
     CU_ASSERT_EQUAL(
         see_runtime_error_class(),
         SEE_RUNTIME_ERROR_GET_CLASS(error)
         );
+#endif
     if (ret) {
         const char* msg = see_error_msg(error);
         (void) msg;
@@ -71,10 +83,17 @@ void serial_use_unopened(void)
     bufsz = sizeof(buffer);
     ret = see_serial_read(serial, buffer, &bufsz, &error);
     CU_ASSERT_EQUAL(ret, SEE_ERROR_RUNTIME);
+#if HAVE_WINDOWS_H
+    CU_ASSERT_EQUAL(
+        SEE_OBJECT_CLASS(see_windows_runtime_error_class()),
+        SEE_OBJECT_GET_CLASS(error)
+    );
+#else
     CU_ASSERT_EQUAL(
         see_runtime_error_class(),
         SEE_RUNTIME_ERROR_GET_CLASS(error)
-        );
+    );
+#endif
     if (ret) {
         const char* msg = see_error_msg(error);
         (void) msg;
