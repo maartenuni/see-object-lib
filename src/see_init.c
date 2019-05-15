@@ -36,6 +36,8 @@
 
 #if HAVE_WINDOWS_H
 #include "windows/WindowsRuntimeError.h"
+#elif HAVE_UNISTD_H
+#include "posix/PosixSerial.h"
 #endif
 
 int g_init_count = 0;
@@ -46,6 +48,18 @@ static int windows_init()
 {
     int ret;
     ret = see_windows_runtime_error_init();
+    if (ret)
+        return ret;
+
+    return ret;
+}
+#endif
+
+#if HAVE_UNISTD_H
+static int posix_init()
+{
+    int ret;
+    ret = see_posix_serial_init();
     if (ret)
         return ret;
 
