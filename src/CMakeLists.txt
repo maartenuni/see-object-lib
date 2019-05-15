@@ -28,8 +28,8 @@ set (SEE_OBJ_SRC
     Serial.c
     TimePoint.cpp
     atomic_operations.c
-    posix/PosixSerial.c
-    windows/WindowsSerial.c
+    #windows/WindowsSerial.c
+    #windows/WindowsRuntimeError.c
     #priv/see_mutex.cpp
     )
 
@@ -60,6 +60,28 @@ set (SEE_OBJ_HDR_PRIVATE
     windows/WindowsSerial.h
     )
 
+set(SEE_OBJ_SRC_POSIX
+    posix/PosixSerial.c
+    )
+
+set (SEE_OBJ_SRC_WINDOWS
+    windows/WindowsRuntimeError.c
+    windows/WindowsSerial.c
+    )
+
+set (SEE_OBJ_HDR_PUBLIC_WINDOWS
+    windows/WindowsRuntimeError.h
+    )
+
+if(UNIX)
+    list (APPEND SEE_OBJ_SRC ${SEE_OBJ_SRC_POSIX})
+endif()
+
+if (WIN32)
+    list(APPEND SEE_OBJ_SRC ${SEE_OBJ_SRC_WINDOWS})
+    list(APPEND SEE_OBJ_HDR_PUBLIC ${SEE_OBJ_HDR_PUBLIC_WINDOWS})
+endif()
+
 set (SEE_OBJ_HDR ${SEE_OBJ_HDR_PUBLIC} ${SEE_OBJ_HDR_PRIVATE})
 
 add_library(${SEE_OBJ_LIB}
@@ -67,6 +89,7 @@ add_library(${SEE_OBJ_LIB}
         ${SEE_OBJ_HDR_PUBLIC}
         ${SEE_OBJ_HDR_PRIVATE}
         )
+
 add_library(${SEE_OJB_LIB}::${SEE_OBJ_LIB} ALIAS ${SEE_OBJ_LIB})
 
 

@@ -21,6 +21,7 @@
  * \private
  */
 
+#include "see_object_config.h"
 #include "MetaClass.h"
 #include "see_init.h"
 #include "Clock.h"
@@ -33,8 +34,38 @@
 #include "TimePoint.h"
 #include "Serial.h"
 
+#if HAVE_WINDOWS_H
+#include "windows/WindowsRuntimeError.h"
+#elif HAVE_UNISTD_H
+#include "posix/PosixSerial.h"
+#endif
+
 int g_init_count = 0;
 int g_is_init = 0;
+
+#if HAVE_WINDOWS_H
+static int windows_init()
+{
+    int ret;
+    ret = see_windows_runtime_error_init();
+    if (ret)
+        return ret;
+
+    return ret;
+}
+#endif
+
+#if HAVE_UNISTD_H
+static int posix_init()
+{
+    int ret;
+    ret = see_posix_serial_init();
+    if (ret)
+        return ret;
+
+    return ret;
+}
+#endif
 
 static int
 initialize() {
@@ -77,6 +108,15 @@ initialize() {
     if (ret)
         return ret;
 
+#if HAVE_WINDOWS_H
+    ret = windows_init();
+    if (ret)
+        return ret;
+#elif HAVE_UNISTD_H
+    ret = posix_init();
+    if (ret)
+        return ret;
+#endif
     g_is_init = 1;
 
     return ret;

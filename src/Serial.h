@@ -41,7 +41,7 @@ extern "C" {
 typedef enum see_serial_dir {
     SEE_SERIAL_INPUT    = 1u << 0u,
     SEE_SERIAL_OUTPUT   = 1u << 1u,
-    SEE_SERIAL_INOUT     = SEE_SERIAL_INPUT | SEE_SERIAL_OUTPUT
+    SEE_SERIAL_INOUT    = SEE_SERIAL_INPUT | SEE_SERIAL_OUTPUT
 } see_serial_dir_t;
 
 /**
@@ -579,13 +579,16 @@ see_serial_get_timeout(
 /**
  * @brief Set the minimal number of characters to read before termination.
  *
+ * Note that on windows this function is not implemented, then the
+ * this function does nothing.
+ *
  * @param [in]  self        The serial device.
  * @param [in]  nchars      The number of characters that must be read
  *                          before see_serial_read returns.
  * @param [out] error_out   If an error occurs, it will be returned here.
  *
- * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_RUNTIME_ERROR
- * @private
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_RUNTIME_ERROR,
+ *         SEE_ERROR_NOT_IMPLEMENTED (windows)
  */
 SEE_EXPORT int
 see_serial_set_min_rd_chars (
@@ -598,12 +601,16 @@ see_serial_set_min_rd_chars (
  * @brief Obtain the number of characters that must be read before
  * the read returns.
  *
+ * Note that on windows this function is not implemented, then the
+ * this function does nothing.
+ *
  * @param [in] self     The serial device.
  * @param [out]nchars   The number of characters read before the read
  *                      is returned here.
  * @param [out] error_out if an error occurs it will be returned here.
  *
- * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_RUNTIME_ERROR
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_RUNTIME_ERROR,
+ *         (SEE_ERROR_NOT_IMPLEMENTED windows)
  */
 SEE_EXPORT int
 see_serial_get_min_rd_chars(

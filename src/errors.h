@@ -42,6 +42,7 @@ enum see_error {
     SEE_ERROR_RUNTIME,     /**< Inspect errno for clue.*/
     SEE_NOT_INITIALIZED,   /**< making use of an uninitialized class/function.*/
     SEE_ERROR_INDEX,       /**< Index is out of the valid range. */
+    SEE_NOT_IMPLEMENTED    /**< This function is not implemented.*/
 };
 
 #ifdef __cplusplus
