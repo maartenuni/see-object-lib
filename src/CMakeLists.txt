@@ -30,9 +30,6 @@ set (SEE_OBJ_SRC
     TimePoint.cpp
     atomic_operations.c
     utilities.c
-    posix/PosixSerial.c
-    windows/WindowsSerial.c
-    #priv/see_mutex.cpp
     )
 
 set (SEE_OBJ_HDR_PUBLIC
@@ -56,7 +53,6 @@ set (SEE_OBJ_HDR_PUBLIC
     )
 
 set (SEE_OBJ_HDR_PRIVATE
-    #priv/see_mutex.h
     cpp/Clock.hpp
     cpp/Duration.hpp
     cpp/TimePoint.hpp
@@ -99,14 +95,14 @@ add_library(${SEE_OJB_LIB}::${SEE_OBJ_LIB} ALIAS ${SEE_OBJ_LIB})
 
 generate_export_header(${SEE_OBJ_LIB} BASE_NAME SEE)
 
-#enable compiling with C99 standard
+#enable compiling with C11 standard
 set_property(TARGET ${SEE_OBJ_LIB} PROPERTY C_STANDARD 11)
 set_property(TARGET ${SEE_OBJ_LIB} PROPERTY CXX_STANDARD 11)
 
 set_property(TARGET ${SEE_OBJ_LIB} PROPERTY C_STANDARD_REQUIRED ON)
 set_property(TARGET ${SEE_OBJ_LIB} PROPERTY CXX_STANDARD_REQUIRED ON)
 
-#set_target_properties(${SEE_OBJ_LIB} PROPERTIES LINKER_LANGUAGE C)
+set_target_properties(${SEE_OBJ_LIB} PROPERTIES LINKER_LANGUAGE C)
 set_target_properties(${SEE_OBJ_LIB}
     PROPERTIES
         VERSION     ${PROJECT_VERSION}
