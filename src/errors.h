@@ -43,7 +43,7 @@ enum see_error {
     SEE_NOT_INITIALIZED,       /**< making use of an uninitialized class/function.*/
     SEE_ERROR_INDEX,           /**< Index is out of the valid range. */
     SEE_ERROR_MSG_PART_TYPE,   /**< Incorrect usage of the msg type */
-    SEE_ERROR_MSG_INVALID,     /**< Received message is not valid */};
+    SEE_ERROR_MSG_INVALID,     /**< Received message is not valid */
     SEE_NOT_IMPLEMENTED,       /**< This function is not implemented.*/
 
     /**
