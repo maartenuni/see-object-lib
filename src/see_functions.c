@@ -30,7 +30,7 @@ void* see_copy_by_ref(void* dest_seeobj, const void* src, size_t unused)
 {
     (void) unused;
     memcpy(dest_seeobj, src, sizeof(SeeObject*));
-    see_object_ref(dest_seeobj);
+    see_object_ref(* ((SeeObject**) dest_seeobj));
     return dest_seeobj;
 }
 

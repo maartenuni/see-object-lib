@@ -169,11 +169,11 @@ msg_part_buffer_numeric(void)
     SeeMsgPart* part_int32  = NULL;
     SeeMsgPart* part_int64  = NULL;
     SeeMsgPart* part_double = NULL;
-    SeeMsgPart* part_float= NULL;
+    SeeMsgPart* part_float  = NULL;
     SeeError*   error       = NULL;
 
     uint32_t    data_length = 0;
-    uint32_t    buf_length  = 0;
+    size_t      buf_length  = 0;
     int ret;
 
     ret = see_msg_part_new(&part_int32, &error);
@@ -292,12 +292,14 @@ fail:
 static void
 msg_part_buffer_string(void)
 {
-    SeeError* error   = NULL;
+    SeeError*   error = NULL;
     SeeMsgPart* part  = NULL;
     const char* hello = "Hello, World!";
-    uint32_t data_length, buffer_length;
+    size_t      len = strlen(hello);
 
-    size_t len = strlen(hello);
+    uint32_t    data_length;
+    size_t      buffer_length;
+
 
     int ret = see_msg_part_new(&part, &error);
     SEE_UNIT_HANDLE_ERROR();
@@ -323,6 +325,210 @@ fail:
 
 }
 
+static void
+msg_buffer_buffer(void)
+{
+    SeeMsgPart*     part    = NULL;
+    SeeMsgBuffer*   buffer  = NULL;
+    SeeMsgBuffer*   from_buf= NULL;
+    SeeError*       error   = NULL;
+    const uint16_t  id      = 18;
+    uint16_t        id_out  = 0;
+    size_t          buflen  = 0;
+    void*           data_buf= NULL;
+    size_t          num_parts;
+
+    int32_t  iin32    = -18,   iout32   = 0;
+    uint32_t uin32    =  18,   uout32   = 0;
+    int64_t  iin64    = -18,   iout64   = 0;
+    uint64_t uin64    = -18,   uout64   = 0;
+    float    fltin    = M_PI,  fltout   = 0.0f;
+    double   doublein = M_PI,  doubleout= 0.0f;
+
+    const char* sin = "3.141592654";
+    char* sout      = "";
+
+    int ret;
+
+    // create buffer
+    ret = see_msg_buffer_new(&buffer, id, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+
+    // Adding parts
+
+    // Add part 1
+    ret = see_msg_part_new(&part, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_msg_part_write_int32(part, iin32, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_msg_buffer_add_part(buffer, part, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    see_object_decref(SEE_OBJECT(part));
+    part = NULL;
+
+    // Add part 2
+    ret = see_msg_part_new(&part, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_msg_part_write_uint32(part, uin32, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_msg_buffer_add_part(buffer, part, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    see_object_decref(SEE_OBJECT(part));
+    part = NULL;
+
+    // Add part 3
+    ret = see_msg_part_new(&part, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_msg_part_write_int64(part, iin64, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_msg_buffer_add_part(buffer, part, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    see_object_decref(SEE_OBJECT(part));
+    part = NULL;
+
+    // Add part 4
+    ret = see_msg_part_new(&part, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_msg_part_write_uint64(part, uin64, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_msg_buffer_add_part(buffer, part, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    see_object_decref(SEE_OBJECT(part));
+    part = NULL;
+
+    // Add part 5
+
+    ret = see_msg_part_new(&part, &error);
+    SEE_UNIT_HANDLE_ERROR();
+    ret = see_msg_part_write_float(part, fltin, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_msg_buffer_add_part(buffer, part, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    CU_ASSERT_EQUAL(SEE_OBJECT(part)->refcount, 2);
+
+    see_object_decref(SEE_OBJECT(part));
+    part = NULL;
+    // Add part 6
+
+    ret = see_msg_part_new(&part, &error);
+    SEE_UNIT_HANDLE_ERROR();
+    ret = see_msg_part_write_double(part, doublein, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_msg_buffer_add_part(buffer, part, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    CU_ASSERT_EQUAL(SEE_OBJECT(part)->refcount, 2);
+
+    see_object_decref(SEE_OBJECT(part));
+    part = NULL;
+
+    // Add part 7
+    ret = see_msg_part_new(&part, &error);
+    SEE_UNIT_HANDLE_ERROR();
+    ret = see_msg_part_write_string(part, sin, strlen(sin), &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_msg_buffer_add_part(buffer, part, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    CU_ASSERT_EQUAL(SEE_OBJECT(part)->refcount, 2);
+
+    see_object_decref(SEE_OBJECT(part));
+    part = NULL;
+
+    // Test the msg buffer
+    ret = see_msg_buffer_get_buffer(buffer, &data_buf, &buflen, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_msg_buffer_from_buffer(&from_buf, data_buf, buflen, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_msg_buffer_num_parts(from_buf, &num_parts);
+    SEE_UNIT_HANDLE_ERROR();
+    CU_ASSERT_EQUAL(num_parts, 7);
+
+    ret = see_msg_buffer_get_id(from_buf, &id_out);
+    SEE_UNIT_HANDLE_ERROR();
+    CU_ASSERT_EQUAL(id_out, id);
+
+    // This would in theory make the manual testing below obsolete.
+    int implement_comparison_via_see_object_cmp;//()
+
+    // test int32
+    ret = see_msg_buffer_get_part(from_buf, 0, &part, &error);
+    SEE_UNIT_HANDLE_ERROR();
+    ret = see_msg_part_get_int32(part, &iout32, &error);
+    SEE_UNIT_HANDLE_ERROR();
+    CU_ASSERT_EQUAL(iin32, iout32);
+
+    // uint32
+    ret = see_msg_buffer_get_part(from_buf, 1, &part, &error);
+    SEE_UNIT_HANDLE_ERROR();
+    ret = see_msg_part_get_uint32(part, &uout32, &error);
+    SEE_UNIT_HANDLE_ERROR();
+    CU_ASSERT_EQUAL(uin32, uout32);
+
+    // int64
+    ret = see_msg_buffer_get_part(from_buf, 2, &part, &error);
+    SEE_UNIT_HANDLE_ERROR();
+    ret = see_msg_part_get_int64(part, &iout64, &error);
+    SEE_UNIT_HANDLE_ERROR();
+    CU_ASSERT_EQUAL(iin64, iout64);
+
+    // uint64
+    ret = see_msg_buffer_get_part(from_buf, 3, &part, &error);
+    SEE_UNIT_HANDLE_ERROR();
+    ret = see_msg_part_get_uint64(part, &uout64, &error);
+    SEE_UNIT_HANDLE_ERROR();
+    CU_ASSERT_EQUAL(uin64, uout64);
+
+    // float
+    ret = see_msg_buffer_get_part(from_buf, 4, &part, &error);
+    SEE_UNIT_HANDLE_ERROR();
+    ret = see_msg_part_get_float(part, &fltout, &error);
+    SEE_UNIT_HANDLE_ERROR();
+    CU_ASSERT_EQUAL(fltin, fltout);
+
+    // double
+    ret = see_msg_buffer_get_part(from_buf, 5, &part, &error);
+    SEE_UNIT_HANDLE_ERROR();
+    ret = see_msg_part_get_double(part, &doubleout, &error);
+    SEE_UNIT_HANDLE_ERROR();
+    CU_ASSERT_EQUAL(doublein, doubleout);
+
+    // string
+    ret = see_msg_buffer_get_part(from_buf, 6, &part, &error);
+    SEE_UNIT_HANDLE_ERROR();
+    ret = see_msg_part_get_string(part, &sout, &error);
+    SEE_UNIT_HANDLE_ERROR();
+    CU_ASSERT_STRING_EQUAL(sin, sout);
+
+fail:
+
+    see_object_decref(SEE_OBJECT(part));
+    see_object_decref(SEE_OBJECT(buffer));
+    see_object_decref(SEE_OBJECT(from_buf));
+    see_object_decref(SEE_OBJECT(error));
+    free(data_buf);
+    free(sout);
+}
+
 int add_msg_buffer_suite()
 {
     SEE_UNIT_SUITE_CREATE(NULL, NULL);
@@ -334,6 +540,8 @@ int add_msg_buffer_suite()
     SEE_UNIT_TEST_CREATE(msg_part_get_set_double);
     SEE_UNIT_TEST_CREATE(msg_part_buffer_numeric);
     SEE_UNIT_TEST_CREATE(msg_part_buffer_string);
+
+    SEE_UNIT_TEST_CREATE(msg_buffer_buffer)
 
     return 0;
 }

@@ -42,17 +42,6 @@
 #include "utilities.h"
 #include "RuntimeError.h"
 
-///**
-// * \brief Returns the length of the header of one SeeMsgPart
-// * @return The length of the header
-// * \private
-// */
-//static size_t
-//msg_part_header_length()
-//{
-//    // sizeof(SeeMsgPart.value_type) + sizeof(SeeMsgPart.length);
-//    return sizeof(uint16_t) + sizeof(uint16_t);
-//}
 
 /**
  * \brief If the message part needs to allocate resources they are freed here
@@ -99,7 +88,6 @@ msg_part_init(
     const SeeObjectClass* parent_cls = SEE_OBJECT_GET_CLASS(
         msg_part
     );
-
 
     parent_cls->object_init(
         SEE_OBJECT(msg_part),
@@ -177,15 +165,15 @@ msg_part_length(
 static int
 msg_part_write_int32(
     SeeMsgPart*   part,
-    int32_t             value,
-    SeeError**          error_out
+    int32_t       value,
+    SeeError**    error_out
     )
 {
     (void) error_out;
     msg_part_destroy_content(part);
 
     part->value_type        = SEE_MSG_PART_INT32_T;
-    part->value.int32_val   = see_host_to_network32(value);
+    part->value.int32_val   = value;
 
     part->length = sizeof(part->value_type) + sizeof(part->value.int32_val);
 
@@ -195,8 +183,8 @@ msg_part_write_int32(
 static int
 msg_part_get_int32 (
     const SeeMsgPart* part,
-    int32_t*                value,
-    SeeError**              error_out
+    int32_t*          value,
+    SeeError**        error_out
     )
 {
     if (part->value_type != SEE_MSG_PART_INT32_T) {
@@ -208,7 +196,7 @@ msg_part_get_int32 (
         return SEE_ERROR_MSG_PART_TYPE;
     }
 
-    int32_t host_val = see_network_to_host32(part->value.int32_val);
+    int32_t host_val = part->value.int32_val;
     *value = host_val;
 
     return SEE_SUCCESS;
@@ -217,8 +205,8 @@ msg_part_get_int32 (
 static int
 msg_part_write_uint32(
     SeeMsgPart*   part,
-    uint32_t            value,
-    SeeError**          error_out
+    uint32_t      value,
+    SeeError**    error_out
     )
 {
     (void) error_out;
@@ -226,7 +214,7 @@ msg_part_write_uint32(
     msg_part_destroy_content(part);
 
     part->value_type        = SEE_MSG_PART_UINT32_T;
-    part->value.uint32_val  = see_host_to_network32(value);
+    part->value.uint32_val  = value;
 
     part->length = sizeof(part->value_type) + sizeof(part->value.uint32_val);
 
@@ -236,20 +224,20 @@ msg_part_write_uint32(
 static int
 msg_part_get_uint32 (
     const SeeMsgPart* part,
-    uint32_t*               value,
-    SeeError**              error_out
+    uint32_t*         value,
+    SeeError**        error_out
     )
 {
     if (part->value_type != SEE_MSG_PART_UINT32_T) {
         see_msg_part_type_error_new(
             error_out,
-            SEE_MSG_PART_UINT32_T,
-            part->value_type
+            part->value_type,
+            SEE_MSG_PART_UINT32_T
         );
         return SEE_ERROR_MSG_PART_TYPE;
     }
 
-    uint32_t host_val = see_network_to_host32(part->value.uint32_val);
+    uint32_t host_val = part->value.uint32_val;
     *value = host_val;
 
     return SEE_SUCCESS;
@@ -258,8 +246,8 @@ msg_part_get_uint32 (
 static int
 msg_part_write_int64(
     SeeMsgPart*   part,
-    int64_t             value,
-    SeeError**          error_out
+    int64_t       value,
+    SeeError**    error_out
     )
 {
     (void) error_out;
@@ -267,7 +255,7 @@ msg_part_write_int64(
     msg_part_destroy_content(part);
 
     part->value_type        = SEE_MSG_PART_INT64_T;
-    part->value.int64_val   = see_host_to_network64(value);
+    part->value.int64_val   = value;
 
     part->length = sizeof(part->value_type) + sizeof(part->value.int64_val);
 
@@ -277,20 +265,20 @@ msg_part_write_int64(
 static int
 msg_part_get_int64 (
     const SeeMsgPart* part,
-    int64_t*                value,
-    SeeError**              error_out
+    int64_t*          value,
+    SeeError**        error_out
     )
 {
     if (part->value_type != SEE_MSG_PART_INT64_T) {
         see_msg_part_type_error_new(
             error_out,
-            SEE_MSG_PART_INT64_T,
-            part->value_type
+            part->value_type,
+            SEE_MSG_PART_INT64_T
         );
         return SEE_ERROR_MSG_PART_TYPE;
     }
 
-    int64_t host_val = see_network_to_host64(part->value.int64_val);
+    int64_t host_val = part->value.int64_val;
     *value = host_val;
 
     return SEE_SUCCESS;
@@ -308,7 +296,7 @@ msg_part_write_uint64(
     msg_part_destroy_content(part);
 
     part->value_type        = SEE_MSG_PART_UINT64_T;
-    part->value.uint64_val  = see_host_to_network64(value);
+    part->value.uint64_val  = value;
 
     part->length = sizeof(part->value_type) + sizeof(part->value.uint64_val);
 
@@ -325,13 +313,13 @@ msg_part_get_uint64 (
     if (part->value_type != SEE_MSG_PART_UINT64_T) {
         see_msg_part_type_error_new(
             error_out,
-            SEE_MSG_PART_UINT64_T,
-            part->value_type
+            part->value_type,
+            SEE_MSG_PART_UINT64_T
             );
         return SEE_ERROR_MSG_PART_TYPE;
     }
 
-    int64_t host_val = see_network_to_host64(part->value.int64_val);
+    int64_t host_val = part->value.int64_val;
     *value = host_val;
 
     return SEE_SUCCESS;
@@ -345,8 +333,7 @@ msg_part_write_string(
     SeeError**    error_out
     )
 {
-
-    char* duplicate = malloc(length);
+    char* duplicate = strdup(value);
     if (!duplicate) {
         see_runtime_error_create(error_out, errno);
         return SEE_ERROR_RUNTIME;
@@ -354,31 +341,9 @@ msg_part_write_string(
 
     msg_part_destroy_content(part);
 
-    memcpy(duplicate, value, length);
-
     part->length        = sizeof(part->value_type) + sizeof(part->length) + length;
     part->value_type    = SEE_MSG_PART_STRING_T;
     part->value.str_val = duplicate;
-
-    return SEE_SUCCESS;
-}
-
-static int
-msg_part_retrieve_string(
-    const SeeMsgPart* part,
-    char**            value_out,
-    SeeError**        error_out
-    )
-{
-    size_t length = part->length - (sizeof(uint8_t)  + sizeof(uint32_t));
-    char*out = malloc(length + 1);
-    if (!out) {
-        see_runtime_error_create(error_out, errno);
-        return SEE_ERROR_RUNTIME;
-    }
-    memcpy(out, part->value.str_val, length);
-    out[length] = 0; //terminate the string.
-    *value_out = out;
 
     return SEE_SUCCESS;
 }
@@ -390,17 +355,25 @@ msg_part_get_string(
     SeeError**        error_out
     )
 {
-    // floats are also encoded as string
+    char* out = NULL;
+
     if (part->value_type != SEE_MSG_PART_STRING_T) {
         see_msg_part_type_error_new(
             error_out,
-            SEE_MSG_PART_STRING_T,
-            part->value_type
+            part->value_type,
+            SEE_MSG_PART_STRING_T
         );
         return SEE_ERROR_MSG_PART_TYPE;
     }
 
-    return msg_part_retrieve_string(part, value_out, error_out);
+    out = strdup(part->value.str_val);
+    if (!out) {
+        see_runtime_error_create(error_out, errno);
+        return SEE_ERROR_RUNTIME;
+    }
+    *value_out = out;
+
+    return SEE_SUCCESS;
 }
 
 static int
@@ -411,11 +384,12 @@ msg_part_write_float(
     )
 {
     (void) error_out;
-    assert(sizeof(float) == sizeof(uint32_t));
-    part->length            = sizeof(part->value_type) + sizeof(float);
+
     part->value.float_val   = value;
-    part->value.uint32_val  = see_swap_endianess32(part->value.uint32_val);
     part->value_type        = SEE_MSG_PART_FLOAT_T;
+
+    part->length = sizeof(part->value_type) + sizeof(part->value.float_val);
+
     return SEE_SUCCESS;
 }
 
@@ -429,20 +403,14 @@ msg_part_get_float(
     if (part->value_type != SEE_MSG_PART_FLOAT_T) {
         see_msg_part_type_error_new(
             error_out,
-            SEE_MSG_PART_STRING_T,
-            part->value_type
+            part->value_type,
+            SEE_MSG_PART_FLOAT_T
         );
         return SEE_ERROR_MSG_PART_TYPE;
     }
 
-    union {
-        float       flt_val;
-        uint32_t    int_val;
-    } temp;
 
-    temp.int_val = see_swap_endianess32(part->value.uint32_val);
-
-    *value_out = temp.flt_val;
+    *value_out = part->value.float_val;
 
     return SEE_SUCCESS;
 }
@@ -455,38 +423,32 @@ msg_part_write_double(
     )
 {
     (void) error_out;
-    assert(sizeof (double) == sizeof(uint64_t));
-    part->length            = sizeof(part->value_type) + sizeof(double);
+
     part->value.double_val  = value;
-    part->value.uint64_val  = see_swap_endianess64(part->value.uint64_val);
     part->value_type        = SEE_MSG_PART_DOUBLE_T;
+
+    part->length = sizeof(part->value_type) + sizeof(part->value.double_val);
+
     return SEE_SUCCESS;
 }
 
 static int
 msg_part_get_double(
     const SeeMsgPart*   part,
-    double*              value_out,
+    double*             value_out,
     SeeError**          error_out
     )
 {
     if (part->value_type != SEE_MSG_PART_DOUBLE_T) {
         see_msg_part_type_error_new(
             error_out,
-            SEE_MSG_PART_STRING_T,
-            part->value_type
+            part->value_type,
+            SEE_MSG_PART_DOUBLE_T
         );
         return SEE_ERROR_MSG_PART_TYPE;
     }
 
-    union {
-        double      flt_val;
-        uint64_t    int_val;
-    } temp;
-
-    temp.int_val = see_swap_endianess64(part->value.uint64_val);
-
-    *value_out = temp.flt_val;
+    *value_out = part->value.double_val;
 
     return SEE_SUCCESS;
 }
@@ -517,39 +479,50 @@ msg_part_write(
     SeeError**          error_out
     )
 {
-    char*   bytes    = buffer;
-    size_t  nwritten = 0;
+    char*       bytes    = buffer;
+    size_t      nwritten = 0;
+
+    // These variables are to contain the representation of a value in
+    // network byte order.
+    union {
+        int32_t     i32;
+        uint32_t    ui32;
+        int64_t     i64;
+        uint64_t    ui64;
+        float       flt;
+        double      dbl;
+    }net_order;
+
+    memcpy(&bytes[nwritten], &part->value_type, sizeof(part->value_type));
+    nwritten += sizeof(part->value_type);
 
     switch (part->value_type) {
         case SEE_MSG_PART_INT32_T:
-            bytes[nwritten] = SEE_MSG_PART_INT32_T;
-            nwritten += sizeof(part->value_type);
-            memcpy(&bytes[nwritten], &part->value_type, sizeof(int32_t));
-            nwritten += sizeof(int32_t);
+            net_order.i32 = see_host_to_network32(part->value.int32_val);
+            memcpy(&bytes[nwritten], &net_order.i32, sizeof(net_order.i32));
+            nwritten += sizeof(net_order.i32);
             break;
         case SEE_MSG_PART_INT64_T:
-            bytes[nwritten] = SEE_MSG_PART_INT64_T;
-            nwritten += sizeof(part->value_type);
-            memcpy(&bytes[nwritten], &part->value_type, sizeof(int32_t));
-            nwritten += sizeof(int64_t);
+            net_order.i64 = see_host_to_network64(part->value.int64_val);
+            memcpy(&bytes[nwritten], &net_order.i64, sizeof(net_order.i64));
+            nwritten += sizeof(net_order.i64);
             break;
         case SEE_MSG_PART_UINT32_T:
-            bytes[nwritten] = SEE_MSG_PART_UINT32_T;
-            nwritten += sizeof(part->value_type);
-            memcpy(&bytes[nwritten], &part->value_type, sizeof(int32_t));
-            nwritten += sizeof(uint32_t);
+            net_order.ui32 = see_host_to_network32(part->value.uint32_val);
+            memcpy(&bytes[nwritten], &net_order.ui32, sizeof(net_order.ui32));
+            nwritten += sizeof(net_order.ui32);
             break;
         case SEE_MSG_PART_UINT64_T:
-            bytes[nwritten] = SEE_MSG_PART_UINT64_T;
-            nwritten += sizeof(part->value_type);
-            memcpy(&bytes[nwritten], &part->value_type, sizeof(int32_t));
-            nwritten += sizeof(uint64_t);
+            net_order.ui64 = see_host_to_network64(part->value.uint64_val);
+            memcpy(&bytes[nwritten], &net_order.ui64, sizeof(net_order.ui64));
+            nwritten += sizeof(net_order.ui64);
             break;
         case SEE_MSG_PART_STRING_T:
-            bytes[nwritten] = SEE_MSG_PART_STRING_T;
-            nwritten += sizeof(part->value_type);
+            // write the length of the part to be able to deduce the length of
+            // the part
             memcpy(&bytes[nwritten], &part->length, sizeof(part->length));
             nwritten += sizeof(part->length);
+            //write the string itself.
             size_t header_len =sizeof(part->value_type) + sizeof(part->length);
             memcpy(
                 &bytes[nwritten],
@@ -559,20 +532,21 @@ msg_part_write(
             nwritten += part->length - header_len;
             break;
         case SEE_MSG_PART_FLOAT_T:
-            bytes[nwritten] = sizeof(SEE_MSG_PART_FLOAT_T);
-            nwritten += sizeof(part->value_type);
-            memcpy(&bytes[nwritten], &part->value_type, sizeof(int32_t));
+            assert(sizeof(net_order.flt) == sizeof(part->value.int32_val));
+            net_order.i32 = see_host_to_network32(part->value.int32_val);
+            memcpy(&bytes[nwritten], &net_order.flt, sizeof(net_order.flt));
             nwritten += sizeof(float);
             break;
         case SEE_MSG_PART_DOUBLE_T:
-            bytes[nwritten] = sizeof(SEE_MSG_PART_DOUBLE_T);
-            nwritten += sizeof(part->value_type);
-            memcpy(&bytes[nwritten], &part->value_type, sizeof(int32_t));
-            nwritten += sizeof(double);
+            assert(sizeof(net_order.dbl) == sizeof(part->value.uint64_val));
+            net_order.ui64 = see_host_to_network64(part->value.uint64_val);
+            memcpy(&bytes[nwritten], &net_order.dbl, sizeof(net_order.dbl));
+            nwritten += sizeof(net_order.dbl);
             break;
         default:
             errno = EINVAL;
             see_runtime_error_create(error_out, errno);
+            return SEE_ERROR_RUNTIME;
     }
 
     return SEE_SUCCESS;
@@ -597,6 +571,16 @@ msg_part_read(
     char*       str         = NULL;
     SeeMsgPart* new_part    = NULL;
 
+    // The next variables are going to contain the variables in network order.
+    union {
+        int32_t     i32;
+        uint32_t    u32;
+        int64_t     i64;
+        uint64_t    u64;
+        float       flt;
+        double      dbl;
+    }net_order;
+
     ret = see_msg_part_new(&new_part, error_out);
     if (ret)
         return ret;
@@ -606,8 +590,10 @@ msg_part_read(
         goto fail;
     }
 
-    memcpy(&type, &bytes[0], sizeof(type));
+
+    memcpy(&type, &bytes[nread], sizeof(type));
     nread += sizeof(type);
+    new_part->value_type = type;
 
     switch (type) {
         case SEE_MSG_PART_INT32_T:
@@ -616,14 +602,17 @@ msg_part_read(
                 ret = SEE_ERROR_MSG_INVALID;
                 see_msg_invalid_error_new(error_out);
                 goto fail;
-            }
 
-            memcpy(&new_part->value.int32_val,
+            }
+            memcpy(&net_order.i32,
                 &bytes[nread],
                 sizeof(new_part->value.int32_val)
                 );
+            new_part->value.int32_val = see_network_to_host32(net_order.i32);
+
             nread += sizeof(new_part->value.int32_val);
             new_part->length = length;
+
             break;
         case SEE_MSG_PART_INT64_T:
             length = sizeof(new_part->value.int64_val) + sizeof(new_part->value_type);
@@ -633,12 +622,15 @@ msg_part_read(
                 goto fail;
             }
 
-            memcpy(&new_part->value.int64_val,
+            memcpy(&net_order.i64,
                    &bytes[nread],
                    sizeof(new_part->value.int64_val)
                     );
+            new_part->value.int64_val = see_network_to_host64(net_order.i64);
+
             nread += sizeof(new_part->value.int64_val);
             new_part->length = length;
+
             break;
         case SEE_MSG_PART_UINT32_T:
             length = sizeof(new_part->value.uint32_val) + sizeof(new_part->value_type);
@@ -648,12 +640,15 @@ msg_part_read(
                 goto fail;
             }
 
-            memcpy(&new_part->value.uint32_val,
+            memcpy(&net_order.u32,
                    &bytes[nread],
                    sizeof(new_part->value.uint32_val)
                    );
+            new_part->value.uint32_val = see_network_to_host32(net_order.u32);
+
             nread += sizeof(new_part->value.int32_val);
             new_part->length = length;
+
             break;
         case SEE_MSG_PART_UINT64_T:
             length = sizeof(new_part->value.uint64_val) + sizeof(new_part->value_type);
@@ -663,16 +658,18 @@ msg_part_read(
                 goto fail;
             }
 
-            memcpy(&new_part->value.uint64_val,
+            memcpy(&net_order.u64,
                    &bytes[nread],
                    sizeof(new_part->value.uint64_val)
                    );
+            new_part->value.uint64_val = see_network_to_host64(net_order.u64);
+
             nread += sizeof(new_part->value.int64_val);
             new_part->length = length;
             break;
         case SEE_MSG_PART_STRING_T:
             memcpy(&length, &bytes[nread], sizeof(new_part->length));
-            nread += length;
+            nread += sizeof(new_part->length);
             if (length > bufsiz) {
                 ret = SEE_ERROR_MSG_INVALID;
                 see_msg_invalid_error_new(error_out);
@@ -698,6 +695,7 @@ msg_part_read(
             memcpy(str, &bytes[nread], strlength);
             str[strlength] = '\0';
             nread += strlength;
+            new_part->value.str_val = str;
 
             break;
         case SEE_MSG_PART_FLOAT_T:
@@ -708,10 +706,14 @@ msg_part_read(
                 goto fail;
             }
 
-            memcpy(&new_part->value.float_val,
+            assert(sizeof(net_order.u32) == sizeof(new_part->value.float_val));
+            memcpy(&net_order.flt,
                    &bytes[nread],
                    sizeof(new_part->value.float_val)
-            );
+                   );
+            net_order.u32 = see_network_to_host32(net_order.u32);
+            new_part->value.float_val = net_order.flt;
+
             nread += sizeof(new_part->value.float_val);
             new_part->length = length;
             break;
@@ -723,10 +725,14 @@ msg_part_read(
                 goto fail;
             }
 
-            memcpy(&new_part->value.double_val,
+            assert(sizeof(net_order.u64) == sizeof(new_part->value.double_val));
+            memcpy(&net_order.dbl,
                    &bytes[nread],
                    sizeof(new_part->value.double_val)
                    );
+            net_order.u64 = see_network_to_host64(net_order.u64);
+            new_part->value.double_val = net_order.dbl;
+
             nread += sizeof(new_part->value.double_val);
             new_part->length = length;
             break;
@@ -1072,7 +1078,7 @@ see_msg_part_get_double(
 int
 see_msg_part_buffer_length(
     const SeeMsgPart* part,
-    uint32_t *        value,
+    size_t*           value,
     SeeError**        error_out
     )
 {
@@ -1310,6 +1316,52 @@ msg_buffer_get_id(
 }
 
 static int
+msg_buffer_length(
+    SeeMsgBuffer*       msg,
+    uint32_t*           length,
+    SeeError**          error
+    )
+{
+    size_t size = 0;
+    size_t num_parts;
+    uint32_t max = 0;
+    max -= 1;
+    const SeeMsgBufferClass* cls = SEE_MSG_BUFFER_GET_CLASS(msg);
+
+    size += sizeof(msg->id);
+    size += sizeof(uint32_t); // The total length of the message
+
+    int ret = see_msg_buffer_num_parts(msg, &num_parts);
+    assert(ret == SEE_SUCCESS);
+
+    for (size_t i = 0; i < num_parts; ++i)
+    {
+        SeeMsgPart* part = NULL;
+        size_t part_length;
+        ret = cls->get_part(msg, i, &part, error);
+        if (ret)
+            return ret;
+
+        ret = see_msg_part_buffer_length(part, &part_length, error);
+        if (ret)
+            return ret;
+
+        see_object_decref(SEE_OBJECT(part));
+
+        size += part_length;
+    }
+
+    if (size > max) {
+        errno = EOVERFLOW;
+        see_runtime_error_create(error, errno);
+        return SEE_ERROR_RUNTIME;
+    }
+
+    *length = (uint32_t) size;
+    return SEE_SUCCESS;
+}
+
+static int
 msg_buffer_add_part(
     SeeMsgBuffer* mbuf,
     SeeMsgPart*   mpart,
@@ -1328,13 +1380,14 @@ msg_buffer_get_part(
     )
 {
     SeeMsgPart* part = NULL;
-    part = see_dynamic_array_get(mbuf->parts, n, error_out);
-
-    if (!part)
+    SeeMsgPart** part_array = NULL;
+    part_array = see_dynamic_array_get(mbuf->parts, n, error_out);
+    if (!part_array)
         return SEE_ERROR_INDEX;
+    part = part_array[0];
 
     if (*mbpart)
-        see_object_decref(SEE_OBJECT(mbpart));
+        see_object_decref(SEE_OBJECT(*mbpart));
 
     see_object_ref(SEE_OBJECT(part));
     *mbpart = part;
@@ -1354,7 +1407,7 @@ msg_buffer_num_parts(
 
 static int
 msg_buffer_get_buffer(
-    const SeeMsgBuffer* msg,
+    SeeMsgBuffer*       msg,
     void**              buffer_out,
     size_t*             bufsize_out,
     SeeError**          error_out
@@ -1363,13 +1416,15 @@ msg_buffer_get_buffer(
     int     ret;
     char*   bytes = NULL;
 
-    uint32_t length;
+    uint32_t length, length_network;
     size_t n, nwritten = 0;
     const SeeMsgBufferClass* cls = SEE_MSG_BUFFER_GET_CLASS(msg);
 
-    ret = cls->length(msg, &length);
+    ret = cls->length(msg, &length, error_out);
     if (ret)
         return ret;
+    length_network = see_host_to_network32(length);
+
 
     cls->num_parts(msg, &n);
 
@@ -1380,36 +1435,35 @@ msg_buffer_get_buffer(
     }
 
     // write the header.
-    uint16_t id = msg->id;
-    memcpy(&bytes[0], &msg->id, sizeof(id));
+    uint16_t id = see_host_to_network16(msg->id);
+    memcpy(&bytes[0], &id, sizeof(id));
     nwritten += sizeof(id);
-    memcpy(&bytes[sizeof(id)], &length, sizeof(length));
-    nwritten += sizeof(length);
 
+    memcpy(&bytes[sizeof(id)], &length_network, sizeof(length_network));
+    nwritten += sizeof(length_network);
+
+    const SeeMsgPart** partarray = see_dynamic_array_get(msg->parts, 0, error_out);
     for (size_t i = 0; i < n; ++i) {
 
         size_t partsize;
-        const SeeMsgPart** partptr = see_dynamic_array_get(msg->parts, n, error_out);
+        const SeeMsgPart* part = partarray[i];
 
-        if (!partptr) {
-            ret = SEE_ERROR_INDEX;
-            goto fail;
-        }
-
-        ret = see_msg_part_write(*partptr, &bytes[nwritten], error_out);
+        ret = see_msg_part_write(part, &bytes[nwritten], error_out);
         if (ret)
             goto fail;
 
-        ret = see_msg_part_buffer_length(*partptr, &partsize, error_out);
+        ret = see_msg_part_buffer_length(part, &partsize, error_out);
         if (ret)
             goto fail;
 
-        ret = see_msg_part_length(*partptr, &length, error_out);
-        if (ret)
-            goto fail;
+//        ret = see_msg_part_length(part, &length, error_out);
+//        if (ret)
+//            goto fail;
 
         nwritten += partsize;
     }
+
+    assert(nwritten == length);
 
     *bufsize_out= nwritten;
     *buffer_out = bytes;
@@ -1429,8 +1483,8 @@ msg_buffer_from_buffer(
     SeeError**      error_out
     )
 {
-    uint16_t        id;
-    uint32_t        length;
+    uint16_t        id, id_network;
+    uint32_t        length, length_network;
     size_t          nread = 0;
     int             ret;
     SeeMsgBuffer*   msg = NULL;
@@ -1441,12 +1495,15 @@ msg_buffer_from_buffer(
         return SEE_ERROR_RUNTIME;
     }
 
-    memcpy(&id, &bytes[0], sizeof(id));
-    nread += sizeof(id);
-    memcpy(&length, &bytes[nread], sizeof(length));
+    memcpy(&id_network, &bytes[0], sizeof(id_network));
+    id = see_network_to_host16(id_network);
+    nread += sizeof(id_network);
+
+    memcpy(&length_network, &bytes[nread], sizeof(length_network));
+    length = see_network_to_host32(length_network);
     nread += sizeof(length);
 
-    if (length >= bufsiz) {
+    if (length > bufsiz) {
         errno = EINVAL;
         see_runtime_error_create(error_out, errno);
     }
@@ -1475,6 +1532,7 @@ msg_buffer_from_buffer(
         ret = see_msg_buffer_add_part(msg, part, error_out);
         if (ret)
             goto fail;
+        see_object_decref(SEE_OBJECT(part));
     }
 
     *new_buf_out = msg;
@@ -1544,7 +1602,7 @@ see_msg_buffer_add_part(
     const SeeMsgBufferClass* cls;
     if (!msg || !part)
         return SEE_INVALID_ARGUMENT;
-    if(!error_out || !error_out)
+    if(!error_out || *error_out)
         return SEE_INVALID_ARGUMENT;
 
     cls = SEE_MSG_BUFFER_GET_CLASS(msg);
@@ -1585,13 +1643,13 @@ see_msg_buffer_num_parts(
 
 int
 see_msg_buffer_get_buffer(
-    const SeeMsgBuffer* msg,
-    void**              buf_out,
-    size_t*             size_out,
-    SeeError**          error_out
+    SeeMsgBuffer*   msg,
+    void**          buf_out,
+    size_t*         size_out,
+    SeeError**      error_out
     )
 {
-    if (!msg || !buf_out || size_out)
+    if (!msg || !buf_out || !size_out)
         return SEE_INVALID_ARGUMENT;
 
     if (!error_out || *error_out)
@@ -1603,7 +1661,7 @@ see_msg_buffer_get_buffer(
 }
 
 int
-see_msg_from_buffer(
+see_msg_buffer_from_buffer(
     SeeMsgBuffer**  msg_out,
     const void*     buffer,
     size_t          size,
@@ -1640,6 +1698,7 @@ static int see_msg_buffer_class_init(SeeObjectClass* new_cls)
     cls->msg_buffer_init    = msg_buffer_init;
     cls->set_id             = msg_buffer_set_id;
     cls->get_id             = msg_buffer_get_id;
+    cls->length             = msg_buffer_length;
     cls->add_part           = msg_buffer_add_part;
     cls->get_part           = msg_buffer_get_part;
     cls->num_parts          = msg_buffer_num_parts;

@@ -642,7 +642,7 @@ see_msg_part_get_double(
 SEE_EXPORT int
 see_msg_part_buffer_length(
     const SeeMsgPart*   part,
-    uint32_t*           length_out,
+    size_t*             length_out,
     SeeError**          error_out
     );
 
@@ -781,8 +781,9 @@ struct _SeeMsgBufferClass {
         );
 
     int (*length) (
-        const SeeMsgBuffer* msg,
-        uint32_t*           out
+        SeeMsgBuffer*       msg,
+        uint32_t*           out,
+        SeeError**          error
         );
 
     int (*add_part) (
@@ -804,7 +805,7 @@ struct _SeeMsgBufferClass {
         );
 
     int (*get_buffer) (
-        const SeeMsgBuffer* msg,
+        SeeMsgBuffer*       msg,
         void**              buffer_out,
         size_t*             bufsize_out,
         SeeError**          error_out
@@ -977,10 +978,10 @@ see_msg_buffer_num_parts(
  */
 SEE_EXPORT int
 see_msg_buffer_get_buffer(
-    const SeeMsgBuffer* msg,
-    void**              buffer_out,
-    size_t*             size_out,
-    SeeError**          error_out
+    SeeMsgBuffer*   msg,
+    void**          buffer_out,
+    size_t*         size_out,
+    SeeError**      error_out
     );
 
 /**
@@ -1005,7 +1006,7 @@ see_msg_buffer_get_buffer(
 SEE_EXPORT int
 see_msg_buffer_from_buffer(
     SeeMsgBuffer**  msg,
-    const void**    buffer,
+    const void*     buffer,
     size_t          size,
     SeeError**      error_out
     );
