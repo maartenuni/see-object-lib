@@ -56,7 +56,8 @@ struct _SeeTimePoint {
 };
 
 /**
- *
+ * @brief Describes the SeeTimePoint class.
+ * \private
  */
 struct _SeeTimePointClass {
     SeeObjectClass parent_cls;

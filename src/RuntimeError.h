@@ -15,6 +15,37 @@
  * along with see-object.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * @file RuntimeError.h
+ * @brief Create errors that help to determine what type of error has occurred.
+ *
+ * Some of the function in SeeObject can fail. When they fail, errno from
+ * <errno.h> might be set. SeeRuntimeError is designed to throw when these
+ * errors occur. Typically the function returns SEE_ERROR_RUNTIME. Then
+ * one can obtain a useful message about why the error occurred.
+ *
+ * @code
+ *
+ * SeeError*  error  = NULL;
+ * SeeSerial* serial = NULL;
+ * int ret;
+ *
+ * const char* devfn = "/dev/ty1"; // tty1 might have been more capable.
+ *
+ * ret = see_serial_new(&serial, &error);
+ * ret = see_serial_open(serial, devfn, &error);
+ * if (ret == SEE_ERROR_RUNTIME) {
+ *     fprintf("Oops, unable to open %s, because :%s",
+ *         devfn,
+ *         see_error_msg(error)
+ *         );
+ *     see_object_decref(SEE_OBJECT(error));
+ *     exit(EXIT_FAILURE);
+ * }
+ *
+ * @endcode
+ *
+ */
 
 #ifndef SEE_RUNTIME_ERROR_H
 #define SEE_RUNTIME_ERROR_H
@@ -28,22 +59,49 @@ extern "C" {
 typedef struct _SeeRuntimeError SeeRuntimeError;
 typedef struct _SeeRuntimeErrorClass SeeRuntimeErrorClass;
 
+/**
+ * \brief Describes an instance of SeeRuntimeError
+ * \private
+ */
 struct _SeeRuntimeError {
+
+    /**
+     * A runtime Error is also an instance of SeeError.
+     *
+     * \private
+     */
     SeeError parent_obj;
-    /*expand SeeRuntimeError data here*/
-        
+
 };
 
+/**
+ * \brief Describe the class - the operations - of SeeRuntimeError
+ * \private
+ */
 struct _SeeRuntimeErrorClass {
+    /**
+     * \brief SeeRuntimeError derives from SeeError.
+     * \private
+     */
     SeeErrorClass parent_cls;
-    
+
+    /**
+     * \brief Initialize a newly allocated instance of SeeRuntimeError.
+     *
+     * \private
+     *
+     * @param [in,out] runtime_error        The SeeRuntimeError to initialize.
+     * @param [in]     runtime_error_cls    The class of the error.
+     * @param [in]     error_num            The number that describes the error
+     *                                      typically errno from <errno.h>
+     * @return
+     */
     int (*runtime_error_init)(
         SeeRuntimeError*            runtime_error,
         const SeeRuntimeErrorClass* runtime_error_cls,
         int                         error_num
         );
         
-    /* expand SeeRuntimeError class with extra functions here.*/
 };
 
 /* **** function style macro casts **** */

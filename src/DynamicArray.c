@@ -34,9 +34,21 @@
 
 /* **** some private helper macro's **** */
 
+/**
+ * @brief Obtain the address of an element.
+ *
+ * @param [in] array The array where in you would like to know the address of
+ *                   an element.
+ * @param [in] pos   The index of the desired element.
+ *
+ * @returns the address of the element at index pos.
+ */
 #define ARRAY_ELEM_ADDRESS(array, pos)\
     ((array)->elements + (array)->element_size * (pos))
 
+/**
+ * @brief calculate how many bytes n elements take.
+ */
 #define ARRAY_NUM_BYTES(array, n)\
     ((array)->element_size * (n))
 
@@ -538,6 +550,9 @@ see_dynamic_array_insert(
 
 /* **** initialization of the class **** */
 
+/**
+ * \brief The global pointer to the SeeDynamicaArrayClass instance
+ */
 SeeDynamicArrayClass* g_SeeDynamicArrayClass = NULL;
 
 static int see_dynamic_array_class_init(SeeObjectClass* new_cls) {

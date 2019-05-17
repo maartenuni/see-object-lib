@@ -28,15 +28,41 @@ extern "C" {
 typedef struct _SeeIndexError SeeIndexError;
 typedef struct _SeeIndexErrorClass SeeIndexErrorClass;
 
+/**
+ * @brief An instance of SeeIndexError,
+ * \private
+ */
 struct _SeeIndexError {
+    /**
+     * @brief SeeIndexError derives from SeeError.
+     * @private
+     */
     SeeError parent_obj;
-    /*expand SeeIndexError data here*/
-        
+
 };
 
+/**
+ * @brief implements the SeeIndexErrorClass.
+ * \private
+ */
 struct _SeeIndexErrorClass {
+
+    /**
+     * \brief The SeeIndexErrorClass derives from SeeErrorClass.
+     * \private
+     */
     SeeErrorClass parent_cls;
-    
+
+    /**
+     * @brief initialize a SeeIndexError
+     *
+     * \private
+     *
+     * @param [in] index_error     A pointer to a newly allocated index_error
+     * @param [in] index_error_cls A pointer to the class.
+     * @param [in] index           The index that was invalid (out of range).
+     * @return
+     */
     int (*index_error_init)(
         SeeIndexError*            index_error,
         const SeeIndexErrorClass* index_error_cls,

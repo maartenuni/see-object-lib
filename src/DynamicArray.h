@@ -450,9 +450,9 @@ see_dynamic_array_add(
 /**
  * \brief Get a pointer to an element inside of the array.
  *
- * @param [in] array the array from which to get a pointer.
- * @param [in] index a zero based index.
- * @param [out]If an error occurs it will be returned here.
+ * @param [in]  array   the array from which to get a pointer.
+ * @param [in]  index   a zero based index.
+ * @param [out] error   If an error occurs it will be returned here.
  *
  * @return A pointer into the array. So if index is 0 the first item
  *         in the array is returned, if you cast that to a pointer

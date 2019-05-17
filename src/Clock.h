@@ -177,13 +177,14 @@ see_clock_new(SeeClock** clk, SeeError** error_out);
 /**
  * @brief Obtain time from the clock
  *
- * @param [in] in   the clock from which we would like to the time.
+ * @param [in]      in the clock from which we would like to the time.
  * @param [in,out]  tp The time is returned here. If inout already
  *                        contains a time it will be reinitialized with a
  *                        new time. If *tp == NULL, a new instance will be
  *                        allocated.
- * @param [out]     error_out, if an error occurs the error
- *                  The error will be returned here.
+ * @param [out]     error_out if an error occurs the error will be returned
+ *                      here.
+ *
  * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_ERROR_RUNTIME
  */
 SEE_EXPORT int

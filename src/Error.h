@@ -142,7 +142,7 @@ see_error_class();
 /**
  * \brief Create a new error without an initialized message.
  *
- * @param out[out] A pointer to a SeeError* object *out should be NULL.
+ * @param [out] out A pointer to a SeeError* object *out should be NULL.
  *
  * @return SEE_SUCCESS when successful and another see_error otherwise.
  */
@@ -153,9 +153,9 @@ see_error_new(SeeError** out);
 /**
  * \brief Create a new error that contains an initialized error message.
  *
- * @param out[out]      If this function is successful, *out will point
- *                      to the newly created SeeError instance.
- * @param message[in]   A message describing the error that has occurred.
+ * @param [out] out       If this function is successful, *out will point
+ *                        to the newly created SeeError instance.
+ * @param [in]  message   A message describing the error that has occurred.
  *
  * @return A newly created message with a descriptive error message.
  */
@@ -166,7 +166,7 @@ see_error_new_msg(SeeError** out, const char* message);
 /**
  * \brief obtain the message that belongs to the Error.
  *
- * @param error[in] The error from which we would like to obtain the message.
+ * @param [in] error The error from which we would like to obtain the message.
  *
  * @return A pointer to the message.
  */
@@ -176,8 +176,8 @@ see_error_msg(const SeeError* error);
 /**
  * \brief Set the error message.
  *
- * @param error[in,out] The error instance on which we would like to set the message
- * @param msg[in]       The message.
+ * @param [in,out] error The error instance on which we would like to set the message
+ * @param [in]     msg   The message.
  */
 SEE_EXPORT void
 see_error_set_msg(SeeError* error, const char* msg);

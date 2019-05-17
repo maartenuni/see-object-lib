@@ -17,7 +17,7 @@
 
 
 /**
- * \file duration.cpp The implementation of SeeDuration object and class.
+ * \file Duration.cpp The implementation of SeeDuration object and class.
  * \private
  */
 

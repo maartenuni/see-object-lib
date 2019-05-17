@@ -223,6 +223,10 @@ int see_clock_set_base_time(
 
 /* **** initialization of the class **** */
 
+/**
+ * \brief the global clock class
+ * \private
+ */
 SeeClockClass* g_SeeClockClass = NULL;
 
 static int see_clock_class_init(SeeObjectClass* new_cls)

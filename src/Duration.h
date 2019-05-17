@@ -45,9 +45,16 @@ typedef struct _SeeDuration SeeDuration;
 typedef struct _SeeDurationClass SeeDurationClass;
 
 /**
- * A instance of a SeeDuration
+ * @brief A instance of a SeeDuration
+ *
+ * \private
  */
 struct _SeeDuration {
+
+    /**
+     * \briefSeeDuration is also a SeeObject.
+     * \private
+     */
     SeeObject   parent_obj;
 
     /**
@@ -61,8 +68,26 @@ struct _SeeDuration {
  * \brief The SeeDurationClass that specifies the operations on a duration.
  */
 struct _SeeDurationClass {
+
+    /**
+     * \brief the SeeDuration class is an instance of SeeObjectClass.
+     * \private
+     */
     SeeObjectClass parent_cls;
-    
+
+    /**
+     * \brief Initizalizes a new duration instance.
+     *
+     * \private
+     *
+     * @param [in] duration     A newly allocated duration
+     * @param [in] duration_cls The class the duration belongs to
+     * @param [in] nano_seconds The number of nanoseconds the duration should
+     *                          be set to.
+     * @param [out] error_out   If an error occurs it will be returned here.
+     *
+     * @return SEE_SUCCESS
+     */
     int (*duration_init)(
         SeeDuration*            duration,
         const SeeDurationClass* duration_cls,
@@ -122,6 +147,7 @@ see_duration_new(SeeDuration** out, SeeError** error_out);
  * @brief Create a new duration with a default value of in seconds
  *
  * @param [out] out The newly generated duration
+ * @param [in]  s   The number of seconds the duration should be equal to
  * @param [out] error_out If an error occurs it will be returned here
  * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
  */
@@ -132,7 +158,9 @@ see_duration_new_s(SeeDuration** out, int64_t s, SeeError** error_out);
  * @brief Create a new duration with a default value of 0
  *
  * @param [out] out The newly generated duration
+ * @param [in]  ms  The number of milliseconds the duration should be equal to
  * @param [out] error_out If an error occurs it will be returned here
+ *
  * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
  */
 SEE_EXPORT int
@@ -142,6 +170,7 @@ see_duration_new_ms(SeeDuration** out, int64_t ms, SeeError** error_out);
  * @brief Create a new duration with a default value of 0
  *
  * @param [out] out The newly generated duration
+ * @param [in]  us  The number of microseconds the duration should be equal to
  * @param [out] error_out If an error occurs it will be returned here
  * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
  */
@@ -152,6 +181,7 @@ see_duration_new_us(SeeDuration** out, int64_t us, SeeError** error_out);
  * @brief Create a new duration with a default value of 0
  *
  * @param [out] out The newly generated duration
+ * @param [in]  ns  The number of nano seconds the duration should be equal to
  * @param [out] error_out If an error occurs it will be returned here
  * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
  */
@@ -218,11 +248,14 @@ see_duration_sub(
     );
 
 /**
-* @brief evaluates self < rhs
-*
-* @param[out] result non zero value when self smaller then rhs.
-* @return SEE_SUCCESS or SEE_INVALID_ARGUMENT
-*/
+ * @brief evaluates self < rhs
+ *
+ * @param [in]  self   A pointer to a SeeDuration
+ * @param [in]  rhs    A pointer to a SeeDuration
+ * @param [out] result non zero value when self < rhs.
+ *
+ * @return SEE_SUCCESS or SEE_INVALID_ARGUMENT
+ */
 SEE_EXPORT int
 see_duration_lt(
     const SeeDuration* self,
@@ -231,11 +264,14 @@ see_duration_lt(
     );
 
 /**
-* @brief evaluates self <= rhs
-*
-* @param [out] result non zero value when self <= rhs.
-* @return SEE_SUCCESS or SEE_INVALID_ARGUMENT
-*/
+ * @brief evaluates self <= rhs
+ *
+ * @param [in]  self    A pointer to a SeeDuration
+ * @param [in]  rhs     A pointer to a SeeDuration
+ * @param [out] result  non zero value when self <= rhs.
+ *
+ * @return SEE_SUCCESS or SEE_INVALID_ARGUMENT
+ */
 SEE_EXPORT int
 see_duration_lte(
     const SeeDuration* self,
@@ -244,11 +280,14 @@ see_duration_lte(
     );
 
 /**
-* @brief evaluates self == rhs
-*
-* @return non zero value when self == rhs.
-* @result SEE_SUCCESS or SEE_INVALID_ARGUMENT
-*/
+ * @brief evaluates self == rhs
+ *
+ * @param [in]  self   A pointer to a SeeDuration
+ * @param [in]  rhs    A pointer to a SeeDuration
+ * @param [out] result non zero value when self == rhs.
+ *
+ * @result SEE_SUCCESS or SEE_INVALID_ARGUMENT
+ */
 SEE_EXPORT int
 see_duration_eq(
     const SeeDuration* self,
@@ -259,7 +298,10 @@ see_duration_eq(
 /**
  * @brief evaluates self >= rhs
  *
- * @return non zero value when self >= rhs.
+ * @param [in]  self   A pointer to a SeeDuration
+ * @param [in]  rhs    A pointer to a SeeDuration
+ * @param [out] result non zero value when self >= rhs.
+ *
  * @return SEE_SUCCESS or SEE_INVALID_ARGUMENT
  */
 SEE_EXPORT int
@@ -272,7 +314,10 @@ see_duration_gte(
 /**
  * @brief evaluates self > rhs
  *
- * @param result non zero value when self > rhs.
+ * @param [in]  self   A pointer to a SeeDuration
+ * @param [in]  rhs    A pointer to a SeeDuration
+ * @param [out] result non zero value when self > rhs.
+ *
  * @return SEE_SUCCESS or SEE_INVALID_ARGUMENT
  */
 SEE_EXPORT int
