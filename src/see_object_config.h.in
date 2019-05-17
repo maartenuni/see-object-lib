@@ -29,6 +29,7 @@
 #cmakedefine HAVE_SYS_STAT_H    1
 #cmakedefine HAVE_UNISTD_H      1
 #cmakedefine HAVE_TERMIOS_H     1
+#cmakedefine HAVE_ARPA_INET_H   1
 #cmakedefine HAVE_WINDOWS_H     1
 
 
@@ -36,4 +37,14 @@
 
 #cmakedefine HAVE_STRERROR_S    1
 #cmakedefine HAVE_STRERROR_R    1
+#cmakedefine HAVE_HTONL         1
+#cmakedefine HAVE_NTOHL         1
 
+// test endianess
+#cmakedefine SEE_BIG_ENDIAN
+#ifndef SEE_BIG_ENDIAN
+#define SEE_BIG_ENDIAN          0
+#define SEE_LITTLE_ENDIAN       1
+#else
+#define SEE_LITTLE_ENDIAN       0
+#endif

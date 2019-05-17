@@ -26,6 +26,7 @@ include (GenerateExportHeader)
 include (InstallRequiredSystemLibraries)
 include (GNUInstallDirs)
 include (CMakePackageConfigHelpers)
+include (TestBigEndian)
 
 check_include_files(stdio.h     HAVE_STDIO_H)
 check_include_files(stdlib.h    HAVE_STDLIB_H)
@@ -34,9 +35,14 @@ check_include_files(sys/stat.h  HAVE_SYS_STAT_H)
 check_include_files(unistd.h    HAVE_TERMIOS_H)
 check_include_files(termios.h   HAVE_UNISTD_H)
 check_include_files(windows.h   HAVE_WINDOWS_H)
+check_include_files(arpa/inet.h HAVE_ARPA_INET_H)
 
 check_function_exists(strerror_s HAVE_STRERROR_S)
 check_function_exists(strerror_r HAVE_STRERROR_R)
+check_function_exists(htonl      HAVE_HTONL)
+check_function_exists(ntohl      HAVE_NTOHL)
+
+test_big_endian(SEE_BIG_ENDIAN)
 
 set (CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
 set (CPACK_PACKAGE_VERSION_MAJOR "${SEE_OBJECT_VERSION_MAJOR}")

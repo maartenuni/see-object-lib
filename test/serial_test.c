@@ -32,7 +32,7 @@ void serial_create(void)
     SeeError*  error    = NULL;
 
     int ret = see_serial_new(&serial, &error);
-    SEE_UNIT_HANDLE_ERROR()
+    SEE_UNIT_HANDLE_ERROR();
 
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS)
     CU_ASSERT_NOT_EQUAL(serial, NULL)
@@ -53,11 +53,11 @@ void serial_use_unopened(void)
     size_t bufsz = sizeof(buffer);
 
     int ret = see_serial_new(&serial, &error);
-    SEE_UNIT_HANDLE_ERROR()
+    SEE_UNIT_HANDLE_ERROR();
 
     // The unit should be closed after this call, so this should just work.
     ret = see_serial_close(serial, &error);
-    SEE_UNIT_HANDLE_ERROR()
+    SEE_UNIT_HANDLE_ERROR();
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
 
     ret = see_serial_write(serial, buffer, &bufsz, &error);

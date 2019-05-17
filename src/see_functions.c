@@ -30,7 +30,7 @@ void* see_copy_by_ref(void* dest_seeobj, const void* src, size_t unused)
 {
     (void) unused;
     memcpy(dest_seeobj, src, sizeof(SeeObject*));
-    see_object_ref(dest_seeobj);
+    see_object_ref(* ((SeeObject**) dest_seeobj));
     return dest_seeobj;
 }
 
@@ -42,4 +42,9 @@ see_init_memset(void* obj, size_t nbytes, void* byte)
         byte_value = *((uint8_t*) byte);
     memset(obj, byte_value, nbytes);
     return SEE_SUCCESS;
+}
+
+void see_free_see_object(void* object)
+{
+    see_object_decref(object);
 }

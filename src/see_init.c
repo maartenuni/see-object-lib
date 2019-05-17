@@ -33,6 +33,7 @@
 #include "RuntimeError.h"
 #include "TimePoint.h"
 #include "Serial.h"
+#include "MsgBuffer.h"
 
 #if HAVE_WINDOWS_H
 #include "windows/WindowsRuntimeError.h"
@@ -96,6 +97,22 @@ initialize() {
     if (ret)
         return ret;
 
+    ret = see_msg_buffer_init();
+    if (ret)
+        return ret;
+
+    ret = see_msg_invalid_error_init();
+    if (ret)
+        return ret;
+
+    ret = see_msg_part_init();
+    if (ret)
+        return ret;
+
+    ret = see_msg_part_type_error_init();
+    if (ret)
+        return ret;
+
     ret = see_runtime_error_init();
     if (ret)
         return ret;
@@ -130,6 +147,10 @@ deinit()
     see_dynamic_array_deinit();
     see_error_deinit();
     see_index_error_deinit();
+    see_msg_buffer_deinit();
+    see_msg_invalid_error_deinit();
+    see_msg_part_deinit();
+    see_msg_part_type_error_deinit();
     see_runtime_error_deinit();
     see_serial_deinit();
     see_time_point_deinit();
