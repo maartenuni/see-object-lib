@@ -27,6 +27,15 @@ extern "C" {
 #endif
 
 /**
+ * \brief reverses the order of the bytes in a 16 bit integer
+ *
+ * @param [in] val
+ * @return val the byte order reversed.
+ */
+SEE_EXPORT uint16_t
+see_swap_endianess16(uint16_t val);
+
+/**
  * \brief reverses the order of the bytes in a 32 bit integer
  *
  * @param [in] val
@@ -43,6 +52,31 @@ see_swap_endianess32(uint32_t val);
  */
 SEE_EXPORT uint64_t
 see_swap_endianess64(uint64_t val);
+
+/**
+ * \brief if necessary, swap byteorder to match network byteorder
+ *
+ * On most platforms the byteorder is little endian, meaning the least
+ * significant byte is stored first in an integer, contrasting with big
+ * endian where the most significant byte is stored first.
+ *
+ * @param [in] val the integer that you want in network representation.
+ * @return val in network representation.
+ */
+SEE_EXPORT uint16_t
+see_host_to_network16(uint16_t val);
+
+/**
+ * \brief if necessary, swap byteorder to match network byteorder
+ *
+ * When you receive a uint16_t in network byte order you can use this function
+ * to swap the bytes to the network order of the host.
+ *
+ * @param [in] val the integer that you want in network representation.
+ * @return val in network representation.
+ */
+SEE_EXPORT uint16_t
+see_network_to_host16(uint16_t val);
 
 /**
  * \brief if necessary, swap byteorder to match network byteorder

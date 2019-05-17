@@ -23,6 +23,14 @@
 #include <arpa/inet.h>
 #endif
 
+uint16_t see_swap_endianess16(uint16_t input)
+{
+    uint16_t out = ((input & 0xff00) >> 8) |
+                   ((input & 0x00ff) << 8);
+
+    return out;
+}
+
 uint32_t
 see_swap_endianess32(uint32_t input)
 {
@@ -53,6 +61,18 @@ see_swap_endianess64(uint64_t input)
     return out;
 }
 
+uint16_t
+see_host_to_network16(uint16_t host_val)
+{
+    uint16_t net_val;
+#if SEE_BIG_ENDIAN
+    net_val= hostval;
+#else
+    net_val = see_swap_endianess16(host_val);
+#endif
+    return net_val;
+}
+
 uint32_t
 see_host_to_network32(uint32_t host_val)
 {
@@ -73,6 +93,18 @@ see_host_to_network64(uint64_t host_val)
     net_val= hostval;
 #else
     net_val = see_swap_endianess64(host_val);
+#endif
+    return net_val;
+}
+
+uint16_t
+see_network_to_host16(uint16_t host_val)
+{
+    uint16_t net_val;
+#if SEE_BIG_ENDIAN
+    net_val= hostval;
+#else
+    net_val = see_swap_endianess16(host_val);
 #endif
     return net_val;
 }
