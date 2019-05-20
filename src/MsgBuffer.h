@@ -153,6 +153,7 @@ typedef struct _SeeMsgPartClass SeeMsgPartClass;
 
 /**
  * \brief a structure to send one specific element over a wire.
+ * @private
  */
 struct _SeeMsgPart {
 
@@ -206,75 +207,202 @@ struct _SeeMsgPart {
     uint8_t    value_type;
 };
 
+/**
+ * \brief The class that contains the operation that can be done on a
+ *        SeeMsgPart.
+ *
+ * @private
+ */
 struct _SeeMsgPartClass {
 
     SeeObjectClass parent_cls;
 
+    /**
+     * \brief initialize a newly allocated SeeMsgPart.
+     *
+     * @param [in,out] msg_part      the newly allocated part
+     * @param [in]     msg_part_cls  the class of the SeeMsgPart.
+     *
+     * @return SEE_SUCCESS
+     */
     int (*msg_part_init) (
         SeeMsgPart*            msg_part,
         const SeeMsgPartClass* msg_part_cls
         /* Put instance specific arguments here and remove this comment. */
         );
 
+    /**
+     * \brief Obtain the number of bytes this part requires in order to write it
+     *        to a bytestream.
+     *
+     * @param [in]  part        A pointer to a valid SeeMsgPart
+     * @param [out] length      The length of the part will be returned here.
+     * @param [out] error_out   The returned error.
+     *
+     * @return SEE_SUCCESS or SEE_ERROR_RUNTIME with EINVAL when the mesgpart
+     *         isn't properly initialized.
+     * @private
+     */
     int (*length) (
         const SeeMsgPart* part,
         uint32_t*         length,
         SeeError**        error_out
         );
 
+    /**
+     * \brief Obtain what payload this message contains, or what data type
+     *        this can be used to extract the value the message contains.
+     * @param part
+     * @param type
+     * @return
+     */
     int (*value_type) (
         const SeeMsgPart* part,
         uint8_t*          type
         );
 
+    /**
+     * \brief Initialize this message part with a int32_t.
+     *
+     * @param [in,out] msg_part A pointer to a SeeMsgPart
+     * @param [in]     value    The value to store within the message part.
+     * @param [out]    error_out An error will be returned here when something
+     *                           goes wrong
+     * @return SEE_SUCCESS
+     * @private
+     */
     int (*write_int32) (
         SeeMsgPart*       msg_buf_p,
         int32_t           value,
         SeeError**        error_out
         );
 
+    /**
+     * \brief Obtain a uint32_t value from this part.
+     *
+     * @param [in]  msg_buf_p A pointer to SeeMsgPart that contains a uint32_t
+     * @param [out] value_out The value will be returned here.
+     * @param [out] error_out A SeeError will be returned here when something
+     *                        goes wrong.
+     *
+     * @return SEE_SUCCESS, SEE_ERROR_MSG_PART_TYPE (when it doesn't contain a uint32_t)
+     * @private
+     */
     int (*get_int32) (
         const SeeMsgPart* msg_buf_p,
         int32_t*          value,
         SeeError**        error_out
         );
 
+    /**
+     * \brief Initialize this message part with a uint32_t.
+     *
+     * @param [in,out] msg_part A pointer to a SeeMsgPart
+     * @param [in]     value    The value to store within the message part.
+     * @param [out]    error_out An error will be returned here when something
+     *                           goes wrong
+     * @return SEE_SUCCESS
+     * @private
+     */
     int (*write_uint32) (
         SeeMsgPart*       msg_buf_p,
         uint32_t          value,
         SeeError**        error_out
         );
 
+    /**
+     * \brief Obtain a uint32_t value from this part.
+     *
+     * @param [in]  msg_buf_p A pointer to SeeMsgPart that contains a uint32_t
+     * @param [out] value_out The value will be returned here.
+     * @param [out] error_out A SeeError will be returned here when something
+     *                        goes wrong.
+     *
+     * @return SEE_SUCCESS, SEE_ERROR_MSG_PART_TYPE (when it doesn't contain a uint32_t)
+     * @private
+     */
     int (*get_uint32) (
         const SeeMsgPart* msg_buf_p,
         uint32_t*         value_out,
         SeeError**        error_out
         );
 
+    /**
+     * \brief Initialize this message part with a int64_t.
+     *
+     * @param [in,out] msg_part A pointer to a SeeMsgPart
+     * @param [in]     value    The value to store within the message part.
+     * @param [out]    error_out An error will be returned here when something
+     *                           goes wrong
+     * @return SEE_SUCCESS
+     * @private
+     */
     int (*write_int64) (
         SeeMsgPart*       msg_buf_p,
         int64_t           value,
         SeeError**        error_out
         );
 
+    /**
+     * \brief Obtain a int64_t value from this part.
+     *
+     * @param [in]  msg_buf_p A pointer to SeeMsgPart that contains a int64_t
+     * @param [out] value_out The value will be returned here.
+     * @param [out] error_out A SeeError will be returned here when something
+     *                        goes wrong.
+     *
+     * @return SEE_SUCCESS, SEE_ERROR_MSG_PART_TYPE (when it doesn't contain a int64_t)
+     * @private
+     */
     int (*get_int64) (
         const SeeMsgPart* msg_buf_p,
         int64_t*          value,
         SeeError**        error_out
         );
 
+    /**
+     * \brief Initialize this message part with a uint64_t.
+     *
+     * @param [in,out] msg_part A pointer to a SeeMsgPart
+     * @param [in]     value    The value to store within the message part.
+     * @param [out]    error_out An error will be returned here when something
+     *                           goes wrong
+     * @return SEE_SUCCESS
+     * @private
+     */
     int (*write_uint64) (
         SeeMsgPart*       msg_buf_p,
         uint64_t          value,
         SeeError**        error_out
         );
 
+    /**
+     * \brief Obtain a uint64_t value from this part.
+     *
+     * @param [in]  msg_buf_p A pointer to SeeMsgPart that contains a uint64_t
+     * @param [out] value_out The value will be returned here.
+     * @param [out] error_out A SeeError will be returned here when something
+     *                        goes wrong.
+     *
+     * @return SEE_SUCCESS, SEE_ERROR_MSG_PART_TYPE (when it doesn't contain a uint64_t)
+     * @private
+     */
     int (*get_uint64) (
         const SeeMsgPart* msg_buf_p,
         uint64_t*         value_out,
         SeeError**        error_out
         );
 
+    /**
+     * \brief Initialize this message part with a string.
+     *
+     * @param [in,out] msg_part A pointer to a SeeMsgPart
+     * @param [in]     value    The value to store within the message part.
+     * @param [out]    error_out An error will be returned here when something
+     *                           goes wrong
+     * @return SEE_SUCCESS
+     * @private
+     */
     int (*write_string) (
         SeeMsgPart*       msg_buf_p,
         const char*       value,
@@ -282,48 +410,148 @@ struct _SeeMsgPartClass {
         SeeError**        error_out
         );
 
+    /**
+     * \brief Obtain a string value from this part.
+     *
+     * @param [in]  msg_buf_p A pointer to SeeMsgPart that contains a string
+     * @param [out] value_out The value will be returned here.
+     * @param [out] error_out A SeeError will be returned here when something
+     *                        goes wrong.
+     *
+     * @return SEE_SUCCESS, SEE_ERROR_MSG_PART_TYPE (when it doesn't contain a string)
+     * @private
+     */
     int (*get_string) (
         const SeeMsgPart* msg_buf_p,
         char**            value_out,
         SeeError**        error_out
         );
 
+    /**
+     * \brief Initialize this message part with a float.
+     *
+     * @param [in,out] msg_part A pointer to a SeeMsgPart
+     * @param [in]     value    The value to store within the message part.
+     * @param [out]    error_out An error will be returned here when something
+     *                           goes wrong
+     * @return SEE_SUCCESS
+     * @private
+     */
     int (*write_float) (
         SeeMsgPart*       msg_buf,
         float             value,
         SeeError**        error_out
         );
 
+    /**
+     * \brief Obtain a float value from this part.
+     *
+     * @param [in]  msg_buf_p A pointer to SeeMsgPart that contains a float
+     * @param [out] value_out The value will be returned here.
+     * @param [out] error_out A SeeError will be returned here when something
+     *                        goes wrong.
+     *
+     * @return SEE_SUCCESS, SEE_ERROR_MSG_PART_TYPE (when it doesn't contain a float)
+     * @private
+     */
     int (*get_float) (
         const SeeMsgPart* msg_buf_p,
         float*            value_out,
         SeeError**        error_out
         );
 
+    /**
+     * \brief Initialize this message part with a double.
+     *
+     * @param [in,out] msg_part A pointer to a SeeMsgPart
+     * @param [in]     value    The value to store within the message part.
+     * @param [out]    error_out An error will be returned here when something
+     *                           goes wrong
+     * @return SEE_SUCCESS
+     */
     int (*write_double) (
-        SeeMsgPart*       msg_buf,
+        SeeMsgPart*       msg_part,
         double            value,
         SeeError**        error_out
         );
 
+    /**
+     * \brief Obtain a double value from this part.
+     *
+     * @param [in]  msg_buf_p A pointer to SeeMsgPart that contains a double
+     * @param [out] value_out The value will be returned here.
+     * @param [out] error_out A SeeError will be returned here when something
+     *                        goes wrong.
+     *
+     * @return SEE_SUCCESS, SEE_ERROR_MSG_PART_TYPE (when it doesn't contain a double)
+     * @private
+     */
     int (*get_double) (
         const SeeMsgPart* msg_buf_p,
         double*           value_out,
         SeeError**        error_out
         );
 
+    /**
+     * \brief Return the number of bytes required to transform this part to
+     *        a bytestream.
+     *
+     * The SeeMsgPart should have a valid intialized msg type, otherwise
+     * a runtime error with EINVAL will be returned.
+     *
+     * @param [in]  msg_buf_p A pointer to a valid msg_part
+     * @param [out] size_out  The required size will be returned here.
+     * @param [out] error_out A SeeError can be returned here when something
+     *                        goes wrong
+     * @return SEE_SUCCESS, SEE_ERROR_RUNTIME
+     * @private
+     */
     int (*buffer_length) (
         const SeeMsgPart* msg_buf_p,
         size_t*           size_out,
         SeeError**        error_out
         );
 
+    /**
+     * \brief Write a part to a bytestream.
+     *
+     * This method will transform a part to its bytestream representation.
+     *
+     * @param [in]      part    The part that must be transformed to its
+     *                          bytestream representation.
+     * @param [in, out] buffer  The buffer is initialized with bytes that
+     *                          represent the part.
+     * @param [out]     error_out If an error occurs a hopefully useful error
+     *                            msg is returned here.
+     * @return
+     * @private
+     */
     int (*write) (
         const SeeMsgPart* part,
         void*             buffer,
         SeeError**        error_out
         );
 
+    /**
+     * @brief Parse a new message from a bytestream
+     *
+     * Like SeeMsgBufferClass->read() is the inverse of SeeMsgPartClass->read()
+     * is the inverse of the SeeMsgPartClass->write().
+     *
+     * @param [out] part_out        A newly created SeeMsgPart will be returned
+     *                              here if this method is successful.
+     * @param [in]  buffer          The part will be created from this buffer/
+     *                              bytestream.
+     * @param [in]  bufsiz          The size of the buffer, this must be large
+     *                              enough to contain the entire SeeMsgPart
+     * @param [out] part_size_out   The number of bytes used to construct the
+     *                              SeeMsgPart
+     * @param [out] error_out       If an error occurs during parsing a hopefully
+     *                              useful error will be returned here.
+     *
+     * @return SEE_SUCCESS, SEE_ERROR_MSG_INVALID, SEE_ERROR_RUNTIME
+     * @private
+     */
     int (*read) (
         SeeMsgPart**      part_out,
         const void*       buffer,
@@ -558,9 +786,11 @@ see_msg_part_write_string(
 
 /**
  * @brief Obtain a string from the message part.
- * @param [in] part      The part from which to obtain a message
- * @param [out]value     The value is returned here, free it after use.
- * @param [out]error_out If an error occurs info about is returned here.
+ *
+ * @param [in]  part      The part from which to obtain a message
+ * @param [out] value     The value is returned here, free it after use.
+ * @param [out] error_out If an error occurs info about is returned here.
+ *
  * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_ERROR_RUNTIME
  */
 SEE_EXPORT int
@@ -639,11 +869,11 @@ see_msg_part_get_double(
  *
  * This function can be used to compute the required size of a data buffer.
  *
- * @param [in] part         The part whose necessary buffer size you would like
- *                          to know.
- * @param [out]length_out   The required size for the buffer is returned here
- *                          (the number of bytes).
- * @param [out]error_out    If an error occurs it is returned here.
+ * @param [in]  part         The part whose necessary buffer size you would like
+ *                           to know.
+ * @param [out] length_out   The required size for the buffer is returned here
+ *                           (the number of bytes).
+ * @param [out] error_out    If an error occurs it is returned here.
  *
  * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_ERROR_RUNTIME
  */
@@ -657,11 +887,11 @@ see_msg_part_buffer_length(
 /**
  * @brief Write a SeeMsgPart to a memory buffer
  *
- * @param [in] part     The part that you want to put in a buffer
- * @param [out]buffer   The buffer wherein you want to put the SeeMsgPart,
- *                      it is up to the caller to make sure the buffer is
- *                      large enough.
- * @param [out]error_out Error info is returned here on error.
+ * @param [in]  part      The part that you want to put in a buffer
+ * @param [out] buffer    The buffer wherein you want to put the SeeMsgPart,
+ *                        it is up to the caller to make sure the buffer is
+ *                        large enough.
+ * @param [out] error_out Error info is returned here on error.
  *
  * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_ERROR_RUNTIME
  */
@@ -691,6 +921,7 @@ see_msg_part_write (
  *                              returned
  * @param [out] part_size_out   Returns the number of bytes that were read in
  *                              order to parse the msg part.
+ * @param [out] error_out       If an error occurs it can be returned here.
  *
  * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_MSG_INVALID, SEE_ERROR_RUNTIME
  */
@@ -769,10 +1000,29 @@ struct _SeeMsgBuffer {
  */
 struct _SeeMsgBufferClass {
 
+    /**
+     * \brief SeeMsgBufferClass inherits from SeeObjectClass.
+     *
+     * \private
+     */
     SeeObjectClass parent_cls;
 
-    const char* msg_start; // = "SMSG"; // short for See MeSsaGe
-    
+    /**
+     * \brief Every message send will start with this msg.
+     */
+    const char* msg_start;
+
+    /**
+     * \brief Initialize a freshly allocated SeeMsgBuffer.
+     *
+     * @param [in]  msg_buffer      A newly allocated msg buffer
+     * @param [in]  msg_buffer_cls  The class this object is an instance of.
+     * @param [in]  msg_type        The id that the receiver can use
+     *                              to determine what message is being send.
+     * @param [out] error_out       If an error occurs, useful info
+     *                              can be returned here.
+     * @return
+     */
     int (*msg_buffer_init)(
         SeeMsgBuffer*            msg_buffer,
         const SeeMsgBufferClass* msg_buffer_cls,
@@ -780,28 +1030,76 @@ struct _SeeMsgBufferClass {
         SeeError**               error_out
         );
 
+    /**
+     * \brief Reset the id of the message.
+     *
+     * @param [in,out] msg      Reset the id of this message
+     * @param [in]     msg_type The new id.
+     * @return
+     * \private
+     */
     int (*set_id) (
         SeeMsgBuffer*       msg,
         uint16_t            msg_type
         );
 
+    /**
+     * \brief obtain the id of the message
+     *
+     * @param [in]  msg         The message whose id you would like to obtain.
+     * @param [out] msg_type    The id of the message is returned here.
+     * @return
+     * \private
+     */
     int (*get_id) (
         const SeeMsgBuffer* msg,
         uint16_t*           msg_type
         );
 
+    /**
+     * \brief Obtain the length in bytes that a buffer requires to transmit
+     * the message.
+     *
+     * @param [in]  msg     The message whose bufferlength you would lik to know
+     * @param [out] out     The length of the buffer is returned here.
+     * @param [out] error   If an error occurs it is returned here.
+     * @return
+     *
+     * \private
+     */
     int (*length) (
         SeeMsgBuffer*       msg,
         uint32_t*           out,
         SeeError**          error
         );
 
+    /**
+     * \brief   Add a new SeeMsgPart to the buffer.
+     * @param [in]  msg  if an error occurs it will be returned here.
+     * @param [in]  part The part you would like to add to the buffer. This
+     *                   feeds a reference, so this method will call
+                         see_object_ref on the part.
+     * @param [out] error If an error occurs it will be returned here.
+     * @return SEE_SUCCESS, SEE_ERROR_RUNTIME
+     *
+     * \private
+     */
     int (*add_part) (
         SeeMsgBuffer*       msg,
-        SeeMsgPart*         buf,
+        SeeMsgPart*         part,
         SeeError**          error
         );
 
+    /**
+     * \brief Obtain a SeeMsgPart from the message.
+     *
+     * @param [in]  msg
+     * @param [in]  index
+     * @param [out] part_out
+     * @param [out] error_out
+     *
+     * @return SEE_SUCCESS, SEE_ERROR_INDEX
+     */
     int (*get_part) (
         SeeMsgBuffer*       msg,
         size_t              index,
@@ -809,11 +1107,34 @@ struct _SeeMsgBufferClass {
         SeeError**          error_out
         );
 
+    /**
+     * \brief Obtain the number of parts.
+     *
+     * This method obtains the number of parts available in the buffer.
+     * If you use an index greater or equal to the result of this function,
+     * you shall be served a SeeIndexError and SEE_ERROR_INDEX from the
+     * get_part function.
+     *
+     * @param [in]  msg  The SeeMsgBuffer whose number of part you want to know
+     * @param [out] size The number of parts is returned here.
+     * @return
+     */
     int (*num_parts) (
         const SeeMsgBuffer* msg,
         size_t*             size
         );
 
+    /**
+     * \brief Obtain a buffer that precisely contains 1 the bytes that represent
+     * one SeeMsgBuffer.
+     *
+     * @param [in]  msg         The msg to be turned into a bytestream
+     * @param [out] buffer_out  The returned bytestream
+     * @param [out] bufsize_out The size of the buffer.
+     * @param [out] error_out   If an error occurs it will be returned here.
+     *
+     * @return
+     */
     int (*get_buffer) (
         SeeMsgBuffer*       msg,
         void**              buffer_out,
@@ -821,6 +1142,23 @@ struct _SeeMsgBufferClass {
         SeeError**          error_out
         );
 
+    /**
+     * \brief construct a SeeMessageBuffer from a bytestream.
+     *
+     * This method is the inverse from the get_buffer method. With one major
+     * difference, this method should be considered a static classmethod.
+     * whether the get_buffer is an instance_method.
+     *
+     * @param [out] msg_out   If this points to a previous initialized SeeMsgBuffer
+     *                        the reference count to that object will be decrememted
+     *                        and a new object will be returned.
+     * @param [in]  buffer    A pointer to the bytestream
+     * @param [in]  buf_size  The size of the buffer, this is use to determine
+     *                        whether the size is appropriat or more bytes need
+     *                        to be aquired.
+     * @param [out] error_out If an error occurs it will be returned here.
+     * @return
+     */
     int (*from_buffer) (
         SeeMsgBuffer**  msg_out,
         const void*     buffer,
@@ -897,6 +1235,20 @@ see_msg_buffer_set_type(
     SeeMsgBuffer*   msg,
     uint16_t        id,
     SeeError**      error_out
+    );
+
+/**
+ * \brief Set the message id of a SeeMsgBuffer.
+ *
+ * @param [in, out] msg The SeeMsgError whose id you want to set.
+ * @param [in]      id  The new id.
+ *
+ * @return SEE_SUCCESS
+ */
+SEE_EXPORT int
+see_msg_buffer_set_id(
+    SeeMsgBuffer*   msg,
+    uint16_t        id
     );
 
 /**
@@ -1050,13 +1402,31 @@ void see_msg_buffer_deinit();
 typedef struct _SeeMsgPartTypeError SeeMsgPartTypeError;
 typedef struct _SeeMsgPartTypeErrorClass SeeMsgPartTypeErrorClass;
 
+/**
+ * \brief SeeMsgPartTypeError is an error that is raise when trying to
+ * parse a value from at MsgPart that contains another type.
+ *
+ * \private
+ */
 struct _SeeMsgPartTypeError {
+    /**
+     * \brief This object inherits from SeeError
+     */
     SeeError parent_obj;
     /*expand SeeMsgPartTypeError data here*/
 
 };
 
+/**
+ * \brief A class that belongs To SeeMsgPartTypeError's.
+ *
+ * \private
+ */
 struct _SeeMsgPartTypeErrorClass {
+    /**
+     * \brief This class inherits from SeeErrorClass.
+     * \private
+     */
     SeeErrorClass parent_cls;
 
     int (*msg_part_type_error_init)(
@@ -1103,6 +1473,15 @@ struct _SeeMsgPartTypeErrorClass {
 
 /* **** public functions **** */
 
+/**
+ * \brief Allocate a new SeeMsgPartTypeError
+ *
+ * @param [out] error    A new error is returned here.
+ * @param [in]  expected The datatype the operation expected.
+ * @param [in]  asked    The datatype the caller asked form
+ *
+ * @return SEE_SUCCESS
+ */
 SEE_EXPORT int
 see_msg_part_type_error_new(
     SeeError**              error,
@@ -1143,15 +1522,44 @@ void see_msg_part_type_error_deinit();
 typedef struct _SeeMsgInvalidError SeeMsgInvalidError;
 typedef struct _SeeMsgInvalidErrorClass SeeMsgInvalidErrorClass;
 
+
+/**
+ * \brief This instances can be returned when there is something wrong with
+ *        the construction of a SeeMsgPart or SeeMsgBuffer from a bytestream.
+ *
+ * This error is the result when you obtain a bytestream to construct a new
+ * SeeMsgBuffer from a received buffer over a line. If the buffer isn't
+ * correctly formatted or to short for the message it contains, this error
+ * is returned.
+ */
 struct _SeeMsgInvalidError {
+
+    /**
+     * parent is SeeError
+     * @private
+     */
     SeeError parent_obj;
-    /*expand SeeMsgInvalidError data here*/
 
 };
 
+/**
+ * @brief SeeMsgInvalidErrorClass inherits from SeeErrorClass.
+ */
 struct _SeeMsgInvalidErrorClass {
+
+    /**
+     * @brief inherit from SeeErrorClass
+     *
+     * @private
+     */
     SeeErrorClass parent_cls;
 
+    /**
+     * \brief Initialize a new SeeMsgInvalidError
+     * @param msg_invalid_error
+     * @param msg_invalid_error_cls
+     * @return
+     */
     int (*msg_invalid_error_init)(
         SeeMsgInvalidError*            msg_invalid_error,
         const SeeMsgInvalidErrorClass* msg_invalid_error_cls
@@ -1194,10 +1602,17 @@ struct _SeeMsgInvalidErrorClass {
 
 /* **** public functions **** */
 
+/**
+ * \brief Return a new SeeInvalidMsgError
+ *
+ * @param [out] error The newly generated error is returned here.
+ *
+ * @return SEE_SUCCESS
+ */
 SEE_EXPORT int
 see_msg_invalid_error_new(
     SeeError**   error
-);
+    );
 
 /**
  * Gets the pointer to the SeeMsgInvalidErrorClass table.

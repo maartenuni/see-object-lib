@@ -43,7 +43,9 @@
 #include "RuntimeError.h"
 
 
-// Forward d
+/**
+ * The start of each message. This can be used to syncronise with a bytestream.
+ */
 const char* g_see_msg_start = "SMSG";
 
 
@@ -1145,6 +1147,11 @@ int see_msg_part_read(
 
 /* **** initialization of the class **** */
 
+/**
+ * \brief A pointer to the global SeeMsgPartClass.
+ *
+ * \private
+ */
 SeeMsgPartClass* g_SeeMsgPartClass = NULL;
 
 static int see_msg_part_class_init(SeeObjectClass* new_cls)
@@ -1431,7 +1438,6 @@ msg_buffer_get_buffer(
         return ret;
     length_network = see_host_to_network32(length);
 
-
     cls->num_parts(msg, &n);
 
     bytes = malloc(length);
@@ -1502,16 +1508,14 @@ msg_buffer_from_buffer(
     char start[4] = {0};
 
     if (bufsiz < (strlen(g_see_msg_start) + sizeof(id) + sizeof(length))) {
-        errno = EINVAL;
-        see_runtime_error_create(error_out, errno);
-        return SEE_ERROR_RUNTIME;
+        see_msg_invalid_error_new(error_out);
+        return SEE_ERROR_MSG_INVALID;
     }
 
     memcpy(&start[0], &bytes[nread], start_length);
     if (memcmp(msg_start, start, start_length) != 0) {
-        errno = EINVAL;
-        see_runtime_error_create(error_out, errno);
-        return SEE_ERROR_RUNTIME;
+        see_msg_invalid_error_new(error_out);
+        return SEE_ERROR_MSG_INVALID;
     }
     nread += start_length;
 
@@ -1524,8 +1528,8 @@ msg_buffer_from_buffer(
     nread += sizeof(length);
 
     if (length > bufsiz) {
-        errno = EINVAL;
-        see_runtime_error_create(error_out, errno);
+        see_msg_invalid_error_new(error_out);
+        return SEE_ERROR_MSG_INVALID;
     }
 
     ret = see_msg_buffer_new(&msg, id, error_out);
@@ -1567,7 +1571,8 @@ fail:
 
 /* **** implementation of the public API **** */
 
-int see_msg_buffer_new(SeeMsgBuffer** buf, uint16_t id, SeeError** error_out)
+int
+see_msg_buffer_new(SeeMsgBuffer** buf, uint16_t id, SeeError** error_out)
 {
     const SeeObjectClass* cls = SEE_OBJECT_CLASS(see_msg_buffer_class());
 
@@ -1702,6 +1707,10 @@ see_msg_buffer_from_buffer(
 
 /* **** initialization of the class **** */
 
+/**
+ * \brief A pointer to the global SeeMsgBufferClass.
+ * \private.
+ */
 SeeMsgBufferClass* g_SeeMsgBufferClass = NULL;
 
 static int see_msg_buffer_class_init(SeeObjectClass* new_cls)
@@ -1876,6 +1885,10 @@ see_msg_part_type_error_new(
 
 /* **** initialization of the class **** */
 
+/**
+ * \brief A pointer to the SeeMsgPartTypeErrorClass.
+ * \private
+ */
 SeeMsgPartTypeErrorClass* g_SeeMsgPartTypeErrorClass = NULL;
 
 static int see_msg_part_type_error_class_init(SeeObjectClass* new_cls)
@@ -1996,6 +2009,10 @@ see_msg_invalid_error_new(SeeError** error)
 
 /* **** initialization of the class **** */
 
+/**
+ * \brief   A pointer to the SeeMsgInvalidErrorClass
+ * \private
+ */
 SeeMsgInvalidErrorClass* g_SeeMsgInvalidErrorClass = NULL;
 
 static int see_msg_invalid_error_class_init(SeeObjectClass* new_cls)
