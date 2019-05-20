@@ -25,8 +25,7 @@
  * also contain a header.
  * Every integer is written as to a buffer in network byte order, that is
  * big endian. The buffer can also contain strings or double precision
- * floating point numbers encoded as a string, hence endianness doesn't
- * apply to the floats, but they are more expensive to send/receive.
+ * floating point numbers.
  *
  * \private
  */
