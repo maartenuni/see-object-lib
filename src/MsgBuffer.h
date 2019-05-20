@@ -61,16 +61,19 @@
  *
  * So the message above can be transmitted as a message that looks like
  *
- * id + length + part + part
+ * "SMSG" + id + length + part_clock_id + part_time
  *
  * the id is 2 bytes, the length = 4 bytes and then the two parts follow
  *
  * A part is stored in a buffer as a:
+ *
  * see_msg_part_value_t [ + length] + payload.
+ *
  * The length of the package is dependent on the type of the part, so the length
- * is only used (ATM may-2019) when the part contains a string, otherwise the
+ * is only used (may-2019) when the part contains a string, otherwise the
  * length is dependent on the number of bytes of the payload + the see_msg_value_t
  * which takes one byte.
+ *
  * The receiving end should examine the message_id and then retrieve the parts
  * from the message. So this layer add a protocol that implements a message stream
  * the user can define his/her own messages an put part in it. Perhaps in the
@@ -92,8 +95,13 @@ extern "C" {
 #endif
 
 /**
- * These enumerated values are used to indicate what kind of value is stored
- * in 1 SeeMsgPart.
+ * \brief These enumerated values are used to indicate what kind of value is
+ * stored in 1 SeeMsgPart.
+ *
+ * One shouldn't use these values directly, they are used internally to indicate
+ * what type of content the packets contain.
+ *
+ * \private
  */
 typedef enum msg_part_value_t {
     /**
@@ -762,6 +770,8 @@ struct _SeeMsgBuffer {
 struct _SeeMsgBufferClass {
 
     SeeObjectClass parent_cls;
+
+    const char* msg_start; // = "SMSG"; // short for See MeSsaGe
     
     int (*msg_buffer_init)(
         SeeMsgBuffer*            msg_buffer,

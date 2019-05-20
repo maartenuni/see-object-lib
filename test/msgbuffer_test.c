@@ -346,7 +346,7 @@ msg_buffer_buffer(void)
     double   doublein = M_PI,  doubleout= 0.0f;
 
     const char* sin = "3.141592654";
-    char* sout      = "";
+    char* sout      = NULL;
 
     int ret;
 

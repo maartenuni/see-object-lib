@@ -43,6 +43,10 @@
 #include "RuntimeError.h"
 
 
+// Forward d
+const char* g_see_msg_start = "SMSG";
+
+
 /**
  * \brief If the message part needs to allocate resources they are freed here
  *
@@ -68,6 +72,7 @@ msg_part_destroy_content(SeeMsgPart* mbp)
             break; // nothing to free.
         case SEE_MSG_PART_STRING_T:
             free(mbp->value.str_val);
+            mbp->value.str_val = NULL;
             break;
         default:
             assert(0 == 1);
@@ -1328,6 +1333,7 @@ msg_buffer_length(
     max -= 1;
     const SeeMsgBufferClass* cls = SEE_MSG_BUFFER_GET_CLASS(msg);
 
+    size += strlen(cls->msg_start);
     size += sizeof(msg->id);
     size += sizeof(uint32_t); // The total length of the message
 
@@ -1435,11 +1441,16 @@ msg_buffer_get_buffer(
     }
 
     // write the header.
+    const char* header = cls->msg_start;
+    size_t start_length = strlen(header);
+    memcpy(&bytes[nwritten], header, start_length);
+    nwritten += start_length;
+
     uint16_t id = see_host_to_network16(msg->id);
-    memcpy(&bytes[0], &id, sizeof(id));
+    memcpy(&bytes[nwritten], &id, sizeof(id));
     nwritten += sizeof(id);
 
-    memcpy(&bytes[sizeof(id)], &length_network, sizeof(length_network));
+    memcpy(&bytes[nwritten], &length_network, sizeof(length_network));
     nwritten += sizeof(length_network);
 
     const SeeMsgPart** partarray = see_dynamic_array_get(msg->parts, 0, error_out);
@@ -1455,10 +1466,6 @@ msg_buffer_get_buffer(
         ret = see_msg_part_buffer_length(part, &partsize, error_out);
         if (ret)
             goto fail;
-
-//        ret = see_msg_part_length(part, &length, error_out);
-//        if (ret)
-//            goto fail;
 
         nwritten += partsize;
     }
@@ -1488,14 +1495,27 @@ msg_buffer_from_buffer(
     size_t          nread = 0;
     int             ret;
     SeeMsgBuffer*   msg = NULL;
-    const char* bytes = buffer;
-    if (bufsiz < (sizeof(id) + sizeof(length))) {
+    const char*     bytes = buffer;
+    const char*     msg_start = g_see_msg_start;
+    size_t          start_length = strlen(msg_start);
+
+    char start[4] = {0};
+
+    if (bufsiz < (strlen(g_see_msg_start) + sizeof(id) + sizeof(length))) {
         errno = EINVAL;
         see_runtime_error_create(error_out, errno);
         return SEE_ERROR_RUNTIME;
     }
 
-    memcpy(&id_network, &bytes[0], sizeof(id_network));
+    memcpy(&start[0], &bytes[nread], start_length);
+    if (memcmp(msg_start, start, start_length) != 0) {
+        errno = EINVAL;
+        see_runtime_error_create(error_out, errno);
+        return SEE_ERROR_RUNTIME;
+    }
+    nread += start_length;
+
+    memcpy(&id_network, &bytes[nread], sizeof(id_network));
     id = see_network_to_host16(id_network);
     nread += sizeof(id_network);
 
@@ -1695,6 +1715,9 @@ static int see_msg_buffer_class_init(SeeObjectClass* new_cls)
     
     /* Set the function pointers of the own class here */
     SeeMsgBufferClass* cls  = (SeeMsgBufferClass*) new_cls;
+
+    cls->msg_start          = g_see_msg_start;
+
     cls->msg_buffer_init    = msg_buffer_init;
     cls->set_id             = msg_buffer_set_id;
     cls->get_id             = msg_buffer_get_id;
