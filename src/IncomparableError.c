@@ -35,7 +35,7 @@ incomparable_error_init(
         incomparable_error
         );
 
-    const char msg[BUFSIZ];
+    char msg[BUFSIZ];
 
     if (self_class && other_class)
         snprintf(msg, sizeof(msg), "Classes %s and %s are not comparable",
@@ -80,6 +80,30 @@ init(const SeeObjectClass* cls, SeeObject* obj, va_list args)
 
 /* **** implementation of the public API **** */
 
+int
+see_incomparable_error_create(
+    SeeError** error,
+    const SeeObjectClass* self_cls,
+    const SeeObjectClass* other_cls
+    )
+{
+    const SeeIncomparableErrorClass* cls = see_incomparable_error_class();
+
+    if (!cls)
+        return SEE_NOT_INITIALIZED;
+
+    if (!error || *error)
+        return SEE_INVALID_ARGUMENT;
+
+    return SEE_OBJECT_CLASS(cls)->new_obj(
+        SEE_OBJECT_CLASS(cls),
+        0,
+        SEE_OBJECT_REF(error),
+        self_cls,
+        other_cls
+        );
+}
+
 /* **** initialization of the class **** */
 
 SeeIncomparableErrorClass* g_SeeIncomparableErrorClass = NULL;
@@ -93,6 +117,7 @@ static int see_incomparable_error_class_init(SeeObjectClass* new_cls)
     
     /* Set the function pointers of the own class here */
     SeeIncomparableErrorClass* cls = (SeeIncomparableErrorClass*) new_cls;
+    cls->incomparable_error_init = incomparable_error_init;
     
     return ret;
 }

@@ -47,16 +47,15 @@
 extern "C" {
 #endif
 
-typedef struct _SeeError SeeError;
+typedef struct SeeError SeeError;
 typedef struct _SeeErrorClass SeeErrorClass;
-
 
 /**
  * \brief The errors thrown when something goes to Oblivion.
  *
  * \private
  */
-struct _SeeError {
+struct SeeError {
     SeeObject parent_obj;
 
     /*expand SeeError data here*/

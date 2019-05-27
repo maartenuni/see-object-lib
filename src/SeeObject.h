@@ -131,6 +131,11 @@ typedef struct _SeeObject SeeObject;
 struct _SeeObjectClass;
 typedef struct _SeeObjectClass SeeObjectClass;
 
+/* forward declaration */
+struct SeeError;
+
+
+
 struct _SeeClass;
 
 /**
@@ -263,6 +268,164 @@ struct _SeeObjectClass {
 
     /**\brief reference decrement function.*/
     void (*decref)(SeeObject* obj);
+
+    /**
+     * \brief Compares two SeeObjects with each other.
+     *
+     * Generally, one checks:
+     * int result = self - other.
+     * if result < 0 self is smaller than other,
+     * if result == 0 self is equal to other,
+     * if result > 0 self is larger than other.
+     *
+     * Hence this method can be used to order object and check for equality.
+     *
+     * @param [in]  self
+     * @param [in]  other
+     * @param [out] result
+     * @param [out] error
+     *
+     * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_OBJECT_NOT_COMPARABLE
+     * \private
+     */
+    int (*compare) (
+        const SeeObject*    self,
+        const SeeObject*    other,
+        int*                result,
+        struct SeeError**   error
+        );
+
+    /**
+     * \brief Check whether self is smaller then other
+     *
+     * If this function isn't overridden, then less checks whether the
+     * compare function is implemented, if it is implemented, than it will
+     * return 1 if the result of compare was less than 0.
+     *
+     * @param [in]  self   A valid pointer to a SeeObject.
+     * @param [in]  other  A valid pointer to another SeeObject.
+     * @param [out] result The result 1 if true, 0 otherwise.
+     * @param [out] error  If compare isn't implemented it will most likely
+     *                     return an error about this fact.
+     *
+     * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_OBJECT_NOT_COMPARABLE
+     */
+    int (*less) (
+        const SeeObject*    self,
+        const SeeObject*    other,
+        int*                result,
+        struct SeeError**   error
+        );
+
+    /**
+     * \brief Check whether self is smaller then or equal to other
+     *
+     * If this function isn't overridden, then less checks whether the
+     * compare function is implemented, if it is implemented, than it will
+     * return 1 if the result of compare was less than or equal to 0.
+     *
+     * @param [in]  self   A valid pointer to a SeeObject.
+     * @param [in]  other  A valid pointer to another SeeObject.
+     * @param [out] result The result 1 if true, 0 otherwise.
+     * @param [out] error  If compare isn't implemented it will most likely
+     *                     return an error about this fact.
+     *
+     * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_OBJECT_NOT_COMPARABLE
+     */
+    int (*less_equal) (
+        const SeeObject*    self,
+        const SeeObject*    other,
+        int*                result,
+        struct SeeError**   error
+        );
+
+    /**
+     * \brief Check whether self is equal to other
+     *
+     * If this function isn't overridden, then equal() checks whether the
+     * compare function is implemented, if it is implemented, than it will
+     * return 1 if the result of compare was 0.
+     *
+     * @param [in]  self   A valid pointer to a SeeObject.
+     * @param [in]  other  A valid pointer to another SeeObject.
+     * @param [out] result The result 1 if true, 0 otherwise.
+     * @param [out] error  If compare isn't implemented it will most likely
+     *                     return an error about this fact.
+     *
+     * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_OBJECT_NOT_COMPARABLE
+     */
+    int (*equal) (
+        const SeeObject*    self,
+        const SeeObject*    other,
+        int*                result,
+        struct SeeError**   error
+        );
+
+    /**
+     * \brief Check whether self is not equal to other
+     *
+     * If this function isn't overridden, then not_equal() checks whether the
+     * compare function is implemented, if it is implemented, than it will
+     * return 1 if the result of compare was not 0.
+     *
+     * @param [in]  self   A valid pointer to a SeeObject.
+     * @param [in]  other  A valid pointer to another SeeObject.
+     * @param [out] result The result 1 if true, 0 otherwise.
+     * @param [out] error  If compare isn't implemented it will most likely
+     *                     return an error about this fact.
+     *
+     * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_OBJECT_NOT_COMPARABLE
+     */
+    int (*not_equal) (
+        const SeeObject*    self,
+        const SeeObject*    other,
+        int*                result,
+        struct SeeError**   error
+        );
+
+    /**
+     * \brief Check whether self is larger then or equal to other
+     *
+     * If this function isn't overridden, then greater_equal() checks whether the
+     * compare function is implemented, if it is implemented, than it will
+     * return 1 if the result of compare was greater than or equal to 0.
+     *
+     * @param [in]  self   A valid pointer to a SeeObject.
+     * @param [in]  other  A valid pointer to another SeeObject.
+     * @param [out] result The result 1 if true, 0 otherwise.
+     * @param [out] error  If compare isn't implemented it will most likely
+     *                     return an error about this fact.
+     *
+     * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_OBJECT_NOT_COMPARABLE
+     */
+    int (*greater_equal) (
+        const SeeObject*    self,
+        const SeeObject*    other,
+        int*                result,
+        struct SeeError**   error
+        );
+
+    /**
+     * \brief Check whether self is greater then other
+     *
+     * If this function isn't overridden, then less checks whether the
+     * compare function is implemented, if it is implemented, than it will
+     * return 1 if the result of compare was greater than 0.
+     *
+     * @param [in]  self   A valid pointer to a SeeObject.
+     * @param [in]  other  A valid pointer to another SeeObject.
+     * @param [out] result The result 1 if true, 0 otherwise.
+     * @param [out] error  If compare isn't implemented it will most likely
+     *                     return an error about this fact.
+     *
+     * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_OBJECT_NOT_COMPARABLE
+     */
+    int (*greater) (
+        const SeeObject*    self,
+        const SeeObject*    other,
+        int*                result,
+        struct SeeError**   error
+        );
 };
 
 /**
@@ -310,7 +473,8 @@ struct _SeeObjectClass {
  * a new instance of its class. Hence, any SeeObjectClass derived class can
  * be used to make an instance of that class.
  */
-SEE_EXPORT int see_object_new(const SeeObjectClass* cls, SeeObject** out);
+SEE_EXPORT int
+see_object_new(const SeeObjectClass* cls, SeeObject** out);
 
 /**
  * \brief Allocates a new SeeObject instance.
@@ -318,7 +482,8 @@ SEE_EXPORT int see_object_new(const SeeObjectClass* cls, SeeObject** out);
  * This is short for see_object_new(see_object_class()); In practice this
  * function isn't used.
  */
-SEE_EXPORT SeeObject* see_object_create();
+SEE_EXPORT SeeObject*
+see_object_create();
 
 
 /**
@@ -336,7 +501,8 @@ SEE_EXPORT SeeObject* see_object_create();
  * \returns The class of the current object. If necessary the return value of
  * this function needs to be cast to the proper SeeObjectClass derived class.
  */
-SEE_EXPORT const SeeObjectClass* see_object_get_class(const SeeObject* obj);
+SEE_EXPORT const SeeObjectClass*
+see_object_get_class(const SeeObject* obj);
 
 /**
  * \brief Atomically increment the reference count of a see object
@@ -346,7 +512,8 @@ SEE_EXPORT const SeeObjectClass* see_object_get_class(const SeeObject* obj);
  * 1. When the reference count drops to zero, an object is freed, and thereafter
  * not available anymore.
  */
-SEE_EXPORT void* see_object_ref(SeeObject* obj);
+SEE_EXPORT void*
+see_object_ref(SeeObject* obj);
 
 /**
  * \brief Atomically decrement the reference count of a see object.
@@ -358,7 +525,8 @@ SEE_EXPORT void* see_object_ref(SeeObject* obj);
  *
  * \param[in] A pointer to a valid instance of a SeeObject.
  */
-SEE_EXPORT void see_object_decref(SeeObject* obj);
+SEE_EXPORT void
+see_object_decref(SeeObject* obj);
 
 
 /**
@@ -372,7 +540,181 @@ SEE_EXPORT void see_object_decref(SeeObject* obj);
  *
  * Returns SEE_SUCCESS or SEE_RUNTIME_ERROR
  */
-SEE_EXPORT int see_object_repr(const SeeObject* obj, char** out);
+SEE_EXPORT int
+see_object_repr(const SeeObject* obj, char** out);
+
+/**
+ * \brief Compare obj with other
+ *
+ * This method allows the comparison of 2 SeeObjects. In order for this function
+ * to work, the SeeObject derived object must implement the compare method of
+ * SeeObjectClass. SeeObject itself doesn't do this, since a comparison would
+ * not yield any useful ordering.
+ * If the compare function is implemented by the SeeObject derived class,
+ * than all the comparisons will be valid.
+ *
+ * @param [in]  obj     The object to compare
+ * @param [in]  other   The object object is compared with.
+ * @param [out] result  If object is larger than other, a value larger than 0,
+ *                      if object is equal to other 0, and
+ *                      if object is smaller than other, a value smaller then
+ *                      0 will be returned.
+ * @param [out] error
+ *
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_ERROR_NOT_COMPARABLE
+ */
+SEE_EXPORT int
+see_object_compare(
+    const SeeObject*  obj,
+    const SeeObject*  other,
+    int*              result,
+    struct SeeError** error
+    );
+
+
+/**
+ * \brief Check whether self is smaller then other
+ *
+ * If this function isn't overridden, then less checks whether the
+ * compare function is implemented, if it is implemented, than it will
+ * return 1 if the result of compare was less than 0.
+ *
+ * @param [in]  self   A valid pointer to a SeeObject.
+ * @param [in]  other  A valid pointer to another SeeObject.
+ * @param [out] result The result 1 if true, 0 otherwise.
+ * @param [out] error  If compare isn't implemented it will most likely
+ *                     return an error about this fact.
+ *
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_OBJECT_NOT_COMPARABLE
+ */
+SEE_EXPORT int
+see_object_less (
+    const SeeObject*    self,
+    const SeeObject*    other,
+    int*                result,
+    struct SeeError**   error
+    );
+
+
+/**
+ * \brief Check whether self is smaller then or equal to other
+ *
+ * If this function isn't overridden, then less checks whether the
+ * compare function is implemented, if it is implemented, than it will
+ * return 1 if the result of compare was less than or equal to 0.
+ *
+ * @param [in]  self   A valid pointer to a SeeObject.
+ * @param [in]  other  A valid pointer to another SeeObject.
+ * @param [out] result The result 1 if true, 0 otherwise.
+ * @param [out] error  If compare isn't implemented it will most likely
+ *                     return an error about this fact.
+ *
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_OBJECT_NOT_COMPARABLE
+ */
+SEE_EXPORT int
+see_object_less_equal (
+    const SeeObject*    self,
+    const SeeObject*    other,
+    int*                result,
+    struct SeeError**   error
+    );
+
+
+/**
+ * \brief Check whether self is equal to other
+ *
+ * If this function isn't overridden, then equal() checks whether the
+ * compare function is implemented, if it is implemented, than it will
+ * return 1 if the result of compare was 0.
+ *
+ * @param [in]  self   A valid pointer to a SeeObject.
+ * @param [in]  other  A valid pointer to another SeeObject.
+ * @param [out] result The result 1 if true, 0 otherwise.
+ * @param [out] error  If compare isn't implemented it will most likely
+ *                     return an error about this fact.
+ *
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_OBJECT_NOT_COMPARABLE
+ */
+SEE_EXPORT int
+see_object_equal (
+    const SeeObject*    self,
+    const SeeObject*    other,
+    int*                result,
+    struct SeeError**   error
+    );
+
+
+/**
+ * \brief Check whether self is not equal to other
+ *
+ * If this function isn't overridden, then not_equal() checks whether the
+ * compare function is implemented, if it is implemented, than it will
+ * return 1 if the result of compare was not 0.
+ *
+ * @param [in]  self   A valid pointer to a SeeObject.
+ * @param [in]  other  A valid pointer to another SeeObject.
+ * @param [out] result The result 1 if true, 0 otherwise.
+ * @param [out] error  If compare isn't implemented it will most likely
+ *                     return an error about this fact.
+ *
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_OBJECT_NOT_COMPARABLE
+ */
+SEE_EXPORT int
+see_object_not_equal (
+    const SeeObject*    self,
+    const SeeObject*    other,
+    int*                result,
+    struct SeeError**   error
+    );
+
+
+/**
+ * \brief Check whether self is larger then or equal to other
+ *
+ * If this function isn't overridden, then greater_equal() checks whether the
+ * compare function is implemented, if it is implemented, than it will
+ * return 1 if the result of compare was greater than or equal to 0.
+ *
+ * @param [in]  self   A valid pointer to a SeeObject.
+ * @param [in]  other  A valid pointer to another SeeObject.
+ * @param [out] result The result 1 if true, 0 otherwise.
+ * @param [out] error  If compare isn't implemented it will most likely
+ *                     return an error about this fact.
+ *
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_OBJECT_NOT_COMPARABLE
+ */
+SEE_EXPORT int
+see_object_greater_equal (
+    const SeeObject*    self,
+    const SeeObject*    other,
+    int*                result,
+    struct SeeError**   error
+    );
+
+
+/**
+ * \brief Check whether self is greater then other
+ *
+ * If this function isn't overridden, then less checks whether the
+ * compare function is implemented, if it is implemented, than it will
+ * return 1 if the result of compare was greater than 0.
+ *
+ * @param [in]  self   A valid pointer to a SeeObject.
+ * @param [in]  other  A valid pointer to another SeeObject.
+ * @param [out] result The result 1 if true, 0 otherwise.
+ * @param [out] error  If compare isn't implemented it will most likely
+ *                     return an error about this fact.
+ *
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_OBJECT_NOT_COMPARABLE
+ */
+SEE_EXPORT int
+see_object_greater (
+    const SeeObject*    self,
+    const SeeObject*    other,
+    int*                result,
+    struct SeeError**   error
+    );
+
 
 /**
  * \brief Examine whether this instance is of a given class.

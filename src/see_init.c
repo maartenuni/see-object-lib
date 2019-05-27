@@ -39,6 +39,8 @@
 #include "windows/WindowsRuntimeError.h"
 #elif HAVE_UNISTD_H
 #include "posix/PosixSerial.h"
+#include "IncomparableError.h"
+
 #endif
 
 int g_init_count = 0;
@@ -90,6 +92,10 @@ initialize() {
         return ret;
 
     ret = see_error_init();
+    if (ret)
+        return ret;
+
+    ret = see_incomparable_error_init();
     if (ret)
         return ret;
 
@@ -146,6 +152,7 @@ deinit()
     see_duration_deinit();
     see_dynamic_array_deinit();
     see_error_deinit();
+    see_incomparable_error_deinit();
     see_index_error_deinit();
     see_msg_buffer_deinit();
     see_msg_invalid_error_deinit();

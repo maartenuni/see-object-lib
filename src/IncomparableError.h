@@ -95,11 +95,11 @@ struct _SeeIncomparableErrorClass {
  * @return
  */
 SEE_EXPORT int
-see_incomparible_error_create(
-    SeeError** error,
-    const SeeObjectClass* self_class,
-    const SeeObjectClass* other_class,
-    );
+see_incomparable_error_create(
+    SeeError **error,
+    const SeeObjectClass *self_class,
+    const SeeObjectClass *other_class
+);
 
 /**
  * Gets the pointer to the SeeIncomparableErrorClass table.
