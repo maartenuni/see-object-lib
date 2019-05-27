@@ -235,13 +235,18 @@ void time_comparison(void)
 
     int ret, result_true, result_false, greater, smaller, equal;
 
+    ret = see_duration_new_ms(&sleep_dur, 1, &error);
+    UNIT_HANDLE_ERROR();
+
     // Comparing the times
     ret = see_clock_new(&clk, &error);
     UNIT_HANDLE_ERROR();
     ret = see_clock_time(clk, &t1, &error);
+    see_sleep(sleep_dur);
     UNIT_HANDLE_ERROR();
     ret = see_clock_time(clk, &t2, &error);
     UNIT_HANDLE_ERROR();
+    see_sleep(sleep_dur);
     ret = see_clock_time(clk, &t3, &error);
     UNIT_HANDLE_ERROR();
     ret = see_time_point_sub(t2, t1, &d1, &error);
@@ -422,11 +427,6 @@ void time_comparison(void)
     UNIT_HANDLE_ERROR();
     CU_ASSERT_TRUE(result_true);
     CU_ASSERT_FALSE(result_false);
-
-    // Take 3 timepoints about 1 ms apart.
-
-    ret = see_duration_new_ms(&sleep_dur, 1, &error);
-    UNIT_HANDLE_ERROR();
 
     ret = see_clock_time(clk, &t1, &error);
     UNIT_HANDLE_ERROR();
