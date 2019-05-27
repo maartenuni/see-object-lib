@@ -24,6 +24,7 @@
 #include "TimePoint.h"
 #include "Duration.h"
 #include "cpp/TimePoint.hpp"
+#include "IncomparableError.h"
 #include <exception>
 
 /* **** functions that implement SeeTimePoint or override SeeObject **** */
@@ -79,6 +80,70 @@ time_point_destroy(SeeObject* self)
     delete ptr;
 
     see_object_class()->destroy(self);
+}
+
+int time_point_compare(
+    const SeeObject* self,
+    const SeeObject* other,
+    int*             result,
+    SeeError**       error
+    )
+{
+    const SeeTimePointClass* cls = see_time_point_class();
+    const SeeTimePoint* s;
+    const SeeTimePoint* o;
+    if (!cls)
+        return SEE_NOT_INITIALIZED;
+
+    if (self == other) {
+        *result = 0;
+        return SEE_SUCCESS;
+    }
+
+    int isinstance = 0;
+    int ret = see_object_is_instance_of(
+        self,
+        SEE_OBJECT_CLASS(cls),
+        &isinstance
+        );
+    if (ret)
+        return ret;
+
+    if (!isinstance)
+        return SEE_INVALID_ARGUMENT;
+
+    ret = see_object_is_instance_of(
+        other,
+        SEE_OBJECT_CLASS(cls),
+        &isinstance
+        );
+    if (ret)
+        return ret;
+
+
+    if (!isinstance) {
+        see_incomparable_error_create(
+            error,
+            SEE_OBJECT_CLASS(cls),
+            see_object_get_class(other)
+            );
+        return SEE_ERROR_INCOMPARABLE;
+    }
+
+    s = (const SeeTimePoint*) self;
+    o = (const SeeTimePoint*) other;
+
+    const TimePoint* tself = static_cast<TimePoint*>(s->priv_time);
+    const TimePoint* tother= static_cast<TimePoint*>(o->priv_time);
+
+    if (*tself > *tother)
+        *result = 1;
+    else if (*tself == *tother)
+        *result = 0;
+    else
+        *result = -1;
+
+    return ret;
 }
 
 int
@@ -387,6 +452,7 @@ static int see_time_point_class_init(SeeObjectClass* new_cls)
     /* Override the functions on the parent here */
     new_cls->init       = init;
     new_cls->destroy    = time_point_destroy;
+    new_cls->compare    = time_point_compare;
     
     /* Set the function pointers of the own class here */
     SeeTimePointClass* cls = (SeeTimePointClass*) new_cls;

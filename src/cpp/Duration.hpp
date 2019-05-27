@@ -15,6 +15,9 @@
  * along with see-object.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef SEE_DURATION_HPP
+#define SEE_DURATION_HPP
+
 #include <chrono>
 #include <cstdint>
 #include <cerrno>
@@ -164,3 +167,5 @@ private:
 
     dur m_dur;
 };
+
+#endif
