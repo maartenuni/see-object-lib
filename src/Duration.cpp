@@ -26,7 +26,9 @@
 #include "Duration.h"
 #include "RuntimeError.h"
 #include "cpp/Duration.hpp"
+#include "IncomparableError.h"
 #include <exception>
+#include <assert.h>
 
 /* **** functions that implement SeeDuration or override SeeObject **** */
 
@@ -85,6 +87,61 @@ duration_destroy(SeeObject* self)
     delete priv_dur;
 
     see_object_class()->destroy(self);
+}
+
+static int
+duration_compare(
+    const SeeObject* self,
+    const SeeObject* other,
+    int*             result,
+    SeeError**       error)
+{
+    int ret, valid_instance;
+
+    if (self == other) {
+        *result = 0;
+        return SEE_SUCCESS;
+    }
+
+#if !defined(NDEBUG)
+    ret = see_object_is_instance_of(
+        self,
+        (const SeeObjectClass*)see_duration_class(),
+        &valid_instance
+        );
+    assert(valid_instance!= 0);
+#endif
+
+    ret = see_object_is_instance_of(
+        other,
+        (const SeeObjectClass*)see_duration_class(),
+        &valid_instance
+        );
+    assert(ret == SEE_SUCCESS);
+    if (!valid_instance) {
+        see_incomparable_error_create(
+            error,
+            SEE_OBJECT_CLASS(see_duration_class()),
+            SEE_OBJECT_GET_CLASS(other)
+            );
+        return SEE_ERROR_INCOMPARABLE;
+    }
+
+    const Duration* lhs = static_cast<const Duration*>(
+        SEE_DURATION(self)->priv_dur
+    );
+    const Duration* rhs = static_cast<const Duration*>(
+        SEE_DURATION(other)->priv_dur
+    );
+
+    if (*lhs < *rhs)
+        *result = -1;
+    else if(*lhs == *rhs)
+        *result = 0;
+    else
+        *result = 1;
+
+    return SEE_SUCCESS;
 }
 
 /* **** implementation of the public API **** */
@@ -399,11 +456,12 @@ static int see_duration_class_init(SeeObjectClass* new_cls)
     /* Override the functions on the parent here */
     new_cls->init       = init;
     new_cls->destroy    = duration_destroy;
-    
+    new_cls->compare    = duration_compare;
+
     /* Set the function pointers of the own class here */
     SeeDurationClass* cls = (SeeDurationClass*) new_cls;
     cls->duration_init      = duration_init;
-    
+
     return ret;
 }
 
