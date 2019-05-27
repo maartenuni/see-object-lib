@@ -16,6 +16,12 @@
  */
 
 
+/**
+ * \file IncomparableError.h
+ * \brief Defines an error raised when either an object is not comparable
+ *        or a combination of objects is not comparable.
+ */
+
 #ifndef SEE_INCOMPARABLE_ERROR_H
 #define SEE_INCOMPARABLE_ERROR_H
 
