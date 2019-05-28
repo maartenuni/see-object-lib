@@ -991,6 +991,15 @@ struct _SeeMsgBuffer {
      * received.
      */
     uint16_t            id;
+
+    /**
+     * \brief The cached size of a SeeMsgBuffer
+     *
+     * An empty SeeMsgBuffer already has the size to represent it's own header.
+     * For every part added to the SeeMsgBuffer, the size increases with the size
+     * of its part.
+     */
+    uint32_t            length;
 };
 
 /**
@@ -1067,7 +1076,7 @@ struct _SeeMsgBufferClass {
      *
      * \private
      */
-    int (*length) (
+    int (*calc_length) (
         SeeMsgBuffer*       msg,
         uint32_t*           out,
         SeeError**          error
@@ -1075,6 +1084,10 @@ struct _SeeMsgBufferClass {
 
     /**
      * \brief   Add a new SeeMsgPart to the buffer.
+     *
+     * Adding a part to a SeeMsgBuffer increases the size of the buffer with
+     * its size.
+     *
      * @param [in]  msg  if an error occurs it will be returned here.
      * @param [in]  part The part you would like to add to the buffer. This
      *                   feeds a reference, so this method will call

@@ -212,7 +212,7 @@ windows_serial_close(SeeSerial* self, SeeError** error_out)
 static int
 windows_serial_write(
     const SeeSerial* self,
-    const void* bytes,
+    char** const bytes,
     size_t* length,
     SeeError** error_out
     )
@@ -234,7 +234,7 @@ windows_serial_write(
 
     BOOL ret = WriteFile(
         pself->fd,
-        bytes,
+        *bytes,
         ntowrite,
         &nwritten,
         NULL
@@ -246,14 +246,17 @@ windows_serial_write(
             );
         return SEE_ERROR_RUNTIME;
     }
-    *length = (size_t) nwritten;
+
+    *length -= nwritten;
+    *bytes += nwritten;
+
     return SEE_SUCCESS;
 }
 
 static int
 windows_serial_read(
     const SeeSerial* self,
-    void* buffer,
+    char** buffer,
     size_t* length,
     SeeError** error_out
 )
@@ -275,7 +278,7 @@ windows_serial_read(
 
     BOOL ret = ReadFile(
         pself->fd,
-        buffer,
+        *buffer,
         ntoread,
         &nread,
         NULL
@@ -287,7 +290,9 @@ windows_serial_read(
             );
         return SEE_ERROR_RUNTIME;
     }
-    *length = (size_t) nread;
+    *length -= nread;
+    *buffer += nread;
+
     return SEE_SUCCESS;
 }
 

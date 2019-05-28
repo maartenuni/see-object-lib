@@ -60,7 +60,8 @@ void serial_use_unopened(void)
     SEE_UNIT_HANDLE_ERROR();
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
 
-    ret = see_serial_write(serial, buffer, &bufsz, &error);
+    char* buf_start = &buffer[0];
+    ret = see_serial_write(serial, &buf_start, &bufsz, &error);
     CU_ASSERT_EQUAL(ret, SEE_ERROR_RUNTIME);
 #if HAVE_WINDOWS_H
     CU_ASSERT_EQUAL(

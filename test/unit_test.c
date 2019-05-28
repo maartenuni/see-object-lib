@@ -19,9 +19,11 @@
 #include <stdlib.h>
 #include <CUnit/CUnit.h>
 #include <CUnit/Basic.h>
+#include <assert.h>
 
 #include "suites.h"
 #include "../src/see_init.h"
+#include "../src/errors.h"
 
 int add_suites()
 {
@@ -65,7 +67,8 @@ int main(int argc, char** argv) {
     if (CU_initialize_registry() != CUE_SUCCESS)
         return EXIT_FAILURE;
 
-    see_init();
+    int ret = see_init();
+    assert(ret == SEE_SUCCESS);
 
     add_suites();
 

@@ -168,8 +168,17 @@ msg_part_length(
     return SEE_SUCCESS;
 }
 
+static int msg_part_value_type(
+    const SeeMsgPart* part,
+    uint8_t*          value_type
+    )
+{
+    *value_type = part->value_type;
+    return SEE_SUCCESS;
+}
+
 static int
-msg_part_write_int32(
+msg_part_write_int32 (
     SeeMsgPart*   part,
     int32_t       value,
     SeeError**    error_out
@@ -524,19 +533,23 @@ msg_part_write(
             nwritten += sizeof(net_order.ui64);
             break;
         case SEE_MSG_PART_STRING_T:
-            // write the length of the part to be able to deduce the length of
-            // the part
-            memcpy(&bytes[nwritten], &part->length, sizeof(part->length));
-            nwritten += sizeof(part->length);
-            //write the string itself.
-            size_t header_len =sizeof(part->value_type) + sizeof(part->length);
-            memcpy(
-                &bytes[nwritten],
-                part->value.str_val,
-                part->length - header_len
+            {
+                // write the length of the part to be able to deduce the length of
+                // the part in network byte order.
+                uint32_t net_length = see_host_to_network32(part->length);
+                memcpy(&bytes[nwritten], &net_length, sizeof(net_length));
+                nwritten += sizeof(part->length);
+                //write the string itself.
+                size_t header_len = sizeof(part->value_type) + sizeof(part->length);
+                memcpy(
+                    &bytes[nwritten],
+                    part->value.str_val,
+                    part->length - header_len
                 );
-            nwritten += part->length - header_len;
+                nwritten += part->length - header_len;
+            }
             break;
+
         case SEE_MSG_PART_FLOAT_T:
             assert(sizeof(net_order.flt) == sizeof(part->value.int32_val));
             net_order.i32 = see_host_to_network32(part->value.int32_val);
@@ -608,7 +621,6 @@ msg_part_read(
                 ret = SEE_ERROR_MSG_INVALID;
                 see_msg_invalid_error_new(error_out);
                 goto fail;
-
             }
             memcpy(&net_order.i32,
                 &bytes[nread],
@@ -676,6 +688,7 @@ msg_part_read(
         case SEE_MSG_PART_STRING_T:
             memcpy(&length, &bytes[nread], sizeof(new_part->length));
             nread += sizeof(new_part->length);
+            length = see_network_to_host32(length);
             if (length > bufsiz) {
                 ret = SEE_ERROR_MSG_INVALID;
                 see_msg_invalid_error_new(error_out);
@@ -1191,6 +1204,8 @@ static int see_msg_part_class_init(SeeObjectClass* new_cls)
     cls->write          = msg_part_write;
     cls->read           = msg_part_read;
 
+    cls->value_type     = msg_part_value_type;
+
     return ret;
 }
 
@@ -1269,6 +1284,9 @@ msg_buffer_init(
         return ret;
 
     msg_buffer->id = id;
+    msg_buffer->length = strlen(msg_buffer_cls->msg_start) +
+                         sizeof(msg_buffer->id)            +
+                         sizeof(msg_buffer->length);
 
     return ret;
 }
@@ -1327,7 +1345,7 @@ msg_buffer_get_id(
 }
 
 static int
-msg_buffer_length(
+msg_buffer_calc_length(
     SeeMsgBuffer*       msg,
     uint32_t*           length,
     SeeError**          error
@@ -1380,7 +1398,26 @@ msg_buffer_add_part(
     SeeError**    error_out
     )
 {
-    return see_dynamic_array_add(mbuf->parts, &mpart, error_out);
+    const SeeMsgBufferClass* cls = SEE_MSG_BUFFER_GET_CLASS(mbuf);
+
+    int ret = see_dynamic_array_add(mbuf->parts, &mpart, error_out);
+    size_t size;
+    if (ret)
+        return ret;
+
+    ret = see_msg_part_buffer_length(mpart, &size, error_out);
+    if (ret)
+        return ret;
+
+    mbuf->length += size;
+
+#if !defined(NDEBUG)
+    uint32_t length;
+    ret = cls->calc_length(mbuf, &length, error_out);
+    assert(length == mbuf->length);
+#endif
+
+    return ret;
 }
 
 static int
@@ -1432,9 +1469,7 @@ msg_buffer_get_buffer(
     size_t n, nwritten = 0;
     const SeeMsgBufferClass* cls = SEE_MSG_BUFFER_GET_CLASS(msg);
 
-    ret = cls->length(msg, &length, error_out);
-    if (ret)
-        return ret;
+    length = msg->length;
     length_network = see_host_to_network32(length);
 
     cls->num_parts(msg, &n);
@@ -1617,6 +1652,20 @@ see_msg_buffer_get_id(
 }
 
 int
+see_msg_buffer_length(
+    const SeeMsgBuffer* buffer,
+    size_t*             length
+    )
+{
+    if (!buffer || !length)
+        return SEE_INVALID_ARGUMENT;
+
+    *length = buffer->length;
+
+    return SEE_SUCCESS;
+}
+
+int
 see_msg_buffer_add_part(
     SeeMsgBuffer*   msg,
     SeeMsgPart*     part,
@@ -1729,7 +1778,7 @@ static int see_msg_buffer_class_init(SeeObjectClass* new_cls)
     cls->msg_buffer_init    = msg_buffer_init;
     cls->set_id             = msg_buffer_set_id;
     cls->get_id             = msg_buffer_get_id;
-    cls->length             = msg_buffer_length;
+    cls->calc_length        = msg_buffer_calc_length;
     cls->add_part           = msg_buffer_add_part;
     cls->get_part           = msg_buffer_get_part;
     cls->num_parts          = msg_buffer_num_parts;

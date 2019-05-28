@@ -39,6 +39,8 @@
 #include "windows/WindowsRuntimeError.h"
 #elif HAVE_UNISTD_H
 #include "posix/PosixSerial.h"
+#include "TimeoutError.h"
+
 #endif
 
 int g_init_count = 0;
@@ -59,10 +61,13 @@ static int windows_init()
 #if HAVE_UNISTD_H
 static int posix_init()
 {
-    int ret;
-    ret = see_posix_serial_init();
-    if (ret)
-        return ret;
+    int ret = SEE_SUCCESS;
+
+    // posix_serial_is initialized from init_serial();
+//
+//    ret = see_posix_serial_init();
+//    if (ret)
+//        return ret;
 
     return ret;
 }
@@ -121,6 +126,10 @@ initialize() {
     if (ret)
         return ret;
 
+    ret = see_timeout_error_init();
+    if (ret)
+        return ret;
+
     ret = see_time_point_init();
     if (ret)
         return ret;
@@ -153,6 +162,7 @@ deinit()
     see_msg_part_type_error_deinit();
     see_runtime_error_deinit();
     see_serial_deinit();
+    see_timeout_error_deinit();
     see_time_point_deinit();
 
     see_meta_class_deinit();
