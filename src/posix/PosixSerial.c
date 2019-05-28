@@ -28,6 +28,7 @@
 #include "../MetaClass.h"
 #include "PosixSerial.h"
 #include "../RuntimeError.h"
+#include "../TimeoutError.h"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -238,7 +239,7 @@ posix_serial_close(SeeSerial* self, SeeError** error_out)
 static int
 posix_serial_write(
     const SeeSerial* self,
-    const void* bytes,
+    char** const bytes,
     size_t* length,
     SeeError** error_out
     )
@@ -259,14 +260,16 @@ posix_serial_write(
         see_runtime_error_create(error_out, errno);
         return SEE_ERROR_RUNTIME;
     }
-    *length = (size_t) nwritten;
+    *length -= nwritten;
+    *bytes  += nwritten;
+
     return SEE_SUCCESS;
 }
 
 static int
 posix_serial_read(
     const SeeSerial* self,
-    void* buffer,
+    char** buffer,
     size_t* length,
     SeeError** error_out
     )
@@ -278,17 +281,22 @@ posix_serial_read(
     int open;
     cls->is_open(self, &open);
     if (!open) {
-        //TODO make special exception to handle this
+        // TODO make special exception to handle this
         ;
     }
 
-    ssize_t nread = read(pself->fd, buffer, *length);
+    ssize_t nread = read(pself->fd, *buffer, *length);
     if (nread < 0) {
         see_runtime_error_create(error_out, errno);
         return SEE_ERROR_RUNTIME;
+    } else if (nread == 0) {
+        see_timeout_error_new(error_out);
+        return SEE_ERROR_TIMEOUT;
     }
 
-    *length = (size_t) nread;
+    *length -= nread;
+    *buffer += nread;
+
     return SEE_SUCCESS;
 }
 

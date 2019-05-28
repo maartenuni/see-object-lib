@@ -33,6 +33,7 @@
 #include "SeeObject.h"
 #include "Error.h"
 #include "Duration.h"
+#include "MsgBuffer.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -131,41 +132,51 @@ struct _SeeSerialClass {
 
     /**
      * @brief Write to the device, make sure the device is opened and in the
-     *        right settings first .
+     *        right settings first.
+     *
      * @param [in]      self        The device to write to
-     * @param [in]      bytes       A pointer to the bytes that should be written to
-     *                              over the serial connection.
+     * @param [in,out]  bytes       A reference to a pointer to const char. When
+     *                              al went well *bytes will point to the first
+     *                              byte that wasn't written in the last call to
+     *                              write.
      * @param [in,out]  length      The length of the bytes buffer. The number
-     *                              of bytes written will be returned here.
+     *                              of bytes that still need to be written will.
+     *                              be returned here.
      * @param [out]     error_out   If an error occurs a hopefully useful message
      *                              will be returned here.
+     *
      * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_ERROR_RUNTIME
      * @private
      */
     int (*write) (
         const SeeSerial*    self,
-        const void*         bytes,
+        char** const        bytes,
         size_t*             length,
         SeeError**          error_out
         );
 
     /**
      * @brief Read from the device, make sure the device is opened and in the
-     *        right settings first .
-     * @param [in]      self The device to read from
-     * @param [in]      bytes A pointer to the bytes where the read bytes
-     *                        can be stored, make sure the buffer is large
-     *                        enough.
-     * @param [in,out]  length The length of the bytes buffer. The number of
-     *                         bytes read will be returned here.
+     *        right settings first.
+     *
+     * @param [in]      self    The device to read from
+     * @param [in,out]  bytes   A reference to a byte pointer where the read
+     *                          bytes can be stored, make sure the buffer is
+     *                          large enough. After this call *bytes will
+     *                          point to the location where the next read byte
+     *                          will be stored.
+     * @param [in,out]  length  The length of the bytes buffer. The number of
+     *                          bytes that still need to be read after this call
+     *                          is returned here.
      * @param [out]     error_out If an error occurs a hopefully useful message
      *                            will be returned here.
+     *
      * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_ERROR_RUNTIME
      * @private
      */
     int (*read) (
         const SeeSerial*    self,
-        void*               buffer,
+        char**              buffer,
         size_t*             length,
         SeeError**          error_out
         );
@@ -306,8 +317,8 @@ struct _SeeSerialClass {
      * @brief Obtain the number of characters that must be read before
      * the read returns.
      *
-     * @param [in] self     The serial device.
-     * @param [out]nchars   The number of characters read before the read
+     * @param [in]  self    The serial device.
+     * @param [out] nchars  The number of characters read before the read
      *                      is returned here.
      * @param [out] error_out if an error occurs it will be returned here.
      *
@@ -318,6 +329,45 @@ struct _SeeSerialClass {
         const SeeSerial* self,
         uint8_t*         nchars,
         SeeError**       error_out
+        );
+
+    /**
+     * \brief Send a SeeMsgBuffer over the serial device.
+     *
+     * @param [in]  self        The serial device
+     * @param [in]  msg         A pointer to a initialized SeeMsgBuffer.
+     * @param [out] error_out   If something goes wrong a msg will be
+     *                          returned here.
+     *
+     * @return SEE_SUCCESS, SEE_ERROR_RUNTIME
+     */
+    int (*write_msg) (
+        const SeeSerial*    self,
+        SeeMsgBuffer*       msg,
+        SeeError**          error_out
+        );
+
+    /**
+     * \brief Receive a SeeMsgBuffer from the serial device.
+     *
+     * a new message will be read from the serial device. This method tries
+     * whether it can synchronize with the bytestream and discard all stuff
+     * before a "SMSG" is found in the bytestream.
+     *
+     * @param [in]  self        The serial device
+     * @param [out] msg         A pointer to a SeeMsgBuffer* .
+     *                          if there already is a valid msg at *msg, it will
+     *                          be decremented and a new
+     *                          SeeMessage will be returned.
+     * @param [out] error_out   If something goes wrong a msg will be
+     *                          returned here.
+     *
+     * @return SEE_SUCCESS, SEE_ERROR_RUNTIME
+     */
+    int (*read_msg) (
+        const SeeSerial*    self,
+        SeeMsgBuffer**      msg,
+        SeeError**          error
         );
 };
 
@@ -430,9 +480,13 @@ see_serial_open(
  * \brief Write a number of bytes to the serial device.
  *
  * @param [in]      self        The serial device to which you would like to write.
- * @param [in]      bytes       a pointer to the bytes you want to write.
- * @param [in,out]  length      The number of bytes you want to write. The
- *                              number of bytes written will be returned
+ * @param [in]      bytes       A reference to a pointer that points to const
+ *                              char. The pointer see_serial_write has a reference
+ *                              to is incremented after the call in such way
+ *                              that it will point to the first character it didn't
+ *                              write to.
+ * @param [in,out]  length      The number of bytes that still need to be written.
+ *                              The number of bytes written will be returned
  *                              here.
  * @param [out]     error_out   If an error occurs it will be returned here.
  *
@@ -441,7 +495,7 @@ see_serial_open(
 SEE_EXPORT int
 see_serial_write (
     const SeeSerial*    self,
-    const void*         bytes,
+    char**  const       bytes,
     size_t*             length,
     SeeError**          error_out
     );
@@ -617,6 +671,48 @@ see_serial_get_min_rd_chars(
     SeeSerial*       self,
     uint8_t*         nchars,
     SeeError**       error_out
+    );
+
+
+/**
+ * \brief Send a SeeMsgBuffer over the serial device.
+ *
+ * @param [in]  self        The serial device
+ * @param [in]  msg         A pointer to a initialized SeeMsgBuffer.
+ * @param [out] error_out   If something goes wrong a msg will be
+ *                          returned here.
+ *
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_ERROR_RUNTIME
+ */
+SEE_EXPORT int
+see_serial_write_msg (
+    const SeeSerial*    self,
+    SeeMsgBuffer*       msg,
+    SeeError**          error_out
+    );
+
+/**
+ * \brief Receive a SeeMsgBuffer from the serial device.
+ *
+ * a new message will be read from the serial device. This method tries
+ * whether it can synchronize with the bytestream and discard all stuff
+ * before a "SMSG" is found in the bytestream.
+ *
+ * @param [in]  self        The serial device
+ * @param [out] msg         A pointer to a SeeMsgBuffer* .
+ *                          if there already is a valid msg at *msg, it will
+ *                          be decremented and a new
+ *                          SeeMessage will be returned.
+ * @param [out] error_out   If something goes wrong a msg will be
+ *                          returned here.
+ *
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_ERROR_RUNTIME
+ */
+SEE_EXPORT int
+see_serial_read_msg (
+    const SeeSerial*    self,
+    SeeMsgBuffer**      msg,
+    SeeError**          error
     );
 
 /**

@@ -45,6 +45,7 @@ enum see_error {
     SEE_ERROR_MSG_PART_TYPE,   /**< Incorrect usage of the msg type */
     SEE_ERROR_MSG_INVALID,     /**< Received message is not valid */
     SEE_NOT_IMPLEMENTED,       /**< This function is not implemented.*/
+    SEE_ERROR_TIMEOUT,         /**< Some read or write reached its timeout.*/
 
     /**
      * Some unspecified error occurred.

@@ -17,12 +17,17 @@
 
 
 #include <assert.h>
+#include <string.h>
+#include <errno.h>
+#include "see_object_config.h"
 #include "MetaClass.h"
 #include "Serial.h"
-#include "see_object_config.h"
+#include "utilities.h"
 
 #if defined(HAVE_TERMIOS_H)
 #include "posix/PosixSerial.h"
+#include "RuntimeError.h"
+
 #elif defined(_WIN32)
 #include "windows/WindowsSerial.h"
 #endif
@@ -75,7 +80,8 @@ init(const SeeObjectClass* cls, SeeObject* obj, va_list args)
         );
 }
 
-void serial_destroy(SeeObject* obj)
+static void
+serial_destroy(SeeObject* obj)
 {
     int ret, open;
     if (!obj)
@@ -93,6 +99,154 @@ void serial_destroy(SeeObject* obj)
         cls->close(serial, &error);
 
     see_object_class()->destroy(obj);
+}
+
+static int
+serial_write_msg(
+    const SeeSerial* self,
+    SeeMsgBuffer* msg,
+    SeeError** error
+    )
+{
+    const SeeSerialClass* cls = SEE_SERIAL_GET_CLASS(self);
+    void* buffer_data = NULL;
+    char* write_ptr = buffer_data;
+    size_t n_to_write;
+    int ret = SEE_SUCCESS;
+
+    ret = see_msg_buffer_get_buffer(msg, &buffer_data, &n_to_write, error);
+    if (ret)
+        goto fail;
+
+    while (n_to_write) {
+        ret = cls->write(self, &write_ptr, &n_to_write, error);
+        if (ret)
+            goto fail;
+    }
+
+fail:
+    free(buffer_data);
+    return ret;
+}
+
+static int
+obtain_synced_msg_buffer(
+    const SeeSerial*    self,
+    void**              buffer_out,
+    size_t*             buf_len_out,
+    SeeError**          error
+    )
+{
+    char sync[10] = {0};
+    const char sync_expected[] = "SMSG";
+    const size_t sync_length = strlen(sync_expected);
+    uint16_t id;
+    uint32_t size;
+    const SeeSerialClass* cls = SEE_SERIAL_GET_CLASS(self);
+    const SeeMsgBuffer* buf = NULL; // used for sizeof operation below.
+    int ret = SEE_SUCCESS;
+    size_t num_to_read;
+    char* bytes = NULL;
+
+#if !defined(NDEBUG)
+    const SeeMsgBufferClass* msg_cls = see_msg_buffer_class();
+    if (!msg_cls)
+        return SEE_NOT_INITIALIZED;
+
+    const char* start_header = msg_cls->msg_start;
+
+    assert(strcmp(start_header, sync_expected) == 0);
+    assert(sizeof(id) == sizeof(buf->id));
+    assert(sizeof(size) == sizeof(buf->length));
+#endif
+
+    num_to_read = sizeof(sync)/sizeof(sync[0]);
+    char* start = &sync[0];
+
+    // Try to read an entire header.
+    while (num_to_read) {
+        ret = cls->read(self, &start, &num_to_read, error);
+        if(ret)
+            return ret;
+    }
+
+    // While we haven't got a valid header, discard the first byte and append
+    // a new byte to the end and try again.
+    while (sync[0] != sync_expected[0] &&
+           sync[1] != sync_expected[1] &&
+           sync[2] != sync_expected[2] &&
+           sync[3] != sync_expected[3]
+           )
+    {
+        memmove(&sync[0], &sync[1], sizeof(sync) - 1);
+        size_t one = 1;
+        char* byte = &sync[sizeof(start)-1];
+
+        while (one) {
+            ret = see_serial_read(self, &byte, &one, error);
+            if (ret)
+                return ret;
+        }
+    }
+
+    // obtain size and id in network byteorder.
+    memcpy(&id, &sync[sync_length], sizeof(id));
+    memcpy(&size, &sync[sync_length + sizeof(id)], sizeof(size));
+
+    size = see_network_to_host32(size);
+    bytes = malloc(size);
+    if (!bytes) {
+        see_runtime_error_create(error, errno);
+        return SEE_ERROR_RUNTIME;
+    }
+
+    // Copy the info we've gathered here to the final buffer and read the remainder
+    memcpy(&bytes[0], &sync[0], sizeof(sync)/sizeof(sync[0]));
+    start = &bytes[sizeof(sync)];
+    num_to_read = size - sizeof(sync);
+
+    while (num_to_read) {
+        ret = see_serial_read(self, &start, &num_to_read, error);
+        if (ret)
+            goto fail;
+    }
+
+    *buffer_out  = bytes;
+    *buf_len_out = size;
+
+    return ret;
+
+    fail:
+
+    free(bytes);
+    return ret;
+
+}
+
+static int
+serial_read_msg(
+    const SeeSerial* self,
+    SeeMsgBuffer**   msg_out,
+    SeeError**       error_out
+    )
+{
+    SeeMsgBuffer* ret_buf = NULL;
+    void*         buffer  = NULL;
+    size_t        buf_len = 0;
+
+    int ret = obtain_synced_msg_buffer(self, &buffer, &buf_len, error_out);
+    if (ret)
+        return ret;
+    assert(buffer != NULL);
+
+    ret = see_msg_buffer_from_buffer(&ret_buf, buffer, buf_len, error_out);
+    if (*msg_out) // if there is a message there drop its reference
+        see_object_decref(SEE_OBJECT(*msg_out));
+
+    // return the message.
+    *msg_out = ret_buf;
+
+    return ret;
 }
 
 /* **** implementation of the public API **** */
@@ -158,7 +312,7 @@ see_serial_close(SeeSerial* dev, SeeError** error_out)
 
 int see_serial_write(
     const SeeSerial*    self,
-    const void*         bytes,
+    char* * const       bytes,
     size_t*             length,
     SeeError**          error_out
     )
@@ -330,6 +484,48 @@ int see_serial_get_min_rd_chars(
     return cls->get_min_rd_chars(self, nchars, error_out);
 }
 
+int
+see_serial_write_msg (
+    const SeeSerial*    self,
+    SeeMsgBuffer*       msg,
+    SeeError**          error_out
+    )
+{
+    const SeeSerialClass* cls;
+
+    if (!self || !msg)
+        return SEE_INVALID_ARGUMENT;
+
+    if (!error_out || *error_out)
+        return SEE_INVALID_ARGUMENT;
+
+    cls = SEE_SERIAL_GET_CLASS(self);
+
+    return cls ->write_msg(self, msg, error_out);
+}
+
+int
+see_serial_read_msg (
+    const SeeSerial*    self,
+    SeeMsgBuffer**      msg,
+    SeeError**          error
+    )
+{
+    const SeeSerialClass* cls;
+
+    if (!self || !msg)
+        return SEE_INVALID_ARGUMENT;
+
+    if (!error || *error)
+        return SEE_INVALID_ARGUMENT;
+
+    cls = SEE_SERIAL_GET_CLASS(self);
+
+    return cls->read_msg(self, msg, error);
+}
+
+/* **** public function that do not belong to a class **** */
+
 see_speed_t
 see_serial_nearest_speed(unsigned speed)
 {
@@ -390,6 +586,8 @@ static int see_serial_class_init(SeeObjectClass* new_cls)
     /* Set the function pointers of the own class here */
     SeeSerialClass* cls = (SeeSerialClass*) new_cls;
     cls->serial_init    = serial_init;
+    cls->write_msg      = serial_write_msg;
+    cls->read_msg       = serial_read_msg;
 
     // most functions are abstract...
     (void) cls;

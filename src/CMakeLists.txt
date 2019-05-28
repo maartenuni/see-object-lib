@@ -27,6 +27,7 @@ set (SEE_OBJ_SRC
     RuntimeError.c
     SeeObject.c
     Serial.c
+    TimeoutError.c
     TimePoint.cpp
     atomic_operations.c
     utilities.c
@@ -46,6 +47,7 @@ set (SEE_OBJ_HDR_PUBLIC
     RuntimeError.h
     SeeObject.h
     Serial.h
+    TimeoutError.h
     TimePoint.h
     atomic_operations.h
     utilities.h
