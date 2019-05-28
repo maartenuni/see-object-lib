@@ -28,6 +28,8 @@
  * durations from seconds, ms, us and ns, the calculations are always
  * done with the precision of the C++11 std::chrono::steady_clock.
  * This is likely in nanoseconds.
+ * The SeeDurationTimeClass implements SeeObjectClass->compare. This means
+ * that durations can be checked on order from short to long and equality.
  */
 
 #ifndef SEE_DURATION_H
@@ -245,86 +247,6 @@ see_duration_sub(
     const SeeDuration*  other,
     SeeDuration**       result,
     SeeError**          error_out
-    );
-
-/**
- * @brief evaluates self < rhs
- *
- * @param [in]  self   A pointer to a SeeDuration
- * @param [in]  rhs    A pointer to a SeeDuration
- * @param [out] result non zero value when self < rhs.
- *
- * @return SEE_SUCCESS or SEE_INVALID_ARGUMENT
- */
-SEE_EXPORT int
-see_duration_lt(
-    const SeeDuration* self,
-    const SeeDuration* rhs,
-    int* result
-    );
-
-/**
- * @brief evaluates self <= rhs
- *
- * @param [in]  self    A pointer to a SeeDuration
- * @param [in]  rhs     A pointer to a SeeDuration
- * @param [out] result  non zero value when self <= rhs.
- *
- * @return SEE_SUCCESS or SEE_INVALID_ARGUMENT
- */
-SEE_EXPORT int
-see_duration_lte(
-    const SeeDuration* self,
-    const SeeDuration* rhs,
-    int* result
-    );
-
-/**
- * @brief evaluates self == rhs
- *
- * @param [in]  self   A pointer to a SeeDuration
- * @param [in]  rhs    A pointer to a SeeDuration
- * @param [out] result non zero value when self == rhs.
- *
- * @result SEE_SUCCESS or SEE_INVALID_ARGUMENT
- */
-SEE_EXPORT int
-see_duration_eq(
-    const SeeDuration* self,
-    const SeeDuration* rhs,
-    int* result
-    );
-
-/**
- * @brief evaluates self >= rhs
- *
- * @param [in]  self   A pointer to a SeeDuration
- * @param [in]  rhs    A pointer to a SeeDuration
- * @param [out] result non zero value when self >= rhs.
- *
- * @return SEE_SUCCESS or SEE_INVALID_ARGUMENT
- */
-SEE_EXPORT int
-see_duration_gte(
-    const SeeDuration* self,
-    const SeeDuration* rhs,
-    int* result
-    );
-
-/**
- * @brief evaluates self > rhs
- *
- * @param [in]  self   A pointer to a SeeDuration
- * @param [in]  rhs    A pointer to a SeeDuration
- * @param [out] result non zero value when self > rhs.
- *
- * @return SEE_SUCCESS or SEE_INVALID_ARGUMENT
- */
-SEE_EXPORT int
-see_duration_gt(
-    const SeeDuration* self,
-    const SeeDuration* rhs,
-    int* result
     );
 
 /**

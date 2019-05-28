@@ -21,6 +21,8 @@
 
 #include "see_export.h"
 #include <stdint.h>
+#include "Duration.h"
+#include "TimePoint.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -125,6 +127,30 @@ see_host_to_network64(uint64_t val);
  */
 SEE_EXPORT uint64_t
 see_network_to_host64(uint64_t val);
+
+/**
+ * \brief Sleep for a little while.
+ *
+ * This function makes suspends the current thread for a duration.
+ * This function should sleep for at least the specified duration. The delay
+ * might be affected by scheduling and other thread battling for resources.
+ *
+ * @param [in] dur The duration to suspend the current thread.
+ *
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
+ */
+SEE_EXPORT int see_sleep(const SeeDuration* dur);
+
+
+/**
+ * \brief Sleep until a given timepoint.
+ *
+ * @param [in] tp A timepoint at which we should wake.
+ *
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
+ */
+SEE_EXPORT int see_sleep_until(const SeeTimePoint* tp);
+
 
 #ifdef __cplusplus
 }

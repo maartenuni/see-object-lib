@@ -21,6 +21,7 @@ set (SEE_OBJ_SRC
     DynamicArray.c
     Duration.cpp
     Error.c
+    IncomparableError.c
     IndexError.c
     MsgBuffer.c
     MetaClass.c
@@ -31,6 +32,7 @@ set (SEE_OBJ_SRC
     TimePoint.cpp
     atomic_operations.c
     utilities.c
+    utilities.cpp
     )
 
 set (SEE_OBJ_HDR_PUBLIC
@@ -40,6 +42,7 @@ set (SEE_OBJ_HDR_PUBLIC
     DynamicArray.h
     Duration.h
     Error.h
+    IncomparableError.h
     IndexError.h
     see_init.h
     MsgBuffer.h

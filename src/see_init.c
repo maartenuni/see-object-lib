@@ -34,12 +34,13 @@
 #include "TimePoint.h"
 #include "Serial.h"
 #include "MsgBuffer.h"
+#include "TimeoutError.h"
+#include "IncomparableError.h"
 
 #if HAVE_WINDOWS_H
 #include "windows/WindowsRuntimeError.h"
 #elif HAVE_UNISTD_H
 #include "posix/PosixSerial.h"
-#include "TimeoutError.h"
 
 #endif
 
@@ -95,6 +96,10 @@ initialize() {
         return ret;
 
     ret = see_error_init();
+    if (ret)
+        return ret;
+
+    ret = see_incomparable_error_init();
     if (ret)
         return ret;
 
@@ -155,6 +160,7 @@ deinit()
     see_duration_deinit();
     see_dynamic_array_deinit();
     see_error_deinit();
+    see_incomparable_error_deinit();
     see_index_error_deinit();
     see_msg_buffer_deinit();
     see_msg_invalid_error_deinit();

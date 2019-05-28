@@ -25,6 +25,13 @@
  * obtain the duration between the two points. Additionally a Duration can
  * be added or subtracted from a time point in order to get a new
  * time point that is precisely that duration away.
+ * Two time points are comparable, so that one is able to see which occurred
+ * first. The SeeTimePointClass implements the compare interface, This
+ * means that it is valid to call
+ * see_object_compare(SEE_OBJECT(tp1), SEE_OBJECT(tp2)); on them
+ * if tp1 and tp2 are a valid SeeTimePoint. This also means that you can call
+ * see_object_less(), ... see_object_equal(), ... see_object_greater() on
+ * them.
  */
 
 #ifndef SEE_TIME_POINT_H

@@ -46,6 +46,7 @@ enum see_error {
     SEE_ERROR_MSG_INVALID,     /**< Received message is not valid */
     SEE_NOT_IMPLEMENTED,       /**< This function is not implemented.*/
     SEE_ERROR_TIMEOUT,         /**< Some read or write reached its timeout.*/
+    SEE_ERROR_INCOMPARABLE,    /**< This combination of objects is not comparable*/
 
     /**
      * Some unspecified error occurred.

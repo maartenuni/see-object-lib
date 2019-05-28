@@ -19,6 +19,7 @@
 #include "../src/Clock.h"
 #include "../src/Duration.h"
 #include "../src/TimePoint.h"
+#include "../src/utilities.h"
 
 static const char* SUITE_NAME = "Time test";
 
@@ -230,15 +231,22 @@ void time_comparison(void)
     SeeDuration *d1     = NULL, *d2 = NULL, *d3 = NULL, *de = NULL;
     SeeError* error     = NULL;
     SeeClock* clk       = NULL;
-    int ret, result_true, result_false;
+    SeeDuration *sleep_dur = NULL;
+
+    int ret, result_true, result_false, greater, smaller, equal;
+
+    ret = see_duration_new_ms(&sleep_dur, 1, &error);
+    UNIT_HANDLE_ERROR();
 
     // Comparing the times
     ret = see_clock_new(&clk, &error);
     UNIT_HANDLE_ERROR();
     ret = see_clock_time(clk, &t1, &error);
+    see_sleep(sleep_dur);
     UNIT_HANDLE_ERROR();
     ret = see_clock_time(clk, &t2, &error);
     UNIT_HANDLE_ERROR();
+    see_sleep(sleep_dur);
     ret = see_clock_time(clk, &t3, &error);
     UNIT_HANDLE_ERROR();
     ret = see_time_point_sub(t2, t1, &d1, &error);
@@ -302,52 +310,182 @@ void time_comparison(void)
 
     // comparing the durations
  
-    ret = see_duration_lt(d1, d2, &result_true);
+    ret = see_object_less(
+        SEE_OBJECT(d1),
+        SEE_OBJECT(d2),
+        &result_true,
+        &error
+        );
     UNIT_HANDLE_ERROR();
-    ret = see_duration_lt(d2, d1, &result_false);
+    ret = see_object_less(
+        SEE_OBJECT(d2),
+        SEE_OBJECT(d1),
+        &result_false,
+        &error
+        );
     UNIT_HANDLE_ERROR();
     CU_ASSERT_TRUE(result_true);
     CU_ASSERT_FALSE(result_false);
 
-    ret = see_duration_lte(d1, d2, &result_true);
+    ret = see_object_less_equal(
+        SEE_OBJECT(d1),
+        SEE_OBJECT(d2),
+        &result_true,
+        &error
+        );
     UNIT_HANDLE_ERROR();
-    ret = see_duration_lte(d2, d1, &result_false);
+    ret = see_object_less_equal(
+        SEE_OBJECT(d2),
+        SEE_OBJECT(d1),
+        &result_false,
+        &error
+        );
     UNIT_HANDLE_ERROR();
     CU_ASSERT_TRUE(result_true);
     CU_ASSERT_FALSE(result_false);
-    ret = see_duration_lte(d2, de, &result_true);
+    ret = see_object_less_equal(
+        SEE_OBJECT(d2),
+        SEE_OBJECT(de),
+        &result_true,
+        &error
+        );
     UNIT_HANDLE_ERROR();
-    ret = see_duration_lte(d3, d2, &result_false);
+    ret = see_object_less_equal(
+        SEE_OBJECT(d3),
+        SEE_OBJECT(d2),
+        &result_false,
+        &error
+        );
     UNIT_HANDLE_ERROR();
     CU_ASSERT_NOT_EQUAL(result_true, 0);
     CU_ASSERT_EQUAL(result_false, 0);
 
-    ret = see_duration_eq(d2, de, &result_true);
+    ret = see_object_equal(
+        SEE_OBJECT(d2),
+        SEE_OBJECT(de),
+        &result_true,
+        &error
+        );
     UNIT_HANDLE_ERROR();
-    ret = see_duration_eq(d2, d3, &result_false);
+    ret = see_object_equal(
+        SEE_OBJECT(d2),
+        SEE_OBJECT(d3),
+        &result_false,
+        &error
+        );
     UNIT_HANDLE_ERROR();
     CU_ASSERT_FALSE(result_false);
     CU_ASSERT_TRUE(result_true);
 
-    ret = see_duration_gte(d3, d2, &result_true);
+    ret = see_object_greater_equal(
+        SEE_OBJECT(d3),
+        SEE_OBJECT(d2),
+        &result_true,
+        &error
+        );
     UNIT_HANDLE_ERROR();
-    ret = see_duration_gte(d2, d3, &result_false);
+    ret = see_object_greater_equal(
+        SEE_OBJECT(d2),
+        SEE_OBJECT(d3),
+        &result_false,
+        &error
+        );
     UNIT_HANDLE_ERROR();
     CU_ASSERT_TRUE(result_true);
     CU_ASSERT_FALSE(result_false);
-    ret = see_duration_gte(d2, de, &result_true);
+
+    ret = see_object_greater_equal(
+        SEE_OBJECT(d2),
+        SEE_OBJECT(de),
+        &result_true,
+        &error
+        );
     UNIT_HANDLE_ERROR();
-    ret = see_duration_gte(d1, d3, &result_false);
+    ret = see_object_greater_equal(
+        SEE_OBJECT(d1),
+        SEE_OBJECT(d3),
+        &result_false,
+        &error
+        );
     UNIT_HANDLE_ERROR();
     CU_ASSERT_NOT_EQUAL(result_true, 0);
     CU_ASSERT_EQUAL(result_false, 0);
 
-    ret = see_duration_gt(d3, d2, &result_true);
+    ret = see_object_greater(
+        SEE_OBJECT(d3),
+        SEE_OBJECT(d2),
+        &result_true,
+        &error
+        );
     UNIT_HANDLE_ERROR();
-    ret = see_duration_gt(d1, d3, &result_false);
+    ret = see_object_greater(
+        SEE_OBJECT(d1),
+        SEE_OBJECT(d3),
+        &result_false,
+        &error
+        );
     UNIT_HANDLE_ERROR();
     CU_ASSERT_TRUE(result_true);
     CU_ASSERT_FALSE(result_false);
+
+    ret = see_clock_time(clk, &t1, &error);
+    UNIT_HANDLE_ERROR();
+    ret = see_sleep(sleep_dur);
+    CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
+
+    ret = see_clock_time(clk, &t2, &error);
+    UNIT_HANDLE_ERROR();
+    ret = see_sleep(sleep_dur);
+    CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
+
+    ret = see_clock_time(clk, &t3, &error);
+    UNIT_HANDLE_ERROR();
+
+    ret = see_object_greater(
+        SEE_OBJECT(t3),
+        SEE_OBJECT(t2),
+        &greater,
+        &error
+    );
+    UNIT_HANDLE_ERROR();
+    CU_ASSERT_TRUE(greater);
+
+    ret = see_object_less(
+        SEE_OBJECT(t2),
+        SEE_OBJECT(t3),
+        &smaller,
+        &error
+        );
+    UNIT_HANDLE_ERROR();
+
+    CU_ASSERT(smaller);
+
+    ret = see_object_less(
+        SEE_OBJECT(t3),
+        SEE_OBJECT(t2),
+        &smaller,
+        &error
+    );
+    UNIT_HANDLE_ERROR();
+    CU_ASSERT_FALSE(smaller);
+
+    ret = see_object_equal(
+        SEE_OBJECT(t3),
+        SEE_OBJECT(t3),
+        &equal,
+        &error
+        );
+    UNIT_HANDLE_ERROR();
+
+    CU_ASSERT(equal);
+    ret = see_object_equal(
+        SEE_OBJECT(t3),
+        SEE_OBJECT(t1),
+        &equal,
+        &error
+    );
+    UNIT_HANDLE_ERROR();
+    CU_ASSERT_FALSE(equal);
 
 fail:
     see_object_decref(SEE_OBJECT(t1));
@@ -409,7 +547,12 @@ void time_calculations(void)
     UNIT_HANDLE_ERROR();
     ret = see_time_point_sub(tres, t1, &dres, &error);
     UNIT_HANDLE_ERROR();
-    ret = see_duration_eq(dres, d1, &result);
+    ret = see_object_equal(
+        SEE_OBJECT(dres),
+        SEE_OBJECT(d1),
+        &result,
+        &error
+        );
     UNIT_HANDLE_ERROR();
     CU_ASSERT_NOT_EQUAL(result, 0);
 
@@ -441,13 +584,25 @@ void clock_duration(void)
 
     int64_t s1 = see_duration_seconds(d1);
     int64_t s2 = see_duration_seconds(d2);
-    see_duration_lt(d1, d2, &result);
+    (void) s1; // Just to see in a debugger how large d1 and d2 can be.
+    (void) s2;
+    see_object_less(
+        SEE_OBJECT(d1),
+        SEE_OBJECT(d2),
+        &result,
+        &error
+        );
     CU_ASSERT_TRUE(result);
     ret = see_clock_set_base_time(clk, NULL, &error);
     UNIT_HANDLE_ERROR();
     ret = see_clock_duration(clk, &d2, &error);
     UNIT_HANDLE_ERROR();
-    see_duration_gt(d1, d2, &result);
+    see_object_greater(
+        SEE_OBJECT(d1),
+        SEE_OBJECT(d2),
+        &result,
+        &error
+        );
     CU_ASSERT_TRUE(result);
     s1 = see_duration_seconds(d1);
     s2 = see_duration_seconds(d2);

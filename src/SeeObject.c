@@ -32,6 +32,7 @@
 #include <assert.h>
 #include "atomic_operations.h"
 #include "errors.h"
+#include "IncomparableError.h"
 
 /* **** implementation of SeeObjects **** */
 
@@ -129,10 +130,185 @@ object_decref(SeeObject* obj)
         obj->cls->destroy(obj);
 }
 
-static void object_destroy(SeeObject* obj)
+static void
+object_destroy(SeeObject* obj)
 {
     assert(obj);
     free(obj);
+}
+
+static int
+object_less (
+        const SeeObject*    self,
+        const SeeObject*    other,
+        int*                result,
+        struct SeeError**   error
+        )
+{
+    const SeeObjectClass* cls = SEE_OBJECT_GET_CLASS(self);
+    int ret = SEE_SUCCESS;
+
+    if (cls->compare) {
+        int cmp;
+        ret = cls->compare(self, other, &cmp, error);
+        if (ret)
+            return ret;
+        *result = cmp < 0 ? 1 : 0;
+    }
+    else {
+        see_incomparable_error_create(
+            error,
+            SEE_OBJECT_GET_CLASS(self),
+            NULL
+        );
+        ret = SEE_ERROR_INCOMPARABLE;
+    }
+    return ret;
+}
+
+static int
+object_less_equal (
+    const SeeObject*    self,
+    const SeeObject*    other,
+    int*                result,
+    struct SeeError**   error
+    )
+{
+    const SeeObjectClass* cls = SEE_OBJECT_GET_CLASS(self);
+    int ret = SEE_SUCCESS;
+
+    if (cls->compare) {
+        int cmp;
+        ret = cls->compare(self, other, &cmp, error);
+        if (ret)
+            return ret;
+        *result = cmp <= 0 ? 1 : 0;
+    }
+    else {
+        see_incomparable_error_create(
+            error,
+            SEE_OBJECT_GET_CLASS(self),
+            NULL
+        );
+        ret = SEE_ERROR_INCOMPARABLE;
+    }
+    return ret;
+}
+
+static int
+object_equal (
+    const SeeObject*    self,
+    const SeeObject*    other,
+    int*                result,
+    struct SeeError**   error
+    )
+{
+    const SeeObjectClass* cls = SEE_OBJECT_GET_CLASS(self);
+    int ret = SEE_SUCCESS;
+
+    if (cls->compare) {
+        int cmp;
+        ret = cls->compare(self, other, &cmp, error);
+        if (ret)
+            return ret;
+        *result = cmp == 0 ? 1 : 0;
+    }
+    else {
+        see_incomparable_error_create(
+            error,
+            SEE_OBJECT_GET_CLASS(self),
+            NULL
+        );
+        ret = SEE_ERROR_INCOMPARABLE;
+    }
+    return ret;
+}
+
+static int
+object_not_equal (
+    const SeeObject*    self,
+    const SeeObject*    other,
+    int*                result,
+    struct SeeError**   error
+)
+{
+    const SeeObjectClass* cls = SEE_OBJECT_GET_CLASS(self);
+    int ret = SEE_SUCCESS;
+
+    if (cls->compare) {
+        int cmp;
+        ret = cls->compare(self, other, &cmp, error);
+        if (ret)
+            return ret;
+        *result = cmp != 0 ? 1 : 0;
+    }
+    else {
+        see_incomparable_error_create(
+            error,
+            SEE_OBJECT_GET_CLASS(self),
+            NULL
+        );
+        ret = SEE_ERROR_INCOMPARABLE;
+    }
+    return ret;
+}
+
+static int
+object_greater_equal (
+    const SeeObject*    self,
+    const SeeObject*    other,
+    int*                result,
+    struct SeeError**   error
+    )
+{
+    const SeeObjectClass* cls = SEE_OBJECT_GET_CLASS(self);
+    int ret = SEE_SUCCESS;
+
+    if (cls->compare) {
+        int cmp;
+        ret = cls->compare(self, other, &cmp, error);
+        if (ret)
+            return ret;
+        *result = cmp >= 0 ? 1 : 0;
+    }
+    else {
+        see_incomparable_error_create(
+            error,
+            SEE_OBJECT_GET_CLASS(self),
+            NULL
+        );
+        ret = SEE_ERROR_INCOMPARABLE;
+    }
+    return ret;
+}
+
+static int
+object_greater(
+    const SeeObject*    self,
+    const SeeObject*    other,
+    int*                result,
+    struct SeeError**   error
+    )
+{
+    const SeeObjectClass* cls = SEE_OBJECT_GET_CLASS(self);
+    int ret = SEE_SUCCESS;
+
+    if (cls->compare) {
+        int cmp;
+        ret = cls->compare(self, other, &cmp, error);
+        if (ret)
+            return ret;
+        *result = cmp > 0 ? 1 : 0;
+    }
+    else {
+        see_incomparable_error_create(
+            error,
+            SEE_OBJECT_GET_CLASS(self),
+            NULL
+        );
+        ret = SEE_ERROR_INCOMPARABLE;
+    }
+    return ret;
 }
 
 /* **** Initialization of the SeeObjectClass **** */
@@ -151,7 +327,14 @@ static const SeeObjectClass g_class = {
     .destroy    = object_destroy,
     .repr       = object_representation,
     .incref     = object_ref,
-    .decref     = object_decref
+    .decref     = object_decref,
+    .compare    = NULL,
+    .less       = object_less,
+    .less_equal = object_less_equal,
+    .equal      = object_equal,
+    .not_equal  = object_not_equal,
+    .greater_equal = object_greater_equal,
+    .greater    = object_greater
 };
 
 static const SeeObjectClass* see_object_class_instance = &g_class;
@@ -221,6 +404,140 @@ void see_object_decref(SeeObject* obj)
 
     const SeeObjectClass* cls = see_object_get_class(obj);
     cls->decref(obj);
+}
+
+int
+see_object_compare(
+    const SeeObject*  obj,
+    const SeeObject*  other,
+    int*              result,
+    struct SeeError** error
+    )
+{
+    if (!obj || !other || !result)
+        return SEE_INVALID_ARGUMENT;
+
+    if (!error || *error)
+        return SEE_INVALID_ARGUMENT;
+
+    const SeeObjectClass* cls = see_object_get_class(obj);
+
+    return cls->compare(obj, other, result, error);
+}
+
+
+int
+see_object_less (
+    const SeeObject*    self,
+    const SeeObject*    other,
+    int*                result,
+    struct SeeError**   error
+    )
+{
+    if (!self || !other || !result)
+        return SEE_INVALID_ARGUMENT;
+
+    if (!error || *error)
+        return SEE_INVALID_ARGUMENT;
+
+    const SeeObjectClass* cls = see_object_get_class(self);
+
+    return cls->less(self, other, result, error);
+}
+
+int
+see_object_less_equal (
+    const SeeObject*    self,
+    const SeeObject*    other,
+    int*                result,
+    struct SeeError**   error
+    )
+{
+    if (!self || !other || !result)
+        return SEE_INVALID_ARGUMENT;
+
+    if (!error || *error)
+        return SEE_INVALID_ARGUMENT;
+
+    const SeeObjectClass* cls = see_object_get_class(self);
+
+    return cls->less_equal(self, other, result, error);
+}
+
+int
+see_object_equal (
+    const SeeObject*    self,
+    const SeeObject*    other,
+    int*                result,
+    struct SeeError**   error
+    )
+{
+    if (!self || !other || !result)
+        return SEE_INVALID_ARGUMENT;
+
+    if (!error || *error)
+        return SEE_INVALID_ARGUMENT;
+
+    const SeeObjectClass* cls = see_object_get_class(self);
+
+    return cls->equal(self, other, result, error);
+}
+
+int
+see_object_not_equal (
+    const SeeObject*    self,
+    const SeeObject*    other,
+    int*                result,
+    struct SeeError**   error
+    )
+{
+    if (!self || !other || !result)
+        return SEE_INVALID_ARGUMENT;
+
+    if (!error || *error)
+        return SEE_INVALID_ARGUMENT;
+
+    const SeeObjectClass* cls = see_object_get_class(self);
+
+    return cls->not_equal(self, other, result, error);
+}
+
+int
+see_object_greater_equal(
+    const SeeObject*    self,
+    const SeeObject*    other,
+    int*                result,
+    struct SeeError**   error
+    )
+{
+    if (!self || !other || !result)
+        return SEE_INVALID_ARGUMENT;
+
+    if (!error || *error)
+        return SEE_INVALID_ARGUMENT;
+
+    const SeeObjectClass* cls = see_object_get_class(self);
+
+    return cls->greater_equal(self, other, result, error);
+}
+
+int
+see_object_greater(
+    const SeeObject*    self,
+    const SeeObject*    other,
+    int*                result,
+    struct SeeError**   error
+    )
+{
+    if (!self || !other || !result)
+        return SEE_INVALID_ARGUMENT;
+
+    if (!error || *error)
+        return SEE_INVALID_ARGUMENT;
+
+    const SeeObjectClass* cls = see_object_get_class(self);
+
+    return cls->greater(self, other, result, error);
 }
 
 int

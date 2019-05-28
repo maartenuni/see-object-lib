@@ -114,6 +114,16 @@ public:
         return m_tp > rhs.m_tp;
     }
 
+    /**
+     * @brief get a copy to the underlying std::TimePoint
+     * @return
+     */
+    tp get_time() const
+    {
+        return m_tp;
+    }
+
 private:
-     tp m_tp;
+
+    tp m_tp;
 };
