@@ -422,6 +422,11 @@ see_object_compare(
 
     const SeeObjectClass* cls = see_object_get_class(obj);
 
+    if (!cls->compare) {
+        see_incomparable_error_create(error, cls, NULL);
+        return SEE_ERROR_INCOMPARABLE;
+    }
+
     return cls->compare(obj, other, result, error);
 }
 
