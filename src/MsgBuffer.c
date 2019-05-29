@@ -34,12 +34,14 @@
 #include <string.h>
 #include <stdio.h>
 #include <assert.h>
+#include <stdbool.h>
 
 #include "MetaClass.h"
 #include "MsgBuffer.h"
 #include "see_object_config.h"
 #include "utilities.h"
 #include "RuntimeError.h"
+#include "IncomparableError.h"
 
 
 /**
@@ -126,6 +128,101 @@ part_init(const SeeObjectClass* cls, SeeObject* obj, va_list args)
         msg_part_cls
         );
 
+}
+
+static int msg_part_equal(
+    const SeeObject*  so_part,
+    const SeeObject*  so_other,
+    int*              result,
+    SeeError**        error
+    )
+{
+    const SeeMsgPart* part, *other;
+    int ret, isinstance;
+    if (so_part == so_other) {
+        *result = 1;
+        return SEE_SUCCESS;
+    }
+
+#if !defined(NDEBUG)
+    see_object_is_instance_of(
+        so_part,
+        SEE_OBJECT_CLASS(see_msg_part_class()),
+        &isinstance
+        );
+    assert(isinstance);
+#endif
+
+    ret = see_object_is_instance_of(
+        so_other,
+        SEE_OBJECT_CLASS(see_msg_part_class()),
+        &isinstance
+        );
+
+    assert(ret == SEE_SUCCESS);
+    if (!isinstance) {
+        see_incomparable_error_create(
+            error,
+            SEE_OBJECT_CLASS(so_part),
+            SEE_OBJECT_CLASS(so_other)
+            );
+        return SEE_ERROR_INCOMPARABLE;
+    }
+    part = (const SeeMsgPart*) so_part;
+    other= (const SeeMsgPart*) so_other;
+
+    if (part->value_type != other->value_type) {
+        *result = 0;
+        return SEE_SUCCESS;
+    }
+    if (part->length != other->length) {
+        *result = 0;
+    }
+    switch (part->value_type)
+    {
+        case SEE_MSG_PART_INT32_T:
+            *result = part->value.int32_val == other->value.int32_val;
+            break;
+        case SEE_MSG_PART_UINT32_T:
+            *result = part->value.uint32_val == other->value.uint32_val;
+            break;
+        case SEE_MSG_PART_INT64_T:
+            *result = part->value.int64_val == other->value.int64_val;
+            break;
+        case SEE_MSG_PART_UINT64_T:
+            *result = part->value.uint64_val == other->value.uint64_val;
+            break;
+        case SEE_MSG_PART_STRING_T:
+            *result = strcmp(part->value.str_val, other->value.str_val) == 0;
+            break;
+        case SEE_MSG_PART_FLOAT_T:
+            *result = part->value.float_val == other->value.float_val;
+            break;
+        case SEE_MSG_PART_DOUBLE_T:
+            *result = part->value.double_val == other->value.double_val;
+            break;
+        case SEE_MSG_PART_NOT_INIT:
+            *result = 1; // content is irrelevant.
+            break;
+        default:
+            assert(0 == 1);
+            return SEE_INVALID_ARGUMENT;
+    }
+    return SEE_SUCCESS;
+}
+
+static int
+msg_part_not_equal(
+    const SeeObject*    part,
+    const SeeObject*    other,
+    int*                result,
+    SeeError**          error
+    )
+{
+    int ret, tres;
+    ret = msg_part_equal(part, other, &tres, error);
+    *result = !result;
+    return ret;
 }
 
 static int
@@ -715,6 +812,7 @@ msg_part_read(
             str[strlength] = '\0';
             nread += strlength;
             new_part->value.str_val = str;
+            new_part->length = length;
 
             break;
         case SEE_MSG_PART_FLOAT_T:
@@ -1174,6 +1272,8 @@ static int see_msg_part_class_init(SeeObjectClass* new_cls)
     new_cls->init   = part_init;
     new_cls->name   = "SeeMsgPartClass";
     new_cls->destroy= msg_part_destroy;
+    new_cls->equal  = msg_part_equal;
+    new_cls->not_equal = msg_part_not_equal;
 
     /* Set the function pointers of the own class here */
     SeeMsgPartClass* cls = (SeeMsgPartClass*) new_cls;
@@ -1322,6 +1422,109 @@ msg_buffer_destroy(SeeObject* obj)
 
     see_object_decref(SEE_OBJECT(msg->parts));
     cls->destroy(obj);
+}
+
+static int
+msg_buffer_equal(
+    const SeeObject*    so_self,
+    const SeeObject*    so_other,
+    int*                result,
+    SeeError**          error
+    )
+{
+    const SeeMsgBuffer* self, *other;
+    int ret, isinstance;
+    size_t npart, npartother;
+
+    if (so_self == so_other) {
+        *result = true;
+        return SEE_SUCCESS;
+    }
+
+#if !defined(NDEBUG)
+    ret = see_object_is_instance_of(
+        so_self,
+        SEE_OBJECT_CLASS(see_msg_buffer_class()),
+        &isinstance
+        );
+    assert(ret == SEE_SUCCESS && isinstance);
+#endif
+
+    ret = see_object_is_instance_of(
+        so_other,
+        SEE_OBJECT_CLASS(see_msg_buffer_class()),
+        &isinstance
+        );
+    assert(ret == SEE_SUCCESS);
+    if (!isinstance) {
+        see_incomparable_error_create(
+            error,
+            see_object_get_class(so_self),
+            see_object_get_class(so_other)
+            );
+        return SEE_ERROR_INCOMPARABLE;
+    }
+
+    self = (const SeeMsgBuffer*) so_self;
+    other= (const SeeMsgBuffer*) so_other;
+
+    if (self->id != other->id) {
+        *result = false;
+        return SEE_SUCCESS;
+    }
+
+    if (self->length != other->length) {
+        *result = false;
+        return SEE_SUCCESS;
+    }
+
+    ret = see_msg_buffer_num_parts(self, &npart);
+    assert(ret == SEE_SUCCESS);
+    ret = see_msg_buffer_num_parts(other,&npartother);
+    assert(ret == SEE_SUCCESS);
+    if (npart != npartother) {
+        *result = true;
+        return SEE_SUCCESS;
+    }
+
+    const SeeObject** self_parts = NULL;
+    const SeeObject** other_parts= NULL;
+
+    self_parts = see_dynamic_array_get(self->parts, 0, error);
+    if (!self_parts)
+        return ret;
+    other_parts = see_dynamic_array_get(self->parts, 0, error);
+    if (!other_parts)
+        return ret;
+
+    for (size_t i = 0; i < npart; i++) {
+        int res;
+        ret = see_object_equal(self_parts[i], other_parts[i], &res, error);
+        if (ret != SEE_SUCCESS)
+            return ret;
+        if (!res) {
+            *result = false;
+            return SEE_SUCCESS;
+        }
+    }
+
+    *result = true;
+    return SEE_SUCCESS;
+}
+
+static int
+msg_buffer_not_equal(
+    const SeeObject*    so_self,
+    const SeeObject*    so_other,
+    int*                result,
+    SeeError**          error
+    )
+{
+    int ret, tres;
+    ret = msg_buffer_equal(so_self, so_other, &tres, error);
+    if (ret == SEE_SUCCESS)
+        *result = !tres;
+    return ret;
 }
 
 static int
@@ -1769,6 +1972,8 @@ static int see_msg_buffer_class_init(SeeObjectClass* new_cls)
     new_cls->init       = init;
     new_cls->name       = "SeeMsgBufferClass";
     new_cls->destroy    = msg_buffer_destroy;
+    new_cls->equal      = msg_buffer_equal;
+    new_cls->not_equal  = msg_buffer_not_equal;
     
     /* Set the function pointers of the own class here */
     SeeMsgBufferClass* cls  = (SeeMsgBufferClass*) new_cls;

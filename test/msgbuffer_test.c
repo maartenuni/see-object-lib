@@ -338,12 +338,12 @@ msg_buffer_buffer(void)
     void*           data_buf= NULL;
     size_t          num_parts;
 
-    int32_t  iin32    = -18,   iout32   = 0;
-    uint32_t uin32    =  18,   uout32   = 0;
-    int64_t  iin64    = -18,   iout64   = 0;
-    uint64_t uin64    = -18,   uout64   = 0;
-    float    fltin    = M_PI,  fltout   = 0.0f;
-    double   doublein = M_PI,  doubleout= 0.0f;
+    int32_t  iin32    = -18;
+    uint32_t uin32    =  18;
+    int64_t  iin64    = -18;
+    uint64_t uin64    = -18;
+    float    fltin    = M_PI;
+    double   doublein = M_PI;
 
     const char* sin = "3.141592654";
     char* sout      = NULL;
@@ -467,57 +467,35 @@ msg_buffer_buffer(void)
     SEE_UNIT_HANDLE_ERROR();
     CU_ASSERT_EQUAL(id_out, id);
 
-    // This would in theory make the manual testing below obsolete.
-    int implement_comparison_via_see_object_cmp;//()
+    // Test self comparison
+    int the_same;
+    ret = see_object_equal(
+        SEE_OBJECT(buffer),
+        SEE_OBJECT(buffer),
+        &the_same,
+        &error
+        );
+    SEE_UNIT_HANDLE_ERROR();
+    CU_ASSERT(the_same);
 
-    // test int32
-    ret = see_msg_buffer_get_part(from_buf, 0, &part, &error);
+    // Test comparison with SeeMsgBuffer constructed from buffer.
+    ret = see_object_equal(
+        SEE_OBJECT(buffer),
+        SEE_OBJECT(from_buf),
+        &the_same,
+        &error
+        );
     SEE_UNIT_HANDLE_ERROR();
-    ret = see_msg_part_get_int32(part, &iout32, &error);
-    SEE_UNIT_HANDLE_ERROR();
-    CU_ASSERT_EQUAL(iin32, iout32);
+    CU_ASSERT(the_same);
 
-    // uint32
-    ret = see_msg_buffer_get_part(from_buf, 1, &part, &error);
+    ret = see_object_not_equal(
+        SEE_OBJECT(buffer),
+        SEE_OBJECT(from_buf),
+        &the_same,
+        &error
+        );
     SEE_UNIT_HANDLE_ERROR();
-    ret = see_msg_part_get_uint32(part, &uout32, &error);
-    SEE_UNIT_HANDLE_ERROR();
-    CU_ASSERT_EQUAL(uin32, uout32);
-
-    // int64
-    ret = see_msg_buffer_get_part(from_buf, 2, &part, &error);
-    SEE_UNIT_HANDLE_ERROR();
-    ret = see_msg_part_get_int64(part, &iout64, &error);
-    SEE_UNIT_HANDLE_ERROR();
-    CU_ASSERT_EQUAL(iin64, iout64);
-
-    // uint64
-    ret = see_msg_buffer_get_part(from_buf, 3, &part, &error);
-    SEE_UNIT_HANDLE_ERROR();
-    ret = see_msg_part_get_uint64(part, &uout64, &error);
-    SEE_UNIT_HANDLE_ERROR();
-    CU_ASSERT_EQUAL(uin64, uout64);
-
-    // float
-    ret = see_msg_buffer_get_part(from_buf, 4, &part, &error);
-    SEE_UNIT_HANDLE_ERROR();
-    ret = see_msg_part_get_float(part, &fltout, &error);
-    SEE_UNIT_HANDLE_ERROR();
-    CU_ASSERT_EQUAL(fltin, fltout);
-
-    // double
-    ret = see_msg_buffer_get_part(from_buf, 5, &part, &error);
-    SEE_UNIT_HANDLE_ERROR();
-    ret = see_msg_part_get_double(part, &doubleout, &error);
-    SEE_UNIT_HANDLE_ERROR();
-    CU_ASSERT_EQUAL(doublein, doubleout);
-
-    // string
-    ret = see_msg_buffer_get_part(from_buf, 6, &part, &error);
-    SEE_UNIT_HANDLE_ERROR();
-    ret = see_msg_part_get_string(part, &sout, &error);
-    SEE_UNIT_HANDLE_ERROR();
-    CU_ASSERT_STRING_EQUAL(sin, sout);
+    CU_ASSERT_FALSE(the_same);
 
 fail:
 
