@@ -236,15 +236,21 @@ serial_read_msg(
 
     int ret = obtain_synced_msg_buffer(self, &buffer, &buf_len, error_out);
     if (ret)
-        return ret;
+        goto fail;
     assert(buffer != NULL);
 
     ret = see_msg_buffer_from_buffer(&ret_buf, buffer, buf_len, error_out);
+    if (ret)
+        goto fail;
+
     if (*msg_out) // if there is a message there drop its reference
         see_object_decref(SEE_OBJECT(*msg_out));
 
     // return the message.
     *msg_out = ret_buf;
+
+fail:
+    free(buffer);
 
     return ret;
 }

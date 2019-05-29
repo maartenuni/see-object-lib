@@ -497,6 +497,7 @@ fail:
     see_object_decref(SEE_OBJECT(d3));
     see_object_decref(SEE_OBJECT(de));
     see_object_decref(SEE_OBJECT(clk));
+    see_object_decref(SEE_OBJECT(sleep_dur));
     see_object_decref(SEE_OBJECT(error));
 }
 
