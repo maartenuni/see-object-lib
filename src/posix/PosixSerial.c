@@ -255,7 +255,7 @@ posix_serial_write(
         ;
     }
 
-    ssize_t nwritten = write(pself->fd, bytes, *length);
+    ssize_t nwritten = write(pself->fd, *bytes, *length);
     if (nwritten < 0) {
         see_runtime_error_create(error_out, errno);
         return SEE_ERROR_RUNTIME;

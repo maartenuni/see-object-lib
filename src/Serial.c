@@ -110,7 +110,7 @@ serial_write_msg(
 {
     const SeeSerialClass* cls = SEE_SERIAL_GET_CLASS(self);
     void* buffer_data = NULL;
-    char* write_ptr = buffer_data;
+    char* write_ptr = NULL;
     size_t n_to_write;
     int ret = SEE_SUCCESS;
 
@@ -118,6 +118,7 @@ serial_write_msg(
     if (ret)
         goto fail;
 
+    write_ptr = buffer_data;
     while (n_to_write) {
         ret = cls->write(self, &write_ptr, &n_to_write, error);
         if (ret)

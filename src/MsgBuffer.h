@@ -1287,6 +1287,13 @@ see_msg_buffer_get_id (
 /**
  * \brief add a MsgPart to the MsgBuffer
  *
+ * A reference to the part will be added to the SeeMsgBuffer, however,
+ * it is strongly recommended that you drop your own reference to that part,
+ * because otherwise, when the part is modified outside of the MsgBuffer,
+ * the Msg becomes invalid.
+ * So when you want to add multiple SeeMsgPart to the buffer, create a new
+ * one each time with see_msg_part_new().
+ *
  * @param [in, out]     msg
  * @param [in]          part
  * @param [out]         error_out

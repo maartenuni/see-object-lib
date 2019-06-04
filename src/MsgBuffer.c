@@ -1696,21 +1696,23 @@ msg_buffer_get_buffer(
     memcpy(&bytes[nwritten], &length_network, sizeof(length_network));
     nwritten += sizeof(length_network);
 
-    const SeeMsgPart** partarray = see_dynamic_array_get(msg->parts, 0, error_out);
-    for (size_t i = 0; i < n; ++i) {
+    if (n > 0) {
+        const SeeMsgPart **partarray = see_dynamic_array_get(msg->parts, 0, error_out);
+        for (size_t i = 0; i < n; ++i) {
 
-        size_t partsize;
-        const SeeMsgPart* part = partarray[i];
+            size_t partsize;
+            const SeeMsgPart *part = partarray[i];
 
-        ret = see_msg_part_write(part, &bytes[nwritten], error_out);
-        if (ret)
-            goto fail;
+            ret = see_msg_part_write(part, &bytes[nwritten], error_out);
+            if (ret)
+                goto fail;
 
-        ret = see_msg_part_buffer_length(part, &partsize, error_out);
-        if (ret)
-            goto fail;
+            ret = see_msg_part_buffer_length(part, &partsize, error_out);
+            if (ret)
+                goto fail;
 
-        nwritten += partsize;
+            nwritten += partsize;
+        }
     }
 
     assert(nwritten == length);
