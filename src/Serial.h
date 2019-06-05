@@ -504,7 +504,9 @@ see_serial_write (
  * \brief Read a number of bytes from the serial device.
  *
  * @param [in] self     The serial device from which you would like to read.
- * @param [in] bytes    a pointer to the bytes you want to write.
+ * @param [in] bytes    A pointer to a pointer to the bytes you want to read.
+ *                      The pointer to the bytes will be incremented by the
+ *                      number of bytes actually read.
  * @param [in] length   The number of bytes you want to read. The number of
  *                      bytes that are actually read are returned here.
  * @param [out]error_out If an error occurs it will be returned here.
@@ -514,7 +516,7 @@ see_serial_write (
 SEE_EXPORT int
 see_serial_read (
     const SeeSerial*    self,
-    void*               buffer,
+    char**              buffer,
     size_t*             length,
     SeeError**          out
     );

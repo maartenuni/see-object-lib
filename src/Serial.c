@@ -337,7 +337,7 @@ int see_serial_write(
 
 int see_serial_read(
     const SeeSerial*    self,
-    void*               bytes,
+    char**              bytes,
     size_t*             length,
     SeeError**          error_out
     )
