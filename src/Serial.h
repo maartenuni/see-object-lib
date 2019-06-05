@@ -479,16 +479,44 @@ see_serial_open(
 /**
  * \brief Write a number of bytes to the serial device.
  *
- * @param [in]      self        The serial device to which you would like to write.
- * @param [in]      bytes       A reference to a pointer that points to const
- *                              char. The pointer see_serial_write has a reference
- *                              to is incremented after the call in such way
- *                              that it will point to the first character it didn't
- *                              write to.
- * @param [in,out]  length      The number of bytes that still need to be written.
- *                              The number of bytes written will be returned
- *                              here.
- * @param [out]     error_out   If an error occurs it will be returned here.
+ * This function takes an already opened serial device, and it writes some
+ * bytes for the OS to transfer over the serial connection. Each time the function
+ * is called the the start will point to the next byte that should be transferred
+ * It is not possible to tell how many bytes the OS accepts hence, generally
+ * this function is called in a loop until all bytes are written. So in the
+ * example below end n_to_read should be 0 and start should point to the
+ * terminating '\0' byte.
+ *
+ * @code{.c}
+ *
+ * int ret;
+ * SeeSerial* serial = NULL;
+ * SeeError*  error  = NULL;
+ * const char* hello = "Hello, World!\n";
+ *
+ * // Create and Open serial device (not shown)
+ *
+ * size_t n_to_read = strlen(hello);
+ * char* start = &hello[0];
+ * while(n_to_read) {
+ *     ret = see_serial_write(serial, &start, &n_to_read, &error)
+ *     if (ret)
+ *         return ret;
+ * }
+ *
+ * @endcode
+ *
+ * @param [in]      self      The serial device to which you would like to write.
+ * @param [in,out]  bytes     A reference to a pointer that points to const
+ *                            char. The pointer see_serial_write has a reference
+ *                            to is incremented after the call in such way
+ *                            that it will point to the first character it didn't
+ *                            write to.
+ * @param [in,out]  length    The number of bytes that still need to be written.
+ *                            The number of bytes written will be returned
+ *                            here.
+ * @param [out]     error_out If an error occurs it will be returned here.
+ *
  *
  * @return  SEE_SUCCESS, SEE_ERROR_RUNTIME
  */
@@ -503,13 +531,40 @@ see_serial_write (
 /**
  * \brief Read a number of bytes from the serial device.
  *
- * @param [in] self     The serial device from which you would like to read.
- * @param [in] bytes    A pointer to a pointer to the bytes you want to read.
- *                      The pointer to the bytes will be incremented by the
- *                      number of bytes actually read.
- * @param [in] length   The number of bytes you want to read. The number of
- *                      bytes that are actually read are returned here.
- * @param [out]error_out If an error occurs it will be returned here.
+ * This function takes an already opened serial device, and it reads some
+ * bytes from the serial connection. Each time the function is called the the
+ * start will point to the next byte that should be written to. It is not
+ * possible to tell how many bytes the OS has received, hence, generally
+ * this function is called in a loop until all bytes are read. So in the
+ * example below end n_to_read should be 0 and start should point to the
+ * terminating '\0' byte.
+ *
+ * @param [in] self        The serial device from which you would like to read.
+ * @param [in,out] bytes   A pointer to a pointer to the bytes you want to read.
+ *                         The pointer to the bytes will be incremented by the
+ *                         number of bytes actually read.
+ * @param [in,out] length  The number of bytes you want to read. The number of
+ *                         bytes that are actually read are returned here.
+ * @param [out]error_out   If an error occurs it will be returned here.
+ *
+ * @code{.c}
+ *
+ * int ret;
+ * SeeSerial* serial = NULL;
+ * SeeError*  error  = NULL;
+ * char buffer[BUFSIZ];
+ *
+ * // Create and Open serial device (not shown)
+ *
+ * size_t n_to_read = BUFSIZ;
+ * char* start = &buffer[0];
+ * while(n_to_read) {
+ *     ret = see_serial_read(serial, &start, &n_to_read, &error)
+ *     if (ret)
+ *         return ret;
+ * }
+ *
+ * @endcode
  *
  * @return  SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_ERROR_RUNTIME,
  */
