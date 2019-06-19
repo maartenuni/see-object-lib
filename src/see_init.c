@@ -25,6 +25,7 @@
 #include "MetaClass.h"
 #include "see_init.h"
 #include "Clock.h"
+#include "CopyError.h"
 #include "Duration.h"
 #include "DynamicArray.h"
 #include "Error.h"
@@ -84,6 +85,10 @@ initialize() {
 
     // Initialize the other objects.
     ret = see_clock_init();
+    if (ret)
+        return ret;
+
+    ret = see_copy_error_init();
     if (ret)
         return ret;
 
@@ -157,6 +162,7 @@ static void
 deinit()
 {
     see_clock_deinit();
+    see_copy_error_deinit();
     see_duration_deinit();
     see_dynamic_array_deinit();
     see_error_deinit();
