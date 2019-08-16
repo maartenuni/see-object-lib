@@ -19,6 +19,7 @@
 #include "MetaClass.h"
 #include "CopyError.h"
 #include "Error.h"
+#include "atomic_operations.h"
 
 #include <stdio.h>
 #include <assert.h>
@@ -96,6 +97,8 @@ see_copy_error_new(SeeError** error, const SeeObjectClass* instance_cls)
 
 SeeCopyErrorClass* g_SeeCopyErrorClass = NULL;
 
+int g_copy_error_initialize = 0;
+
 static int see_copy_error_class_init(SeeObjectClass* new_cls)
 {
     int ret = SEE_SUCCESS;
@@ -120,19 +123,38 @@ int
 see_copy_error_init()
 {
     int ret;
-    const SeeMetaClass* meta = see_meta_class_class();
+    if (g_SeeCopyErrorClass)
+        return SEE_SUCCESS;
 
-    ret = see_meta_class_new_class(
-        meta,
-        (SeeObjectClass**) &g_SeeCopyErrorClass,
-        sizeof(SeeCopyErrorClass),
-        sizeof(SeeCopyError),
-        SEE_OBJECT_CLASS(see_error_class()),
-        sizeof(SeeErrorClass),
-        see_copy_error_class_init
-        );
+    int init = see_atomic_increment(&g_copy_error_initialize);
 
-    return ret;
+    if (init == 1) { // It's our job to initialize the class.
+        const SeeMetaClass* meta = see_meta_class_class();
+
+        const SeeObjectClass *parent = SEE_OBJECT_CLASS(see_error_class());
+        if (!parent)
+            see_error_init();
+
+        parent = SEE_OBJECT_CLASS(see_error_class());
+        assert(parent);
+
+        ret = see_meta_class_new_class(
+            meta,
+            (SeeObjectClass **) &g_SeeCopyErrorClass,
+            sizeof(SeeCopyErrorClass),
+            sizeof(SeeCopyError),
+            SEE_OBJECT_CLASS(see_error_class()),
+            sizeof(SeeErrorClass),
+            see_copy_error_class_init
+            );
+    }
+
+    see_atomic_decrement(&g_copy_error_initialize);
+
+    while (g_copy_error_initialize != 0) // Something is still initializing
+        ; // TODO It would be better to yield the processor for other threads.
+
+    return g_SeeCopyErrorClass != NULL ? SEE_SUCCESS : SEE_NOT_INITIALIZED;
 }
 
 void
