@@ -43,3 +43,8 @@ int see_sleep_until(const SeeTimePoint* tp)
     return SEE_SUCCESS;
 }
 
+void see_yield()
+{
+    std::this_thread::yield();
+}
+

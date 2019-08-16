@@ -151,6 +151,10 @@ SEE_EXPORT int see_sleep(const SeeDuration* dur);
  */
 SEE_EXPORT int see_sleep_until(const SeeTimePoint* tp);
 
+/**
+ * \brief Allows the scheduler to start another thread with similar priority
+ */
+SEE_EXPORT void see_yield();
 
 #ifdef __cplusplus
 }

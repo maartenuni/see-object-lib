@@ -28,6 +28,7 @@
 #include "MetaClass.h"
 #include "Error.h"
 #include "atomic_operations.h"
+#include "utilities.h"
 
 /* **** functions that implement SeeError or override SeeObject **** */
 
@@ -228,7 +229,7 @@ see_error_init() {
 
     while (see_atomic_fetch(&g_error_initialize) != 0)
         // Something is still initializing
-        ; // TODO It would be better to yield the processor for other threads.
+        see_yield();
 
     return ret;
 }
