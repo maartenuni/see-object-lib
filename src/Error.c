@@ -226,7 +226,8 @@ see_error_init() {
 
     see_atomic_decrement(&g_error_initialize);
 
-    while (g_error_initialize != 0) // Something is still initializing
+    while (see_atomic_fetch(&g_error_initialize) != 0)
+        // Something is still initializing
         ; // TODO It would be better to yield the processor for other threads.
 
     return ret;
