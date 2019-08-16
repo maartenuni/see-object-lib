@@ -21,6 +21,7 @@
 
 #include "../src/SeeObject.h"
 #include "../src/TimePoint.h"
+#include "../src/CopyError.h"
 
 static const char* SUITE_NAME = "SeeObject suite";
 
@@ -149,6 +150,36 @@ fail:
 
 }
 
+void copy(void)
+{
+    SeeObject* obj  = NULL;
+    SeeObject* copy = NULL;
+    SeeError*  error= NULL;
+    int ret, isinst;
+
+    obj = see_object_create();
+    CU_ASSERT(obj);
+    if (!obj)
+        return;
+
+    ret = see_object_copy(obj, &copy, &error);
+    CU_ASSERT_EQUAL(ret, SEE_ERROR_NOT_COPYABLE);
+    ret = see_object_is_instance_of(
+        error,
+        SEE_OBJECT_CLASS(see_copy_error_class()),
+        &isinst
+        );
+    CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
+    CU_ASSERT(isinst);
+
+fail:
+    see_object_decref(obj);
+    see_object_decref(copy);
+    see_object_decref(error);
+
+
+}
+
 
 int add_see_object_suite(void)
 {
@@ -183,6 +214,16 @@ int add_see_object_suite(void)
     }
 
     test = CU_add_test(suite, "instance_of", instance_of);
+    if (!test) {
+        fprintf(stderr,
+                "Unable to create test %s:%s\n ",
+                SUITE_NAME,
+                CU_get_error_msg()
+        );
+        return CU_get_error();
+    }
+
+    test = CU_add_test(suite, "copy", copy);
     if (!test) {
         fprintf(stderr,
                 "Unable to create test %s:%s\n ",

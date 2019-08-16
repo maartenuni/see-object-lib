@@ -27,6 +27,7 @@
 
 #include "MetaClass.h"
 #include "Error.h"
+#include "atomic_operations.h"
 
 /* **** functions that implement SeeError or override SeeObject **** */
 
@@ -166,6 +167,7 @@ see_error_set_msg(SeeError* error, const char* msg)
 /* **** initialization of the class **** */
 
 SeeErrorClass* g_SeeErrorClass = NULL;
+int g_error_initialize = 0;
 
 static int
 see_error_class_init(SeeObjectClass* new_cls)
@@ -195,17 +197,37 @@ see_error_class_init(SeeObjectClass* new_cls)
 int
 see_error_init() {
     int ret;
-    const SeeMetaClass* meta = see_meta_class_class();
 
-    ret = see_meta_class_new_class(
-        meta,
-        (SeeObjectClass**) &g_SeeErrorClass,
-        sizeof(SeeErrorClass),
-        sizeof(SeeError),
-        see_object_class(),
-        sizeof(SeeObjectClass),
-        see_error_class_init
+    if (g_SeeErrorClass)
+        return SEE_SUCCESS;
+
+    int init = see_atomic_increment(&g_error_initialize);
+
+    if (init == 1) {
+        const SeeMetaClass *meta = see_meta_class_class();
+
+        // No need to initialize SeeObjectClass, since it is initialized by default.
+        //const SeeObjectClass *parent = SEE_OBJECT_CLASS(see_object_class());
+        //if (!parent)
+        //    see_error_init();
+
+        const SeeObjectClass* parent = see_object_class();
+
+        ret = see_meta_class_new_class(
+            meta,
+            (SeeObjectClass **) &g_SeeErrorClass,
+            sizeof(SeeErrorClass),
+            sizeof(SeeError),
+            parent,
+            sizeof(SeeObjectClass),
+            see_error_class_init
         );
+    }
+
+    see_atomic_decrement(&g_error_initialize);
+
+    while (g_error_initialize != 0) // Something is still initializing
+        ; // TODO It would be better to yield the processor for other threads.
 
     return ret;
 }

@@ -18,6 +18,7 @@ set (SEE_OBJ_SRC
     see_functions.c
     see_init.c
     Clock.cpp
+    CopyError.c
     DynamicArray.c
     Duration.cpp
     Error.c
@@ -39,6 +40,7 @@ set (SEE_OBJ_HDR_PUBLIC
     errors.h
     see_functions.h
     Clock.h
+    CopyError.h
     DynamicArray.h
     Duration.h
     Error.h

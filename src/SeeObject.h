@@ -426,6 +426,33 @@ struct _SeeObjectClass {
         int*                result,
         struct SeeError**   error
         );
+
+    /**
+     * \brief Create a new copy from self.
+     *
+     * Once a ObjectClass implements this function, the instances of this class
+     * become copyable. By default, SeeObjects are not copyable, that is See
+     * Object itself doesn't define it. What needs to be done is to create a new
+     * instance of a class whose reference count is 1 and whose class points to
+     * the right class.
+     * Once a new object is created, the copy function should copy all the
+     * members of the class instance to the new instance. If the class derives
+     * from a copyable class, this should be done by calling the super class'
+     * copy function and copy the members that extend the base class.
+     * A class is free to "delete" the copy function, however, this should be
+     * very rare. Generally when a class is copyable, its derived classes should
+     * also be copyable.
+     *
+     * @param self
+     * @param out
+     * @param error_out
+     * @return
+     */
+    int (*copy) (
+        const SeeObject*    self,
+        SeeObject**         out,
+        struct SeeError**   error_out
+        );
 };
 
 /**
@@ -715,6 +742,26 @@ see_object_greater (
     struct SeeError**   error
     );
 
+/**
+ * \brief Copy a SeeObject if it is copyable.
+ *
+ * Not all see objects are copyable, in order to be copyable the class shall
+ * implement the SeeObjectClass->copy method. If it does not, the class should
+ * be considered not copyable.
+ *
+ * @param [in]  obj       The object that should be copied.
+ * @param [out] out       A pointer to a SeeObjectPointer, When everything goes
+ *                        successfully, a new object is returned
+ * @param [out] error_out If an error occurs it will be returned here.
+ *
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT SEE_ERROR_NOT_COPYABLE
+ */
+SEE_EXPORT int
+see_object_copy (
+    const SeeObject*    obj,
+    SeeObject**         out,
+    struct SeeError**   error_out
+    );
 
 /**
  * \brief Examine whether this instance is of a given class.
@@ -735,6 +782,8 @@ SEE_EXPORT int see_object_is_instance_of(
     const SeeObjectClass*   cls,
     int*                    result
     );
+
+
 
 /* **** class management **** */
 
