@@ -72,7 +72,7 @@ init(const SeeObjectClass* cls, SeeObject* obj, va_list args)
         );
 }
 
-void
+static void
 time_point_destroy(SeeObject* self)
 {
 
@@ -82,7 +82,8 @@ time_point_destroy(SeeObject* self)
     see_object_class()->destroy(self);
 }
 
-int time_point_compare(
+static int
+time_point_compare(
     const SeeObject* self,
     const SeeObject* other,
     int*             result,
@@ -146,7 +147,35 @@ int time_point_compare(
     return ret;
 }
 
-int
+static int
+time_point_copy(
+    const SeeObject* tpself,
+    SeeObject** tpout,
+    SeeError** error_out
+    )
+{
+    int ret;
+    const SeeTimePoint* self = (const SeeTimePoint*) SEE_TIME_POINT(tpself);
+    SeeTimePoint* out = nullptr;
+
+    if (!tpself || !tpout || !error_out || *error_out)
+        return SEE_INVALID_ARGUMENT;
+
+    ret = see_time_point_new(&out, error_out);
+    if (ret)
+        return ret;
+
+    *static_cast<TimePoint*>(out->priv_time) =
+        *static_cast<TimePoint*>(self->priv_time);
+
+    if (*tpout)
+        see_object_decref(*tpout);
+    *tpout = SEE_OBJECT(out);
+
+    return ret;
+}
+
+static int
 time_point_add_dur(
     const SeeTimePoint* self,
     const SeeDuration*  dur,
@@ -453,6 +482,7 @@ static int see_time_point_class_init(SeeObjectClass* new_cls)
     new_cls->init       = init;
     new_cls->destroy    = time_point_destroy;
     new_cls->compare    = time_point_compare;
+    new_cls->copy       = time_point_copy;
     
     /* Set the function pointers of the own class here */
     SeeTimePointClass* cls = (SeeTimePointClass*) new_cls;

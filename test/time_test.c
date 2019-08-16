@@ -207,6 +207,43 @@ fail:
     see_object_decref(SEE_OBJECT(dur));
 }
 
+void time_point_copy(void) {
+    SeeClock *clk = NULL;
+    SeeError *error = NULL;
+    SeeTimePoint *tstart = NULL, *tcopy = NULL;
+    int equal;
+
+    int ret = see_clock_new(&clk, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_clock_time(clk, &tstart, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_object_copy(
+        SEE_OBJECT(tstart),
+        SEE_OBJECT_REF(&tcopy),
+        &error
+        );
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_object_equal(
+        SEE_OBJECT(tstart),
+        SEE_OBJECT(tcopy),
+        &equal,
+        &error
+        );
+    SEE_UNIT_HANDLE_ERROR();
+    CU_ASSERT_NOT_EQUAL(equal, 0);
+    CU_ASSERT_NOT_EQUAL(tcopy, tstart);
+
+fail:
+
+    see_object_decref(SEE_OBJECT(clk));
+    see_object_decref(SEE_OBJECT(tstart));
+    see_object_decref(SEE_OBJECT(tcopy));
+}
+
+
 #define UNIT_HANDLE_ERROR()                                 \
     if (ret != SEE_SUCCESS) {                               \
         CU_ASSERT(ret == SEE_SUCCESS);                      \
@@ -665,6 +702,7 @@ int add_time_suite()
     SEE_UNIT_TEST_CREATE(duration_copy);
     SEE_UNIT_TEST_CREATE(time_point_create);
     SEE_UNIT_TEST_CREATE(clock_use);
+    SEE_UNIT_TEST_CREATE(time_point_copy);
     SEE_UNIT_TEST_CREATE(dur_init);
     SEE_UNIT_TEST_CREATE(time_comparison);
     SEE_UNIT_TEST_CREATE(time_calculations);
