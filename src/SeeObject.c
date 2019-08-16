@@ -554,7 +554,7 @@ see_object_copy(
     SeeError**          error_out
     )
 {
-    if (!self || !out || *out)
+    if (!self || !out)
         return SEE_INVALID_ARGUMENT;
 
     if (!error_out || *error_out)

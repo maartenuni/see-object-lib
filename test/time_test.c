@@ -45,7 +45,7 @@ void clock_create(void)
     see_object_decref(SEE_OBJECT(clk));
 }
 
-void duration_create(void)
+static void duration_create(void)
 {
     int ret;
     SeeDuration* dur = NULL;
@@ -65,6 +65,47 @@ void duration_create(void)
     CU_ASSERT_PTR_NULL(error);
     CU_ASSERT_PTR_NOT_NULL(dur);
     see_object_decref(SEE_OBJECT(dur));
+}
+
+static void duration_copy(void)
+{
+    int ret, equal;
+    SeeDuration* dur, *copy, * one_ms;
+    SeeError* error = NULL;
+    dur = copy = one_ms = NULL;
+
+    ret = see_duration_new_ms(&one_ms, 1, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_duration_new_ns(&dur, 1234567, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_object_copy(SEE_OBJECT(dur), SEE_OBJECT_REF(&copy), &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_object_equal(SEE_OBJECT(dur), SEE_OBJECT(copy), &equal, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    CU_ASSERT_NOT_EQUAL(dur, copy);
+    CU_ASSERT_NOT_EQUAL(equal, 0);
+
+    ret = see_duration_set(dur, one_ms, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_object_copy(SEE_OBJECT(dur), SEE_OBJECT_REF(&copy), &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_object_equal(SEE_OBJECT(dur), SEE_OBJECT(copy), &equal, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    CU_ASSERT_NOT_EQUAL(dur, copy);
+    CU_ASSERT_NOT_EQUAL(equal, 0);
+
+fail:
+    see_object_decref(SEE_OBJECT(dur));
+    see_object_decref(SEE_OBJECT(copy));
+    see_object_decref(SEE_OBJECT(one_ms));
+    see_object_decref(SEE_OBJECT(error));
 }
 
 void time_point_create(void)
@@ -621,6 +662,7 @@ int add_time_suite()
     SEE_UNIT_SUITE_CREATE(NULL, NULL);
     SEE_UNIT_TEST_CREATE(clock_create);
     SEE_UNIT_TEST_CREATE(duration_create);
+    SEE_UNIT_TEST_CREATE(duration_copy);
     SEE_UNIT_TEST_CREATE(time_point_create);
     SEE_UNIT_TEST_CREATE(clock_use);
     SEE_UNIT_TEST_CREATE(dur_init);

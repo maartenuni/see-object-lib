@@ -443,10 +443,13 @@ struct _SeeObjectClass {
      * very rare. Generally when a class is copyable, its derived classes should
      * also be copyable.
      *
-     * @param self
-     * @param out
-     * @param error_out
-     * @return
+     * @param [in] self The SeeObject that should be copied, may not be NULL.
+     * @param [out]out  May not be NULL *out should point to a valid SeeObject
+     *                  or point to null, if it point to a valid object, the
+     *                  reference count of that object should be decremented.
+     * @param [out] error_out May not be NULL, whereas *error_out should be NULL.
+     *
+     * @return SEE_SUCCESS when everything went alright.
      */
     int (*copy) (
         const SeeObject*    self,
