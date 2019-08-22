@@ -89,6 +89,8 @@ duration_destroy(SeeObject* self)
     see_object_class()->destroy(self);
 }
 
+
+
 static int
 duration_compare(
     const SeeObject* self,
@@ -142,6 +144,32 @@ duration_compare(
         *result = 1;
 
     return SEE_SUCCESS;
+}
+
+static int
+duration_copy(
+    const SeeObject* dur_in,
+    SeeObject**      dur_out,
+    SeeError**       error_out
+)
+{
+    int ret;
+    int64_t nanos;
+    SeeDuration* out = NULL;
+    if (!dur_in || !dur_out || !error_out || *error_out)
+        return SEE_INVALID_ARGUMENT;
+
+    nanos = see_duration_nanos(SEE_DURATION(dur_in));
+
+    ret = see_duration_new_ns(&out, nanos, error_out);
+    if (ret)
+        return ret;
+
+    if (*dur_out)
+        see_object_decref(*dur_out);
+
+    *dur_out = SEE_OBJECT(out);
+    return ret;
 }
 
 /* **** implementation of the public API **** */
@@ -318,8 +346,6 @@ see_duration_sub(
     return ret;
 }
 
-
-
 double see_duration_seconds_f(const SeeDuration* self)
 {
     Duration* d = static_cast<Duration*>(self->priv_dur);
@@ -350,7 +376,6 @@ int64_t see_duration_nanos(const SeeDuration* self)
     return d->nanos();
 }
 
-
 /* **** initialization of the class **** */
 
 SeeDurationClass* g_SeeDurationClass = NULL;
@@ -364,6 +389,7 @@ static int see_duration_class_init(SeeObjectClass* new_cls)
     new_cls->name       = "Duration";
     new_cls->destroy    = duration_destroy;
     new_cls->compare    = duration_compare;
+    new_cls->copy       = duration_copy;
 
     /* Set the function pointers of the own class here */
     SeeDurationClass* cls = (SeeDurationClass*) new_cls;

@@ -33,6 +33,7 @@
 #include "atomic_operations.h"
 #include "errors.h"
 #include "IncomparableError.h"
+#include "CopyError.h"
 
 /* **** implementation of SeeObjects **** */
 
@@ -334,7 +335,8 @@ static const SeeObjectClass g_class = {
     .equal      = object_equal,
     .not_equal  = object_not_equal,
     .greater_equal = object_greater_equal,
-    .greater    = object_greater
+    .greater    = object_greater,
+    .copy       = NULL
 };
 
 static const SeeObjectClass* see_object_class_instance = &g_class;
@@ -543,6 +545,29 @@ see_object_greater(
     const SeeObjectClass* cls = see_object_get_class(self);
 
     return cls->greater(self, other, result, error);
+}
+
+int
+see_object_copy(
+    const SeeObject*    self,
+    SeeObject**         out,
+    SeeError**          error_out
+    )
+{
+    if (!self || !out)
+        return SEE_INVALID_ARGUMENT;
+
+    if (!error_out || *error_out)
+        return SEE_INVALID_ARGUMENT;
+
+    const SeeObjectClass* cls = SEE_OBJECT_GET_CLASS(self);
+
+    if (cls->copy)
+        return cls->copy(self, out, error_out);
+
+    see_copy_error_new(error_out, cls);
+
+    return SEE_ERROR_NOT_COPYABLE;
 }
 
 int

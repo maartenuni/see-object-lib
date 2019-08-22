@@ -65,3 +65,9 @@ int see_atomic_decrement_by(int* val, int n)
 #error Unable to impletent atomic decrement
 #endif
 }
+
+int see_atomic_fetch(int* val)
+{
+    int retval = see_atomic_increment_by(val, 0);
+    return retval;
+}

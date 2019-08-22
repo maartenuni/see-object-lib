@@ -66,6 +66,7 @@ dynamic_array_init(
     SeeError**                  error
     )
 {
+    (void) error;
     const SeeObjectClass* obj_cls = SEE_OBJECT_CLASS(cls);
     obj_cls->object_init(SEE_OBJECT(array), obj_cls);
 
@@ -127,6 +128,51 @@ dynamic_array_destroy(SeeObject* obj)
 }
 
 static int
+see_dynamic_array_copy(
+    const SeeObject* array_in,
+    SeeObject**      array_out,
+    SeeError**       error_out
+    )
+{
+    int ret;
+    const SeeDynamicArray* a_in = SEE_DYNAMIC_ARRAY(array_in);
+    SeeDynamicArray* out = NULL;
+    size_t size;
+    if (!array_in || !array_out || !error_out || *error_out)
+        return SEE_INVALID_ARGUMENT;
+
+    ret = see_dynamic_array_new_capacity(
+        &out,
+        a_in->element_size,
+        a_in->copy_element,
+        a_in->init_element,
+        a_in->free_element,
+        a_in->size,
+        error_out
+        );
+    if (ret)
+        goto fail;
+
+    size = see_dynamic_array_size(a_in);
+    for (size_t i = 0; i < size; i++) {
+        const void* element = ARRAY_ELEM_ADDRESS(a_in, i);
+        ret = see_dynamic_array_add(out, element, error_out);
+        if (ret)
+            goto fail;
+    }
+
+    if (*array_out)
+        see_object_decref(*array_out);
+
+    *array_out = SEE_OBJECT(out);
+    return ret;
+
+fail:
+    see_object_decref(SEE_OBJECT(out));
+    return ret;
+}
+
+static int
 array_set(
     SeeDynamicArray*    array,
     size_t              pos,
@@ -139,7 +185,7 @@ array_set(
         char *elem = ARRAY_ELEM_ADDRESS(array, pos);
         if (array->free_element)
             array->free_element(*((char **) elem));
-        memcpy(elem, element, array->element_size);
+        array->copy_element(elem, element, array->element_size);
     }
     else {
         see_index_error_create(error, pos);
@@ -562,6 +608,7 @@ static int see_dynamic_array_class_init(SeeObjectClass* new_cls) {
 	new_cls->name	= "SeeDynamicArray";
     new_cls->init   = init;
     new_cls->destroy= dynamic_array_destroy;
+    new_cls->copy   = see_dynamic_array_copy;
     /* Set the function pointers of the own class here */
     SeeDynamicArrayClass* cls = (SeeDynamicArrayClass*) new_cls;
     cls->array_init = dynamic_array_init;

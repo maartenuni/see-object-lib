@@ -107,6 +107,59 @@ static void array_create_capacity(void)
     see_object_decref(SEE_OBJECT(error));
 }
 
+static void array_copy(void)
+{
+    const size_t sz = 10;
+    SeeDynamicArray* array = NULL, *copy = NULL;
+    SeeError* error = NULL;
+    int ret, array_equal_size, array_elements_equal;
+
+    ret = see_dynamic_array_new_capacity(
+        &array,
+        sizeof(int),
+        NULL,
+        see_init_memset,
+        NULL,
+        sz,
+        &error
+        );
+    SEE_UNIT_HANDLE_ERROR();
+
+    for (int i = 0; (size_t) i < sz; i++) {
+        ret = see_dynamic_array_add(array, &i, &error);
+        if(ret) {
+            CU_ASSERT(ret == SEE_SUCCESS)
+            goto fail;
+        }
+    }
+
+    see_object_copy(SEE_OBJECT(array), SEE_OBJECT_REF(&copy), &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    array_equal_size =
+        see_dynamic_array_size(array) == see_dynamic_array_size(copy);
+    CU_ASSERT(array_equal_size)
+
+    int* array_ptr = see_dynamic_array_get(array, 0, &error);
+    int* copy_ptr  = see_dynamic_array_get(copy, 0, &error);
+    CU_ASSERT(array_ptr != NULL)
+    CU_ASSERT(copy_ptr != NULL)
+    CU_ASSERT_NOT_EQUAL(array_ptr, copy_ptr)
+    if (copy_ptr == NULL || array_ptr == NULL)
+        goto fail;
+
+    array_elements_equal = 1;
+    for (size_t i = 0; i < see_dynamic_array_size(copy); i++) {
+        if (array_ptr[i] != copy_ptr[i])
+            array_elements_equal = 0;
+    }
+    CU_ASSERT_EQUAL(array_elements_equal, 1)
+
+fail:
+    see_object_decref(SEE_OBJECT(array));
+    see_object_decref(SEE_OBJECT(copy));
+}
+
 
 static void array_add(void)
 {
@@ -377,6 +430,7 @@ int add_dynamic_array_suite()
 {
     SEE_UNIT_SUITE_CREATE(NULL, NULL);
     SEE_UNIT_TEST_CREATE(array_create);
+    SEE_UNIT_TEST_CREATE(array_copy);
     SEE_UNIT_TEST_CREATE(array_create_capacity);
     SEE_UNIT_TEST_CREATE(array_add);
     SEE_UNIT_TEST_CREATE(array_set);

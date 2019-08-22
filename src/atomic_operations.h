@@ -81,6 +81,18 @@ SEE_EXPORT int see_atomic_increment_by(int* val, int n);
 SEE_EXPORT int see_atomic_decrement_by(int* val, int n);
 
 
+/**
+ * Fetches an integer atomically.
+ *
+ * If an int is not aligned to platform specific an int might not be
+ * read atomically, other platforms might not support it at all.
+ * This function will read the value atomically.
+ *
+ * @return *val atomically.
+ */
+SEE_EXPORT int
+see_atomic_fetch(int* val);
+
 #ifdef __cplusplus
 }
 #endif
