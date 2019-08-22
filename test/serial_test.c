@@ -50,6 +50,7 @@ void serial_use_unopened(void)
     SeeError*  error    = NULL;
 
     char buffer[] = "Hello serial world.";
+    char read_buf[1024];
     size_t bufsz = sizeof(buffer);
 
     int ret = see_serial_new(&serial, &error);
@@ -82,7 +83,8 @@ void serial_use_unopened(void)
     }
 
     bufsz = sizeof(buffer);
-    ret = see_serial_read(serial, buffer, &bufsz, &error);
+    char** buf_ptr_ref = &read_buf;
+    ret = see_serial_read(serial, buf_ptr_ref, &bufsz, &error);
     CU_ASSERT_EQUAL(ret, SEE_ERROR_RUNTIME);
 #if HAVE_WINDOWS_H
     CU_ASSERT_EQUAL(
