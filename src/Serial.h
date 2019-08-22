@@ -39,9 +39,15 @@
 extern "C" {
 #endif
 
+/**
+ * \brief Determine whether you want to read from in or output or both.
+ */
 typedef enum see_serial_dir {
+    /** Specifies the input. */
     SEE_SERIAL_INPUT    = 1u << 0u,
+    /** Specifies output. */
     SEE_SERIAL_OUTPUT   = 1u << 1u,
+    /* Specifies both in and output. */
     SEE_SERIAL_INOUT    = SEE_SERIAL_INPUT | SEE_SERIAL_OUTPUT
 } see_serial_dir_t;
 

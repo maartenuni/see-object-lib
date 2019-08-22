@@ -16,6 +16,13 @@
  */
 
 
+/**
+ * \file Serial.c
+ * \brief Implements the base class of the Serial devices.
+ *
+ * \private
+ */
+
 #include <assert.h>
 #include <string.h>
 #include <errno.h>

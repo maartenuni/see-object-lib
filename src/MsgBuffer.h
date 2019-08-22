@@ -100,8 +100,9 @@ extern "C" {
  *
  * One shouldn't use these values directly, they are used internally to indicate
  * what type of content the packets contain.
- *
- * \private
+ * You can actually use these values in order to see what type of payload
+ * the message contains. Generally however, the message-id should predefine
+ * the messages send, and then there is no need to do this.
  */
 typedef enum msg_part_value_t {
     /**
