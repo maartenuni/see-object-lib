@@ -45,7 +45,7 @@
 
 
 /**
- * The start of each message. This can be used to syncronise with a bytestream.
+ * The start of each message. This can be used to synchronize with a bytestream.
  */
 const char* g_see_msg_start = "SMSG";
 
@@ -226,6 +226,86 @@ msg_part_not_equal(
 }
 
 static int
+msg_part_copy(
+    const SeeObject* part_in,
+    SeeObject**      part_out,
+    SeeError**       error_out
+    )
+{
+    int ret;
+    SeeMsgPart*         out = NULL;
+    const SeeMsgPart*   in = (const void*) part_in;
+
+    uint8_t     value_type;
+
+    ret = see_msg_part_new(&out, error_out);
+    if (ret)
+        goto fail;
+
+    ret = see_msg_part_value_type(in, &value_type);
+    if (ret)
+        goto fail;
+
+    switch (value_type) {
+        case SEE_MSG_PART_INT32_T:
+            ret = see_msg_part_get_int32(in, &out->value.int32_val, error_out);
+            if (ret)
+                goto fail;
+            break;
+        case SEE_MSG_PART_UINT32_T:
+            ret = see_msg_part_get_uint32(in, &out->value.uint32_val, error_out);
+            if (ret)
+                goto fail;
+            break;
+        case SEE_MSG_PART_INT64_T:
+            ret = see_msg_part_get_int64(in, &out->value.int64_val, error_out);
+            if (ret)
+                goto fail;
+            break;
+        case SEE_MSG_PART_UINT64_T:
+            ret = see_msg_part_get_uint64(in, &out->value.uint64_val, error_out);
+            if (ret)
+                goto fail;
+            break;
+        case SEE_MSG_PART_STRING_T:
+            ret = see_msg_part_get_string(in, &out->value.str_val, error_out);
+            if (ret)
+                goto fail;
+            break;
+        case SEE_MSG_PART_FLOAT_T:
+            ret = see_msg_part_get_float(in, &out->value.float_val, error_out);
+            if (ret)
+                goto fail;
+            break;
+        case SEE_MSG_PART_DOUBLE_T:
+            ret = see_msg_part_get_double(in, &out->value.double_val, error_out);
+            if (ret)
+                goto fail;
+            break;
+        case SEE_MSG_PART_NOT_INIT:
+            // just leave the output uninitialized as well.
+            break;
+        default:
+            see_error_new_msg(error_out, "SeeMsgPart has unexpected type.");
+            ret = SEE_ERROR_UNEXPECTED;
+            goto fail;
+    }
+    out->value_type = value_type;
+    out->length     = in->length;
+
+    if (*part_out)
+        see_object_decref(SEE_OBJECT(*part_out));
+
+    *part_out = SEE_OBJECT(out);
+
+    return ret;
+
+fail:
+    see_object_decref(SEE_OBJECT(out));
+    return ret;
+}
+
+static int
 msg_part_length(
     const SeeMsgPart*   part,
     uint32_t*           size,
@@ -282,7 +362,8 @@ msg_part_write_int32 (
     )
 {
     (void) error_out;
-    msg_part_destroy_content(part);
+    if(part->value_type != SEE_MSG_PART_NOT_INIT)
+        msg_part_destroy_content(part);
 
     part->value_type        = SEE_MSG_PART_INT32_T;
     part->value.int32_val   = value;
@@ -323,7 +404,8 @@ msg_part_write_uint32(
 {
     (void) error_out;
 
-    msg_part_destroy_content(part);
+    if(part->value_type != SEE_MSG_PART_NOT_INIT)
+        msg_part_destroy_content(part);
 
     part->value_type        = SEE_MSG_PART_UINT32_T;
     part->value.uint32_val  = value;
@@ -364,7 +446,8 @@ msg_part_write_int64(
 {
     (void) error_out;
 
-    msg_part_destroy_content(part);
+    if(part->value_type != SEE_MSG_PART_NOT_INIT)
+        msg_part_destroy_content(part);
 
     part->value_type        = SEE_MSG_PART_INT64_T;
     part->value.int64_val   = value;
@@ -404,6 +487,8 @@ msg_part_write_uint64(
     )
 {
     (void) error_out;
+    if(part->value_type != SEE_MSG_PART_NOT_INIT)
+        msg_part_destroy_content(part);
 
     msg_part_destroy_content(part);
 
@@ -496,6 +581,8 @@ msg_part_write_float(
     )
 {
     (void) error_out;
+    if(part->value_type != SEE_MSG_PART_NOT_INIT)
+        msg_part_destroy_content(part);
 
     part->value.float_val   = value;
     part->value_type        = SEE_MSG_PART_FLOAT_T;
@@ -521,7 +608,6 @@ msg_part_get_float(
         return SEE_ERROR_MSG_PART_TYPE;
     }
 
-
     *value_out = part->value.float_val;
 
     return SEE_SUCCESS;
@@ -535,6 +621,8 @@ msg_part_write_double(
     )
 {
     (void) error_out;
+    if(part->value_type != SEE_MSG_PART_NOT_INIT)
+        msg_part_destroy_content(part);
 
     part->value.double_val  = value;
     part->value_type        = SEE_MSG_PART_DOUBLE_T;
@@ -1274,6 +1362,7 @@ static int see_msg_part_class_init(SeeObjectClass* new_cls)
     new_cls->destroy= msg_part_destroy;
     new_cls->equal  = msg_part_equal;
     new_cls->not_equal = msg_part_not_equal;
+    new_cls->copy   = msg_part_copy;
 
     /* Set the function pointers of the own class here */
     SeeMsgPartClass* cls = (SeeMsgPartClass*) new_cls;
@@ -1375,7 +1464,7 @@ msg_buffer_init(
     ret = see_dynamic_array_new(
         &msg_buffer->parts,
         sizeof(SeeMsgPart*),
-        see_copy_by_ref,
+        NULL,
         see_init_memset,
         see_free_see_object,
         error_out
@@ -1528,6 +1617,53 @@ msg_buffer_not_equal(
 }
 
 static int
+msg_buffer_copy(
+    const SeeObject* msg_in,
+    SeeObject**      msg_out,
+    SeeError**       error_out
+    )
+{
+    int ret;
+    uint16_t id;
+    size_t   sz;
+
+    SeeMsgBuffer* out = NULL;
+    const SeeMsgBuffer* in = (const void*) msg_in;
+
+    ret = see_msg_buffer_get_id(in, &id);
+    if (ret)
+        goto fail;
+
+    ret = see_msg_buffer_new(&out, id, error_out);
+    if (ret)
+        goto fail;
+
+    see_msg_buffer_num_parts(in, &sz);
+    SeeDynamicArray* parts = in->parts;
+    for (size_t i = 0; i < sz; i++) {
+        const SeeMsgPart** part = NULL;
+        part = see_dynamic_array_get(parts, i, error_out);
+        if (!part) {
+            ret = SEE_ERROR_INDEX;
+            goto fail;
+        }
+        ret = see_msg_buffer_add_part(out, part[0], error_out);
+        if (ret)
+            goto fail;
+    }
+
+    if (*msg_out)
+        see_object_decref(SEE_OBJECT(*msg_out));
+    *msg_out = SEE_OBJECT(out);
+
+    return ret;
+
+fail:
+    see_object_decref(SEE_OBJECT(out));
+    return ret;
+}
+
+static int
 msg_buffer_set_id(
     SeeMsgBuffer*       mbuf,
     uint16_t            id
@@ -1596,21 +1732,31 @@ msg_buffer_calc_length(
 
 static int
 msg_buffer_add_part(
-    SeeMsgBuffer* mbuf,
-    SeeMsgPart*   mpart,
-    SeeError**    error_out
+    SeeMsgBuffer*       mbuf,
+    const SeeMsgPart*   mpart,
+    SeeError**          error_out
     )
 {
-    const SeeMsgBufferClass* cls = SEE_MSG_BUFFER_GET_CLASS(mbuf);
-
-    int ret = see_dynamic_array_add(mbuf->parts, &mpart, error_out);
+    int ret;
     size_t size;
+    const SeeMsgBufferClass* cls = SEE_MSG_BUFFER_GET_CLASS(mbuf);
+    SeeMsgPart* copy = NULL;
+
+    ret = see_object_copy(
+        SEE_OBJECT(mpart),
+        SEE_OBJECT_REF(&copy),
+        error_out
+        );
     if (ret)
-        return ret;
+        goto fail;
+
+    ret = see_dynamic_array_add(mbuf->parts, &copy, error_out);
+    if (ret)
+        goto fail;
 
     ret = see_msg_part_buffer_length(mpart, &size, error_out);
     if (ret)
-        return ret;
+        goto fail;
 
     mbuf->length += size;
 
@@ -1621,30 +1767,27 @@ msg_buffer_add_part(
 #endif
 
     return ret;
+fail:
+    see_object_decref(SEE_OBJECT(copy));
+    return ret;
 }
 
 static int
 msg_buffer_get_part(
-    SeeMsgBuffer*   mbuf,
-    size_t          n,
-    SeeMsgPart**    mbpart,
-    SeeError**      error_out
+    const SeeMsgBuffer* mbuf,
+    size_t              n,
+    SeeMsgPart**        mbpart,
+    SeeError**          error_out
     )
 {
-    SeeMsgPart* part = NULL;
+    SeeMsgPart*  part = NULL;
     SeeMsgPart** part_array = NULL;
     part_array = see_dynamic_array_get(mbuf->parts, n, error_out);
     if (!part_array)
         return SEE_ERROR_INDEX;
     part = part_array[0];
 
-    if (*mbpart)
-        see_object_decref(SEE_OBJECT(*mbpart));
-
-    see_object_ref(SEE_OBJECT(part));
-    *mbpart = part;
-
-    return SEE_SUCCESS;
+    return see_object_copy(SEE_OBJECT(part), SEE_OBJECT_REF(mbpart), error_out);
 }
 
 static int
@@ -1872,9 +2015,9 @@ see_msg_buffer_length(
 
 int
 see_msg_buffer_add_part(
-    SeeMsgBuffer*   msg,
-    SeeMsgPart*     part,
-    SeeError**      error_out
+    SeeMsgBuffer*       msg,
+    const SeeMsgPart*   part,
+    SeeError**          error_out
     )
 {
     const SeeMsgBufferClass* cls;
@@ -1890,10 +2033,10 @@ see_msg_buffer_add_part(
 
 int
 see_msg_buffer_get_part(
-    SeeMsgBuffer*   msg,
-    size_t          index,
-    SeeMsgPart**    part,
-    SeeError**      error
+    const SeeMsgBuffer* msg,
+    size_t              index,
+    SeeMsgPart**        part,
+    SeeError**          error
     )
 {
     if (!msg || !part)
@@ -1976,6 +2119,7 @@ static int see_msg_buffer_class_init(SeeObjectClass* new_cls)
     new_cls->destroy    = msg_buffer_destroy;
     new_cls->equal      = msg_buffer_equal;
     new_cls->not_equal  = msg_buffer_not_equal;
+    new_cls->copy       = msg_buffer_copy;
     
     /* Set the function pointers of the own class here */
     SeeMsgBufferClass* cls  = (SeeMsgBufferClass*) new_cls;

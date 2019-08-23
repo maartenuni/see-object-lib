@@ -1089,9 +1089,8 @@ struct _SeeMsgBufferClass {
      * its size.
      *
      * @param [in]  msg  if an error occurs it will be returned here.
-     * @param [in]  part The part you would like to add to the buffer. This
-     *                   feeds a reference, so this method will call
-                         see_object_ref on the part.
+     * @param [in]  part The part you would like to add to the buffer. A new
+     *                   copy of part is added.
      * @param [out] error If an error occurs it will be returned here.
      * @return SEE_SUCCESS, SEE_ERROR_RUNTIME
      *
@@ -1099,22 +1098,25 @@ struct _SeeMsgBufferClass {
      */
     int (*add_part) (
         SeeMsgBuffer*       msg,
-        SeeMsgPart*         part,
+        const SeeMsgPart*   part,
         SeeError**          error
         );
 
     /**
      * \brief Obtain a SeeMsgPart from the message.
      *
-     * @param [in]  msg
-     * @param [in]  index
-     * @param [out] part_out
-     * @param [out] error_out
+     * @param [in]  msg         A pointer to a valid SeeMsgBuffer
+     * @param [in]  index       A index to a SeeMsgPart must be smaller then
+     *                          the number of parts added.
+     * @param [out] part_out    A copy from the indexed part is returned.
+     * @param [out] error_out   If an error occurs it will be returned here.
+     *                          must be not be NULL, whereas *error_out should
+     *                          be NULL.
      *
      * @return SEE_SUCCESS, SEE_ERROR_INDEX
      */
     int (*get_part) (
-        SeeMsgBuffer*       msg,
+        const SeeMsgBuffer* msg,
         size_t              index,
         SeeMsgPart**        part_out,
         SeeError**          error_out
@@ -1287,12 +1289,7 @@ see_msg_buffer_get_id (
 /**
  * \brief add a MsgPart to the MsgBuffer
  *
- * A reference to the part will be added to the SeeMsgBuffer, however,
- * it is strongly recommended that you drop your own reference to that part,
- * because otherwise, when the part is modified outside of the MsgBuffer,
- * the Msg becomes invalid.
- * So when you want to add multiple SeeMsgPart to the buffer, create a new
- * one each time with see_msg_part_new().
+ * When a new part is added, it is copied into the buffer.
  *
  * @param [in, out]     msg
  * @param [in]          part
@@ -1303,7 +1300,7 @@ see_msg_buffer_get_id (
 SEE_EXPORT int
 see_msg_buffer_add_part(
     SeeMsgBuffer*       msg,
-    SeeMsgPart*         part,
+    const SeeMsgPart*   part,
     SeeError**          error_out
     );
 
@@ -1313,11 +1310,10 @@ see_msg_buffer_add_part(
  * @param [in]  msg     The message from whom you would like to receive a part.
  * @param [in]  index   The index of the desired part, make sure it is not to
  *                      large. Or you'll be served by an SEE_ERROR_INDEX.
- * @param [out] part    The part will be returned here, if *part already points
- *                      to a valid part, it will be decreffed and it will point
- *                      to a new instance. The instance returned will already
- *                      be increffed, hence the user should decref this part
- *                      when finished.
+ * @param [out] part    A copy of the part will be returned here, if *part
+ *                      already points to a valid part, it will be decreffed
+ *                      and it will point to a new instance. The instance
+ *                      returned is owned by the caller.
  * @param [out] error   If an error occurs, the an SeeError object might be
  *                      returned here to provide context about the error.
  *
@@ -1325,10 +1321,10 @@ see_msg_buffer_add_part(
  */
 SEE_EXPORT int
 see_msg_buffer_get_part(
-    SeeMsgBuffer*   msg,
-    size_t          index,
-    SeeMsgPart**    part,
-    SeeError**      error
+    const SeeMsgBuffer* msg,
+    size_t              index,
+    SeeMsgPart**        part,
+    SeeError**          error
     );
 
 /**

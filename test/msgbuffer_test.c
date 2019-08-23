@@ -367,90 +367,53 @@ msg_buffer_buffer(void)
     ret = see_msg_buffer_add_part(buffer, part, &error);
     SEE_UNIT_HANDLE_ERROR();
 
-    see_object_decref(SEE_OBJECT(part));
-    part = NULL;
-
     // Add part 2
-    ret = see_msg_part_new(&part, &error);
-    SEE_UNIT_HANDLE_ERROR();
-
     ret = see_msg_part_write_uint32(part, uin32, &error);
     SEE_UNIT_HANDLE_ERROR();
 
     ret = see_msg_buffer_add_part(buffer, part, &error);
     SEE_UNIT_HANDLE_ERROR();
 
-    see_object_decref(SEE_OBJECT(part));
-    part = NULL;
-
     // Add part 3
-    ret = see_msg_part_new(&part, &error);
-    SEE_UNIT_HANDLE_ERROR();
-
     ret = see_msg_part_write_int64(part, iin64, &error);
     SEE_UNIT_HANDLE_ERROR();
 
     ret = see_msg_buffer_add_part(buffer, part, &error);
     SEE_UNIT_HANDLE_ERROR();
 
-    see_object_decref(SEE_OBJECT(part));
-    part = NULL;
-
     // Add part 4
-    ret = see_msg_part_new(&part, &error);
-    SEE_UNIT_HANDLE_ERROR();
-
     ret = see_msg_part_write_uint64(part, uin64, &error);
     SEE_UNIT_HANDLE_ERROR();
 
     ret = see_msg_buffer_add_part(buffer, part, &error);
     SEE_UNIT_HANDLE_ERROR();
 
-    see_object_decref(SEE_OBJECT(part));
-    part = NULL;
-
     // Add part 5
-
-    ret = see_msg_part_new(&part, &error);
-    SEE_UNIT_HANDLE_ERROR();
     ret = see_msg_part_write_float(part, fltin, &error);
     SEE_UNIT_HANDLE_ERROR();
 
     ret = see_msg_buffer_add_part(buffer, part, &error);
     SEE_UNIT_HANDLE_ERROR();
 
-    CU_ASSERT_EQUAL(SEE_OBJECT(part)->refcount, 2);
+    CU_ASSERT_EQUAL(SEE_OBJECT(part)->refcount, 1);
 
-    see_object_decref(SEE_OBJECT(part));
-    part = NULL;
     // Add part 6
-
-    ret = see_msg_part_new(&part, &error);
-    SEE_UNIT_HANDLE_ERROR();
     ret = see_msg_part_write_double(part, doublein, &error);
     SEE_UNIT_HANDLE_ERROR();
 
     ret = see_msg_buffer_add_part(buffer, part, &error);
     SEE_UNIT_HANDLE_ERROR();
 
-    CU_ASSERT_EQUAL(SEE_OBJECT(part)->refcount, 2);
-
-    see_object_decref(SEE_OBJECT(part));
-    part = NULL;
+    CU_ASSERT_EQUAL(SEE_OBJECT(part)->refcount, 1);
 
     // Add part 7
-    ret = see_msg_part_new(&part, &error);
-    SEE_UNIT_HANDLE_ERROR();
     ret = see_msg_part_write_string(part, sin, strlen(sin), &error);
     SEE_UNIT_HANDLE_ERROR();
 
     ret = see_msg_buffer_add_part(buffer, part, &error);
     SEE_UNIT_HANDLE_ERROR();
 
-    CU_ASSERT_EQUAL(SEE_OBJECT(part)->refcount, 2);
-
-    see_object_decref(SEE_OBJECT(part));
-    part = NULL;
+    CU_ASSERT_EQUAL(SEE_OBJECT(part)->refcount, 1);
 
     // Test the msg buffer
     ret = see_msg_buffer_get_buffer(buffer, &data_buf, &buflen, &error);
@@ -507,6 +470,55 @@ fail:
     free(sout);
 }
 
+static void msg_buffer_copy(void)
+{
+    int ret, equal;
+    SeeMsgBuffer* msg = NULL, *copy = NULL;
+    SeeMsgPart* part = NULL;
+    SeeError* error = NULL;
+    const char* strmsg = "Hope this copy works...";
+    size_t msglength = strlen(strmsg);
+
+    ret = see_msg_buffer_new(&msg, 123, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_msg_part_new(&part, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_msg_part_write_int64(part, 1, &error);
+    SEE_UNIT_HANDLE_ERROR();
+    ret = see_msg_buffer_add_part(msg, part, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_msg_part_write_uint32(part, (uint32_t) -1, &error);
+    SEE_UNIT_HANDLE_ERROR();
+    ret = see_msg_buffer_add_part(msg, part, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_msg_part_write_string(part, strmsg, msglength, &error);
+    SEE_UNIT_HANDLE_ERROR();
+    ret = see_msg_buffer_add_part(msg, part, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_msg_part_write_double(part, M_PI, &error);
+    SEE_UNIT_HANDLE_ERROR();
+    ret = see_msg_buffer_add_part(msg, part, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_object_copy(SEE_OBJECT(msg), SEE_OBJECT_REF(&copy), &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_object_equal(SEE_OBJECT(msg), SEE_OBJECT(copy), &equal, &error);
+    SEE_UNIT_HANDLE_ERROR();
+    CU_ASSERT_TRUE(equal);
+
+fail:
+    see_object_decref(SEE_OBJECT(msg));
+    see_object_decref(SEE_OBJECT(copy));
+    see_object_decref(SEE_OBJECT(part));
+    see_object_decref(SEE_OBJECT(error));
+}
+
 int add_msg_buffer_suite()
 {
     SEE_UNIT_SUITE_CREATE(NULL, NULL);
@@ -520,6 +532,7 @@ int add_msg_buffer_suite()
     SEE_UNIT_TEST_CREATE(msg_part_buffer_string);
 
     SEE_UNIT_TEST_CREATE(msg_buffer_buffer)
+    SEE_UNIT_TEST_CREATE(msg_buffer_copy)
 
     return 0;
 }
