@@ -386,6 +386,7 @@ static int see_duration_class_init(SeeObjectClass* new_cls)
     
     /* Override the functions on the parent here */
     new_cls->init       = init;
+    new_cls->name       = "Duration";
     new_cls->destroy    = duration_destroy;
     new_cls->compare    = duration_compare;
     new_cls->copy       = duration_copy;

@@ -1021,7 +1021,7 @@ see_msg_part_write_int32(
     )
 {
     const SeeMsgPartClass* cls;
-    if (!part || !value)
+    if (!part)
         return SEE_INVALID_ARGUMENT;
 
     if (!error_out || *error_out)
@@ -1035,8 +1035,8 @@ see_msg_part_write_int32(
 int
 see_msg_part_get_int32(
     const SeeMsgPart* part,
-    int32_t*                value,
-    SeeError**              error_out
+    int32_t*          value,
+    SeeError**        error_out
     )
 {
     const SeeMsgPartClass* cls;
@@ -1054,12 +1054,12 @@ see_msg_part_get_int32(
 int
 see_msg_part_write_uint32(
     SeeMsgPart*       part,
-    uint32_t                value,
-    SeeError**              error_out
+    uint32_t          value,
+    SeeError**        error_out
     )
 {
     const SeeMsgPartClass* cls;
-    if (!part || !value)
+    if (!part)
         return SEE_INVALID_ARGUMENT;
 
     if (!error_out || *error_out)
@@ -1073,8 +1073,8 @@ see_msg_part_write_uint32(
 int
 see_msg_part_get_uint32(
     const SeeMsgPart* part,
-    uint32_t*               value,
-    SeeError**              error_out
+    uint32_t*         value,
+    SeeError**        error_out
     )
 {
     const SeeMsgPartClass* cls;
@@ -1092,12 +1092,12 @@ see_msg_part_get_uint32(
 int
 see_msg_part_write_int64(
     SeeMsgPart*       part,
-    int64_t                 value,
-    SeeError**              error_out
+    int64_t           value,
+    SeeError**        error_out
 )
 {
     const SeeMsgPartClass* cls;
-    if (!part || !value)
+    if (!part)
         return SEE_INVALID_ARGUMENT;
 
     if (!error_out || *error_out)
@@ -1111,8 +1111,8 @@ see_msg_part_write_int64(
 int
 see_msg_part_get_int64(
     const SeeMsgPart* part,
-    int64_t*                value,
-    SeeError**              error_out
+    int64_t*          value,
+    SeeError**        error_out
 )
 {
     const SeeMsgPartClass* cls;
@@ -1130,12 +1130,12 @@ see_msg_part_get_int64(
 int
 see_msg_part_write_uint64(
     SeeMsgPart*       part,
-    uint64_t                value,
-    SeeError**              error_out
+    uint64_t          value,
+    SeeError**        error_out
 )
 {
     const SeeMsgPartClass* cls;
-    if (!part || !value)
+    if (!part)
         return SEE_INVALID_ARGUMENT;
 
     if (!error_out || *error_out)
@@ -1149,8 +1149,8 @@ see_msg_part_write_uint64(
 int
 see_msg_part_get_uint64(
     const SeeMsgPart* part,
-    uint64_t*               value,
-    SeeError**              error_out
+    uint64_t*         value,
+    SeeError**        error_out
 )
 {
     const SeeMsgPartClass* cls;
@@ -1168,9 +1168,9 @@ see_msg_part_get_uint64(
 int
 see_msg_part_write_string(
     SeeMsgPart*       part,
-    const char*             value,
-    size_t                  length,
-    SeeError**              error_out
+    const char*       value,
+    size_t            length,
+    SeeError**        error_out
     )
 {
     const SeeMsgPartClass* cls;
@@ -1212,7 +1212,7 @@ see_msg_part_write_float(
     )
 {
     const SeeMsgPartClass* cls;
-    if (!part || !value)
+    if (!part)
         return SEE_INVALID_ARGUMENT;
 
     if (!error_out || *error_out)
@@ -1250,7 +1250,7 @@ see_msg_part_write_double(
     )
 {
     const SeeMsgPartClass* cls;
-    if (!part || !value)
+    if (!part)
         return SEE_INVALID_ARGUMENT;
 
     if (!error_out || *error_out)
