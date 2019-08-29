@@ -250,6 +250,87 @@ see_duration_sub(
     );
 
 /**
+ * \brief Multiply a duration by a scalar.
+ *
+ * \note Multiplication might lead to overflows.
+ *
+ * @param [in] self May not be NULL, the duration to multiply.
+ * @param [in] scalar The scalar to multiply the duration with.
+ * @param [out] result The result will be returned here.
+ * @param [out] error_out If an error occurs it might be returned here.
+ *
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
+ */
+SEE_EXPORT int
+see_duration_multiply(
+    const SeeDuration* self,
+    int64_t            scalar,
+    SeeDuration**      result,
+    SeeError**         error_out
+    );
+
+/**
+ * \brief Multiply a duration by a scalar.
+ *
+ * \note Multiplication might lead to overflows.
+ *
+ * @param [in] self May not be NULL, the duration to multiply.
+ * @param [in] scalar The scalar to multiply the duration with.
+ * @param [out] result The result will be returned here.
+ * @param [out] error_out If an error occurs it might be returned here.
+ *
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
+ */
+SEE_EXPORT int
+see_duration_multiply_f(
+    const SeeDuration* self,
+    double             scalar,
+    SeeDuration**      result,
+    SeeError**         error_out
+    );
+
+/**
+ * \brief Divide a duration by a scalar.
+ *
+ * \note Multiplication might lead to overflows.
+ *
+ * @param [in] self May not be NULL, the duration to divide.
+ * @param [in] scalar The scalar to divide the duration with.
+ * @param [out] result The result will be returned here.
+ * @param [out] error_out If an error occurs it might be returned here.
+ *
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
+ */
+SEE_EXPORT int
+see_duration_divide(
+    const SeeDuration* self,
+    int64_t            scalar,
+    SeeDuration**      result,
+    SeeError**         error_out
+);
+
+/**
+ * \brief Divide a duration by a scalar.
+ *
+ * \note Multiplication might lead to overflows.
+ *
+ * @param [in] self May not be NULL, the duration to divide.
+ * @param [in] scalar The scalar to divide the duration with.
+ * @param [out] result The result will be returned here.
+ * @param [out] error_out If an error occurs it might be returned here.
+ *
+ * @return SEE_SUCCESS, SEE_INVALID_ARGUMENT
+ */
+
+SEE_EXPORT int
+see_duration_divide_f(
+    const SeeDuration* self,
+    double             scalar,
+    SeeDuration**      result,
+    SeeError**         error_out
+);
+
+/**
  * @brief Obtain the duration in seconds.
  *
  * @param self

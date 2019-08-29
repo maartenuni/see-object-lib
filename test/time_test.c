@@ -265,7 +265,7 @@ void dur_init(void)
     SeeError* error = NULL;
 
     const int64_t zero      = 0;
-    const int64_t thousend  = 1000;
+    const int64_t thousand  = 1000;
     const int64_t million   = 1000000;
     const int64_t billion   = 1000000000;
 
@@ -281,7 +281,7 @@ void dur_init(void)
 
     ret = see_duration_new_us(&dur1, 1, &error);
     UNIT_HANDLE_ERROR();
-    CU_ASSERT_EQUAL(see_duration_nanos(dur1), thousend);
+    CU_ASSERT_EQUAL(see_duration_nanos(dur1), thousand);
     CU_ASSERT_EQUAL(see_duration_micros(dur1), 1);
     see_object_decref(SEE_OBJECT(dur1)); dur1 = NULL;
 
@@ -694,6 +694,123 @@ void clock_duration(void)
     see_object_decref(SEE_OBJECT(d2));
 }
 
+void duration_multiplication(void)
+{
+    SeeDuration* dur1, *durout, *expectation;
+    dur1 = durout = expectation = NULL;
+    SeeError* error = NULL;
+    int equal;
+    int64_t scalar = 18;
+    double scalarf = 18.0;
+
+    int ret = see_duration_new_ms(&dur1, scalar, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_duration_multiply(dur1, scalar, &durout, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_duration_new_ms(&expectation, scalar * scalar, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    // Check whether the results are equal.
+    ret = see_object_equal(
+        SEE_OBJECT(durout),
+        SEE_OBJECT(expectation),
+        &equal,
+        &error
+        );
+    SEE_UNIT_HANDLE_ERROR();
+    CU_ASSERT_TRUE(equal);
+
+    ret = see_duration_new_ms(
+        &expectation,
+        (int64_t)(scalar * scalar * scalarf),
+        &error
+        );
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_duration_multiply_f(durout, scalarf, &durout, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    // Check whether the results are equal.
+    ret = see_object_equal(
+        SEE_OBJECT(durout),
+        SEE_OBJECT(expectation),
+        &equal,
+        &error
+        );
+    SEE_UNIT_HANDLE_ERROR();
+    CU_ASSERT_TRUE(equal);
+
+fail:
+
+    SEE_OBJECT_DECREF(SEE_OBJECT(dur1));
+    SEE_OBJECT_DECREF(SEE_OBJECT(durout));
+    SEE_OBJECT_DECREF(SEE_OBJECT(expectation));
+    SEE_OBJECT_DECREF(SEE_OBJECT(error));
+}
+
+void duration_division(void)
+{
+    SeeDuration* dur1, *durout, *expectation;
+    dur1 = durout = expectation = NULL;
+    SeeError* error = NULL;
+    int equal;
+    int64_t scalar = 18;
+
+    int ret = see_duration_new_ms(&dur1, scalar, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_duration_divide(dur1, scalar, &durout, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_duration_new_ms(&expectation, scalar / scalar, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    // Check whether the results are equal.
+    ret = see_object_equal(
+        SEE_OBJECT(durout),
+        SEE_OBJECT(expectation),
+        &equal,
+        &error
+    );
+    SEE_UNIT_HANDLE_ERROR();
+    CU_ASSERT_TRUE(equal);
+
+    ret = see_duration_new_ms (
+        &expectation,
+        3,
+        &error
+    );
+    SEE_UNIT_HANDLE_ERROR();
+    ret = see_duration_new_ms(
+        &durout,
+        18,
+        &error
+    );
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_duration_divide_f(durout, 6.0, &durout, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    // Check whether the results are equal.
+    ret = see_object_equal(
+        SEE_OBJECT(durout),
+        SEE_OBJECT(expectation),
+        &equal,
+        &error
+    );
+    SEE_UNIT_HANDLE_ERROR();
+    CU_ASSERT_TRUE(equal);
+
+    fail:
+
+    SEE_OBJECT_DECREF(SEE_OBJECT(dur1));
+    SEE_OBJECT_DECREF(SEE_OBJECT(durout));
+    SEE_OBJECT_DECREF(SEE_OBJECT(expectation));
+    SEE_OBJECT_DECREF(SEE_OBJECT(error));
+}
+
 int add_time_suite()
 {
     SEE_UNIT_SUITE_CREATE(NULL, NULL);
@@ -707,6 +824,8 @@ int add_time_suite()
     SEE_UNIT_TEST_CREATE(time_comparison);
     SEE_UNIT_TEST_CREATE(time_calculations);
     SEE_UNIT_TEST_CREATE(clock_duration);
+    SEE_UNIT_TEST_CREATE(duration_multiplication);
+    SEE_UNIT_TEST_CREATE(duration_division);
 
     return 0;
 }
