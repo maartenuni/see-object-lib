@@ -70,6 +70,54 @@ public:
         return *this;
     }
 
+    Duration operator *(int64_t n) const
+    {
+        return this->m_dur * n;
+    }
+
+    Duration operator *(double n) const
+    {
+        Duration temp (*this);
+        temp *= n;
+        return temp;
+    }
+
+    Duration& operator*= (int64_t n)
+    {
+        this->m_dur *= n;
+        return *this;
+    }
+
+    Duration& operator*= (double n)
+    {
+        this->m_dur *= n;
+        return *this;
+    }
+
+    Duration operator/ (int64_t n) const
+    {
+        return this->m_dur / n;
+    }
+
+    Duration operator/ (double n) const
+    {
+        Duration temp (*this);
+        temp /= n;
+        return temp;
+    }
+
+    Duration& operator/= (int64_t n)
+    {
+        this->m_dur /= n;
+        return *this;
+    }
+
+    Duration& operator/= (double n)
+    {
+        this->m_dur /= n;
+        return *this;
+    }
+
     /* comparison operator overloading */
 
     bool operator < (const Duration& other) const

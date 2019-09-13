@@ -239,24 +239,31 @@ see_duration_new_us(SeeDuration** out, int64_t us, SeeError** error_out)
 int
 see_duration_new_ns(SeeDuration** out, int64_t ns, SeeError** error_out)
 {
+    int ret;
     const SeeDurationClass* cls = see_duration_class();
+    SeeDuration* temp = nullptr;
 
     if (!cls)
         return SEE_NOT_INITIALIZED;
 
-    if (!out || *out)
+    if (!out || !error_out || *error_out)
         return SEE_INVALID_ARGUMENT;
 
-    if (!error_out || *error_out)
-        return SEE_INVALID_ARGUMENT;
-
-    return SEE_OBJECT_CLASS(cls)->new_obj(
+    ret = SEE_OBJECT_CLASS(cls)->new_obj(
         SEE_OBJECT_CLASS(cls),
         0,
-        SEE_OBJECT_REF(out),
+        SEE_OBJECT_REF(&temp),
         ns,
         error_out
         );
+    if (ret)
+        return ret;
+
+    if (*out)
+        see_object_decref(SEE_OBJECT(*out));
+
+    *out = temp;
+    return ret;
 }
 
 int
@@ -342,6 +349,141 @@ see_duration_sub(
     dres = static_cast<Duration*>((*result)->priv_dur);
 
     *dres = *dself - *dother;
+
+    return ret;
+}
+
+int
+see_duration_multiply(
+    const SeeDuration*  self,
+    int64_t             scalar,
+    SeeDuration**       result,
+    SeeError**          error_out
+    )
+{
+    int ret;
+    SeeDuration* out = nullptr;
+    Duration duration_out;
+    if (!self || !result || !error_out || *error_out)
+        return SEE_INVALID_ARGUMENT;
+
+    ret = see_duration_new(&out, error_out);
+    if (ret != SEE_SUCCESS)
+        return ret;
+
+    // We have got to capture the duration before it before we lose a reference
+    // self assignment that is when self == *result
+    duration_out = *static_cast<const Duration*>(self->priv_dur);
+
+    if (*result)
+        see_object_decref(SEE_OBJECT(*result));
+
+    *result = out;
+
+    auto res_dur = static_cast<Duration*>((*result)->priv_dur);
+
+    *res_dur = duration_out * scalar;
+
+    return ret;
+}
+int
+see_duration_multiply_f(
+    const SeeDuration*  self,
+    double              scalar,
+    SeeDuration**       result,
+    SeeError**          error_out
+    )
+{
+    int ret;
+    SeeDuration* out = nullptr;
+    Duration duration_out;
+    if (!self || !result || !error_out || *error_out)
+        return SEE_INVALID_ARGUMENT;
+
+    ret = see_duration_new(&out, error_out);
+    if (ret != SEE_SUCCESS)
+        return ret;
+
+    // We have got to capture the duration before it before we lose a reference
+    // self assignment that is when self == *result
+    duration_out = *static_cast<const Duration*>(self->priv_dur);
+
+    if (*result)
+        see_object_decref(SEE_OBJECT(*result));
+
+    *result = out;
+
+    auto res_dur = static_cast<Duration*>((*result)->priv_dur);
+
+    *res_dur = duration_out * scalar;
+
+    return ret;
+}
+
+int
+see_duration_divide(
+    const SeeDuration*  self,
+    int64_t             scalar,
+    SeeDuration**       result,
+    SeeError**          error_out
+)
+{
+    int ret;
+    SeeDuration* out = nullptr;
+    Duration duration_out;
+    if (!self || !result || !error_out || *error_out)
+        return SEE_INVALID_ARGUMENT;
+
+    ret = see_duration_new(&out, error_out);
+    if (ret != SEE_SUCCESS)
+        return ret;
+
+    // We have got to capture the duration before it before we lose a reference
+    // self assignment that is when self == *result
+    duration_out = *static_cast<const Duration*>(self->priv_dur);
+
+    if (*result)
+        see_object_decref(SEE_OBJECT(*result));
+
+    *result = out;
+
+    auto res_dur = static_cast<Duration*>((*result)->priv_dur);
+
+    *res_dur = duration_out / scalar;
+
+    return ret;
+}
+
+int
+see_duration_divide_f(
+    const SeeDuration*  self,
+    double              scalar,
+    SeeDuration**       result,
+    SeeError**          error_out
+)
+{
+    int ret;
+    SeeDuration* out = nullptr;
+    Duration duration_out;
+    if (!self || !result || !error_out || *error_out)
+        return SEE_INVALID_ARGUMENT;
+
+    ret = see_duration_new(&out, error_out);
+    if (ret != SEE_SUCCESS)
+        return ret;
+
+    // We have got to capture the duration before it before we lose a reference
+    // self assignment that is when self == *result
+    duration_out = *static_cast<const Duration*>(self->priv_dur);
+
+    if (*result)
+        see_object_decref(SEE_OBJECT(*result));
+
+    *result = out;
+
+    auto res_dur = static_cast<Duration*>((*result)->priv_dur);
+
+    *res_dur = duration_out / scalar;
 
     return ret;
 }
