@@ -50,7 +50,7 @@ void serial_use_unopened(void)
     SeeError*  error    = NULL;
 
     char buffer[] = "Hello serial world.";
-    char read_buf[1024];
+    char read_buf[1024] = {0};
     size_t bufsz = sizeof(buffer);
 
     int ret = see_serial_new(&serial, &error);
