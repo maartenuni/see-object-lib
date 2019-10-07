@@ -40,6 +40,18 @@ extern "C" {
 #endif
 
 /**
+ * \brief Define a filedescriptor to return to the user.
+ *
+ * This is a low level filedescriptor and might be handy to poll/select
+ * in language bindings.
+ */
+#if !defined(_WIN32)
+#define SeeFileDescriptor int
+#else
+#define SeeFileDescriptor HANDLE
+#endif
+
+/**
  * \brief Determine whether you want to read from in or output or both.
  */
 typedef enum see_serial_dir {
@@ -373,6 +385,20 @@ struct _SeeSerialClass {
     int (*read_msg) (
         const SeeSerial*    self,
         SeeMsgBuffer**      msg,
+        SeeError**          error
+        );
+
+    /**
+     * \brief Receive the low-level file descriptor from the serial device.
+     *
+     * @param [in] self
+     * @param [out]fd
+     * @param [out]error
+     * @return SEE_SUCCESS when successful
+     */
+    int (*fd) (
+        const SeeSerial*    self,
+        SeeFileDescriptor*  fd,
         SeeError**          error
         );
 };
@@ -779,6 +805,27 @@ see_serial_read_msg (
     );
 
 /**
+ * \brief obtain the filedescriptor for the serial device.
+ *
+ * It might be handy to obtain the file descriptor, eg on linux,
+ * one would be able to poll whether one can read/write in a non blocking
+ * manner.
+ * You normally don't want to use it to, read, write, close etc this
+ * file descriptor.
+ *
+ * @param [in] self
+ * @param [out] fd_out
+ * @param [out] error_out
+ * @return SEE_SUCCESS when everything is alright.
+ */
+SEE_EXPORT int
+see_serial_fd(
+    const SeeSerial*    self,
+    SeeFileDescriptor*  fd_out,
+    SeeError**          error_out
+    );
+
+/**
  * Take an input and return a precise baudrate for a given speed.
  *
  * The input speed is ceiled to the nearest baudrate eg 1 becomes B50 0 remains
@@ -788,6 +835,7 @@ see_serial_read_msg (
  */
 SEE_EXPORT see_speed_t
 see_serial_nearest_speed(unsigned speed);
+
 
 /**
  * Gets the pointer to the SeeSerialClass table.

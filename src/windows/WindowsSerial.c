@@ -521,6 +521,19 @@ windows_serial_get_min_rd_chars(
     return SEE_NOT_IMPLEMENTED;
 }
 
+static int
+windows_serial_fd(
+    const SeeSerial*  self,
+    SeeFileHandle*    fd_out,
+    SeeError**        error_out
+    )
+{
+    SeeWindowsSerial* wself = SEE_WINDOWS_SERIAL(self);
+    assert(wself != NULL);
+    *fd_out = wself->fd;
+    return SEE_SUCCESS;
+}
+
 /* **** implementation of the public API **** */
 
 /* **** initialization of the class **** */
@@ -549,6 +562,7 @@ static int see_windows_serial_class_init(SeeObjectClass* new_cls)
     serial_cls->get_timeout = windows_serial_get_timeout;
     serial_cls->set_min_rd_chars = windows_serial_set_min_rd_chars;
     serial_cls->get_min_rd_chars = windows_serial_get_min_rd_chars;
+    serial_cls->fd          = windows_serial_fd;
     
     /* Set the function pointers of the own class here */
     SeeWindowsSerialClass* cls = (SeeWindowsSerialClass*) new_cls;

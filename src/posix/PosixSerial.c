@@ -60,8 +60,11 @@ get_posix_speed(see_speed_t s)
         case SEE_B57600: return B57600;
         case SEE_B115200: return B115200;
         case SEE_B230400: return B230400;
-        default: assert(0 == 1);
+        default:
+            assert(0 == 1);
     }
+    // Program control flow should not get here...
+    return 0;
 }
 
 static see_speed_t
@@ -542,6 +545,20 @@ posix_serial_get_min_rd_chars(
     return SEE_SUCCESS;
 }
 
+static int
+posix_serial_fd(
+    const SeeSerial*    self,
+    SeeFileDescriptor*  fd_out,
+    SeeError**          error_out
+    )
+{
+    (void) error_out;
+    SeePosixSerial* pself = SEE_POSIX_SERIAL(self);
+    *fd_out = pself->fd;
+
+    return SEE_SUCCESS;
+}
+
 
 /* **** implementation of the public API **** */
 
@@ -586,6 +603,7 @@ static int see_posix_serial_class_init(SeeObjectClass* new_cls)
     serial_cls->get_timeout = posix_serial_get_timeout;
     serial_cls->set_min_rd_chars = posix_serial_set_min_rd_chars;
     serial_cls->get_min_rd_chars = posix_serial_get_min_rd_chars;
+    serial_cls->fd          = posix_serial_fd;
 
     /* Set the function pointers of the own class here */
     SeePosixSerialClass* cls = (SeePosixSerialClass*) new_cls;

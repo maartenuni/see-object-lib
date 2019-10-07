@@ -39,6 +39,7 @@
 #include "windows/WindowsSerial.h"
 #endif
 
+
 /* **** functions that implement SeeSerial or override SeeObject **** */
 
 
@@ -536,6 +537,26 @@ see_serial_read_msg (
     cls = SEE_SERIAL_GET_CLASS(self);
 
     return cls->read_msg(self, msg, error);
+}
+
+int
+see_serial_fd(
+    const SeeSerial*    self,
+    SeeFileDescriptor*  fd_out,
+    SeeError**          error
+    )
+{
+    const SeeSerialClass* cls;
+
+    if (!self || !fd_out)
+        return SEE_INVALID_ARGUMENT;
+
+    if (!error || *error)
+        return SEE_INVALID_ARGUMENT;
+
+    cls = SEE_SERIAL_GET_CLASS(self);
+
+    return cls->fd(self, fd_out, error);
 }
 
 /* **** public function that do not belong to a class **** */
