@@ -15,6 +15,8 @@
  * along with see-object.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef SEE_OBJECT_CONFIG_H
+#define SEE_OBJECT_CONFIG_H
 
 #define SEE_OBJECT_VERSION_MAJOR @SEE_OBJECT_VERSION_MAJOR@
 #define SEE_OBJECT_VERSION_MINOR @SEE_OBJECT_VERSION_MINOR@
@@ -48,3 +50,5 @@
 #else
 #define SEE_LITTLE_ENDIAN       0
 #endif
+
+#endif //define SEE_OBJECT_CONFIG_H
