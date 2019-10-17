@@ -19,6 +19,11 @@
 #include <stdio.h>
 #include <CUnit/CUnit.h>
 #include "../src/MsgBuffer.h"
+#if defined(HAVE_WINDOWS_H)
+// Otherwise math.h doesn't include M_PI etc.
+#define _USE_MATH_DEFINES
+#endif
+#include <math.h>
 #include "test_macros.h"
 
 static const char* SUITE_NAME = "SeeMsgBuffer suite";
