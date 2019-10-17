@@ -116,6 +116,11 @@
 #ifndef SeeObject_H
 #define SeeObject_H
 
+/*
+ * Include the system configuration. To check what the platform has available.
+ */
+#include <see_object_config.h>
+
 #include <stdlib.h>
 #include <stdarg.h>
 
