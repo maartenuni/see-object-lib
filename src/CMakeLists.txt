@@ -127,6 +127,25 @@ target_include_directories(${SEE_OBJ_LIB}
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     )
 
+if (MSVC)
+    target_compile_options(${SEE_OBJ_LIB} PRIVATE "/EHsc")
+# Avoid warnings like: warning C4996: 'sprintf': This function or variable may be unsafe
+    target_compile_definitions(${SEE_OBJ_LIB}
+        PRIVATE _CRT_SECURE_NO_WARNINGS
+        )
+
+# Avoid warnings like:
+# C4996: 'strdup': The POSIX name for this item is deprecated.
+#
+# Another way to silence the warning about strdup and friends
+# could be something like:
+# #define strdup _strdup
+# But I don't like to alias it because that might affect other people too.
+    target_compile_definitions(${SEE_OBJ_LIB}
+        PRIVATE _CRT_NONSTDC_NO_DEPRECATE
+        )
+endif()
+
 write_basic_package_version_file(
         "${project_name}ConfigVersion.cmake"
     VERSION
