@@ -46,9 +46,9 @@ extern "C" {
  * in language bindings.
  */
 #if !defined(_WIN32)
-#define SeeFileDescriptor int
+typedef int SeeFileDescriptor;
 #else
-#define SeeFileDescriptor HANDLE
+typedef HANDLE SeeFileDescriptor;
 #endif
 
 /**
