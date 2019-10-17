@@ -26,6 +26,7 @@ set (SEE_OBJ_SRC
     IndexError.c
     MsgBuffer.c
     MetaClass.c
+    OverflowError.c
     RuntimeError.c
     SeeObject.c
     Serial.c
@@ -49,6 +50,7 @@ set (SEE_OBJ_HDR_PUBLIC
     see_init.h
     MsgBuffer.h
     MetaClass.h
+    OverflowError.h
     RuntimeError.h
     SeeObject.h
     Serial.h

@@ -35,6 +35,11 @@
 #include "Duration.h"
 #include "MsgBuffer.h"
 
+#if HAVE_WINDOWS_H
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

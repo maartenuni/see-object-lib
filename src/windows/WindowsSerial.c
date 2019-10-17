@@ -19,10 +19,13 @@
 
 #include "see_object_config.h"
 #include "../MetaClass.h"
+#include "../Serial.h"
+#include "../OverflowError.h"
 #include "WindowsSerial.h"
 #include "WindowsRuntimeError.h"
 
 #include <assert.h>
+#include <stdio.h>
 
 /* **** helpers **** */
 
@@ -51,6 +54,7 @@ get_windows_speed(see_speed_t s)
     case SEE_B230400: return 256000;
     default: assert(0 == 1);
     }
+    return 0;
 }
 
 static see_speed_t
@@ -80,6 +84,7 @@ get_see_speed(DWORD s)
         // could be possible.
         assert(0 == 1);
     }
+    return 0;
 }
 
 
@@ -211,10 +216,10 @@ windows_serial_close(SeeSerial* self, SeeError** error_out)
 
 static int
 windows_serial_write(
-    const SeeSerial* self,
-    char** const bytes,
-    size_t* length,
-    SeeError** error_out
+    const SeeSerial*    self,
+    char** const        bytes,
+    size_t*             length,
+    SeeError**          error_out
     )
 {
     const SeeSerialClass* cls = SEE_SERIAL_GET_CLASS(self);
@@ -228,7 +233,12 @@ windows_serial_write(
         ;
     }
     if (*length > MAXDWORD) {
-        int buffer_to_large; // Create a special error?
+        char buffer[1024];
+        snprintf(buffer, sizeof(buffer),
+            "Range for length argument is valid for 0 <= length < %d",
+            MAXDWORD
+        );
+        see_overflow_error_new(error_out, buffer);
         return SEE_INVALID_ARGUMENT;
     }
 
@@ -272,7 +282,12 @@ windows_serial_read(
         ;
     }
     if (*length > MAXDWORD) {
-        int buffer_to_large; // Create a special error?
+        char buffer[1024];
+        snprintf(buffer, sizeof(buffer),
+            "Range for length argument is valid for 0 <= length < %d",
+            MAXDWORD
+        );
+        see_overflow_error_new(error_out, buffer);
         return SEE_INVALID_ARGUMENT;
     }
 
@@ -358,6 +373,7 @@ windows_serial_set_speed(
     }
 
     // In windows speed direction is the same for in- or output
+    (void) d;
     state.BaudRate = get_windows_speed(s);
     if (!SetCommState(wself->fd, &state)) {
         see_windows_runtime_error_new(
@@ -377,6 +393,8 @@ windows_serial_get_speed(
     SeeError**          error_out
     )
 {
+    // The speed is identical in both directions.
+    (void) dir;
     SeeWindowsSerial* wself = SEE_WINDOWS_SERIAL(self);
     DCB state = {0};
     state.DCBlength = sizeof(DCB);
@@ -413,9 +431,9 @@ windows_serial_is_open(
 
 static int
 windows_serial_set_timeout(
-    SeeSerial*      self,
-    SeeDuration*    dur,
-    SeeError**      error_out
+    SeeSerial*          self,
+    const SeeDuration*  dur,
+    SeeError**          error_out
     )
 {
     SeeWindowsSerial* wself = SEE_WINDOWS_SERIAL(self);
@@ -508,9 +526,9 @@ windows_serial_set_min_rd_chars(
 
 static int
 windows_serial_get_min_rd_chars(
-    SeeSerial*  self,
-    uint8_t*    nchars,
-    SeeError**  error_out
+    const SeeSerial*    self,
+    uint8_t*            nchars,
+    SeeError**          error_out
     )
 {
     (void) self;
@@ -523,12 +541,13 @@ windows_serial_get_min_rd_chars(
 
 static int
 windows_serial_fd(
-    const SeeSerial*  self,
-    SeeFileHandle*    fd_out,
-    SeeError**        error_out
+    const SeeSerial*    self,
+    SeeFileDescriptor*  fd_out,
+    SeeError**          error_out
     )
 {
     SeeWindowsSerial* wself = SEE_WINDOWS_SERIAL(self);
+    (void) error_out;
     assert(wself != NULL);
     *fd_out = wself->fd;
     return SEE_SUCCESS;

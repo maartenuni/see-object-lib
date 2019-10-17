@@ -35,6 +35,7 @@
 #include "TimePoint.h"
 #include "Serial.h"
 #include "MsgBuffer.h"
+#include "OverflowError.h"
 #include "TimeoutError.h"
 #include "IncomparableError.h"
 
@@ -128,6 +129,10 @@ initialize() {
     if (ret)
         return ret;
 
+    ret = see_overflow_error_init();
+    if (ret)
+        return ret;
+
     ret = see_runtime_error_init();
     if (ret)
         return ret;
@@ -172,6 +177,7 @@ deinit()
     see_msg_invalid_error_deinit();
     see_msg_part_deinit();
     see_msg_part_type_error_deinit();
+    see_overflow_error_deinit();
     see_runtime_error_deinit();
     see_serial_deinit();
     see_timeout_error_deinit();
