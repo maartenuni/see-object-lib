@@ -48,3 +48,4 @@ void see_free_see_object(void* object)
 {
     see_object_decref(object);
 }
+

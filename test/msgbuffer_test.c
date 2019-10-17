@@ -541,3 +541,4 @@ int add_msg_buffer_suite()
 
     return 0;
 }
+

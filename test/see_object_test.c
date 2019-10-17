@@ -158,14 +158,14 @@ void copy(void)
     int ret, isinst;
 
     obj = see_object_create();
-    CU_ASSERT(obj);
+    CU_ASSERT(obj != NULL);
     if (!obj)
-        return;
+        goto fail;
 
     ret = see_object_copy(obj, &copy, &error);
     CU_ASSERT_EQUAL(ret, SEE_ERROR_NOT_COPYABLE);
     ret = see_object_is_instance_of(
-        error,
+        SEE_OBJECT(error),
         SEE_OBJECT_CLASS(see_copy_error_class()),
         &isinst
         );
@@ -175,7 +175,7 @@ void copy(void)
 fail:
     see_object_decref(obj);
     see_object_decref(copy);
-    see_object_decref(error);
+    see_object_decref(SEE_OBJECT(error));
 
 
 }
