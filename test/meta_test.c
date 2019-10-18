@@ -40,7 +40,7 @@ struct _SeeCustomReprClass {
 SeeCustomReprClass* g_custom_class_instance = NULL;
 
 int see_custom_repr_new(SeeCustomRepr** obj_out) {
-    SeeObjectClass* cls = SEE_OBJECT_CLASS(g_custom_class_instance);
+    const SeeObjectClass* cls = SEE_OBJECT_CLASS(g_custom_class_instance);
     if (!cls)
         return SEE_NOT_INITIALIZED;
 
