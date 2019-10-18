@@ -45,12 +45,12 @@
 extern "C" {
 #endif
 
-typedef struct _SeeTimePoint SeeTimePoint;
-typedef struct _SeeTimePointClass SeeTimePointClass;
+typedef struct SeeTimePoint SeeTimePoint;
+typedef struct SeeTimePointClass SeeTimePointClass;
 /**
  * \brief An instance of SeeTimePoint
  */
-struct _SeeTimePoint {
+struct SeeTimePoint {
     SeeObject parent_obj;
     /*expand SeeTimePoint data here*/
 
@@ -66,7 +66,7 @@ struct _SeeTimePoint {
  * @brief Describes the SeeTimePoint class.
  * \private
  */
-struct _SeeTimePointClass {
+struct SeeTimePointClass {
     SeeObjectClass parent_cls;
     
     int (*time_point_init)(

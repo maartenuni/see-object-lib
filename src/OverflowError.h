@@ -25,16 +25,16 @@
 extern "C" {
 #endif
 
-typedef struct _SeeOverflowError SeeOverflowError;
-typedef struct _SeeOverflowErrorClass SeeOverflowErrorClass;
+typedef struct SeeOverflowError SeeOverflowError;
+typedef struct SeeOverflowErrorClass SeeOverflowErrorClass;
 
-struct _SeeOverflowError {
+struct SeeOverflowError {
     SeeError parent_obj;
     /*expand SeeOverflowError data here*/
         
 };
 
-struct _SeeOverflowErrorClass {
+struct SeeOverflowErrorClass {
     SeeErrorClass parent_cls;
     
     /**

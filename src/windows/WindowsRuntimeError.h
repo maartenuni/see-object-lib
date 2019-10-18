@@ -31,16 +31,16 @@
 extern "C" {
 #endif
 
-typedef struct _SeeWindowsRuntimeError SeeWindowsRuntimeError;
-typedef struct _SeeWindowsRuntimeErrorClass SeeWindowsRuntimeErrorClass;
+typedef struct SeeWindowsRuntimeError SeeWindowsRuntimeError;
+typedef struct SeeWindowsRuntimeErrorClass SeeWindowsRuntimeErrorClass;
 
-struct _SeeWindowsRuntimeError {
+struct SeeWindowsRuntimeError {
     SeeError parent_obj;
     /*expand SeeWindowsRuntimeError data here*/
         
 };
 
-struct _SeeWindowsRuntimeErrorClass {
+struct SeeWindowsRuntimeErrorClass {
     SeeErrorClass parent_cls;
     
     int (*windows_runtime_error_init)(

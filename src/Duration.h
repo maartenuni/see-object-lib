@@ -43,15 +43,15 @@
 extern "C" {
 #endif
 
-typedef struct _SeeDuration SeeDuration;
-typedef struct _SeeDurationClass SeeDurationClass;
+typedef struct SeeDuration SeeDuration;
+typedef struct SeeDurationClass SeeDurationClass;
 
 /**
  * @brief A instance of a SeeDuration
  *
  * \private
  */
-struct _SeeDuration {
+struct SeeDuration {
 
     /**
      * \briefSeeDuration is also a SeeObject.
@@ -69,7 +69,7 @@ struct _SeeDuration {
 /**
  * \brief The SeeDurationClass that specifies the operations on a duration.
  */
-struct _SeeDurationClass {
+struct SeeDurationClass {
 
     /**
      * \brief the SeeDuration class is an instance of SeeObjectClass.

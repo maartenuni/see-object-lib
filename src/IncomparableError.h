@@ -31,16 +31,16 @@
 extern "C" {
 #endif
 
-typedef struct _SeeIncomparableError SeeIncomparableError;
-typedef struct _SeeIncomparableErrorClass SeeIncomparableErrorClass;
+typedef struct SeeIncomparableError SeeIncomparableError;
+typedef struct SeeIncomparableErrorClass SeeIncomparableErrorClass;
 
-struct _SeeIncomparableError {
+struct SeeIncomparableError {
     SeeError parent_obj;
     /*expand SeeIncomparableError data here*/
         
 };
 
-struct _SeeIncomparableErrorClass {
+struct SeeIncomparableErrorClass {
     SeeErrorClass parent_cls;
     
     int (*incomparable_error_init)(

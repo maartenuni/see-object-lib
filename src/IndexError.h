@@ -25,14 +25,14 @@
 extern "C" {
 #endif
 
-typedef struct _SeeIndexError SeeIndexError;
-typedef struct _SeeIndexErrorClass SeeIndexErrorClass;
+typedef struct SeeIndexError SeeIndexError;
+typedef struct SeeIndexErrorClass SeeIndexErrorClass;
 
 /**
  * @brief An instance of SeeIndexError,
  * \private
  */
-struct _SeeIndexError {
+struct SeeIndexError {
     /**
      * @brief SeeIndexError derives from SeeError.
      * @private
@@ -45,7 +45,7 @@ struct _SeeIndexError {
  * @brief implements the SeeIndexErrorClass.
  * \private
  */
-struct _SeeIndexErrorClass {
+struct SeeIndexErrorClass {
 
     /**
      * \brief The SeeIndexErrorClass derives from SeeErrorClass.

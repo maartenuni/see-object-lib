@@ -25,16 +25,16 @@
 extern "C" {
 #endif
 
-typedef struct _SeeTimeoutError SeeTimeoutError;
-typedef struct _SeeTimeoutErrorClass SeeTimeoutErrorClass;
+typedef struct SeeTimeoutError SeeTimeoutError;
+typedef struct SeeTimeoutErrorClass SeeTimeoutErrorClass;
 
-struct _SeeTimeoutError {
+struct SeeTimeoutError {
     SeeError parent_obj;
     /*expand SeeTimeoutError data here*/
         
 };
 
-struct _SeeTimeoutErrorClass {
+struct SeeTimeoutErrorClass {
     SeeErrorClass parent_cls;
     
     int (*timeout_error_init)(

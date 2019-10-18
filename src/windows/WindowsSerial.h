@@ -29,16 +29,16 @@
 extern "C" {
 #endif
 
-typedef struct _SeeWindowsSerial SeeWindowsSerial;
-typedef struct _SeeWindowsSerialClass SeeWindowsSerialClass;
+typedef struct SeeWindowsSerial SeeWindowsSerial;
+typedef struct SeeWindowsSerialClass SeeWindowsSerialClass;
 
-struct _SeeWindowsSerial {
+struct SeeWindowsSerial {
     SeeSerial parent_obj;
 
     HANDLE fd;
 };
 
-struct _SeeWindowsSerialClass {
+struct SeeWindowsSerialClass {
     SeeSerialClass parent_cls;
     
     int (*windows_serial_init)(

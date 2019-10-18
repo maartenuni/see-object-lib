@@ -29,16 +29,16 @@
 extern "C" {
 #endif
 
-typedef struct _SeePosixSerial SeePosixSerial;
-typedef struct _SeePosixSerialClass SeePosixSerialClass;
+typedef struct SeePosixSerial SeePosixSerial;
+typedef struct SeePosixSerialClass SeePosixSerialClass;
 
-struct _SeePosixSerial {
+struct SeePosixSerial {
     SeeSerial parent_obj;
 
     int fd;
 };
 
-struct _SeePosixSerialClass {
+struct SeePosixSerialClass {
     SeeSerialClass parent_cls;
     
     int (*posix_serial_init)(

@@ -56,14 +56,14 @@
 extern "C" {
 #endif
 
-typedef struct _SeeRuntimeError SeeRuntimeError;
-typedef struct _SeeRuntimeErrorClass SeeRuntimeErrorClass;
+typedef struct SeeRuntimeError SeeRuntimeError;
+typedef struct SeeRuntimeErrorClass SeeRuntimeErrorClass;
 
 /**
  * \brief Describes an instance of SeeRuntimeError
  * \private
  */
-struct _SeeRuntimeError {
+struct SeeRuntimeError {
 
     /**
      * A runtime Error is also an instance of SeeError.
@@ -78,7 +78,7 @@ struct _SeeRuntimeError {
  * \brief Describe the class - the operations - of SeeRuntimeError
  * \private
  */
-struct _SeeRuntimeErrorClass {
+struct SeeRuntimeErrorClass {
     /**
      * \brief SeeRuntimeError derives from SeeError.
      * \private

@@ -149,14 +149,14 @@ typedef enum msg_part_value_t {
     SEE_MSG_PART_TRAILER,
 } see_msg_part_value_t;
 
-typedef struct _SeeMsgPart SeeMsgPart;
-typedef struct _SeeMsgPartClass SeeMsgPartClass;
+typedef struct SeeMsgPart SeeMsgPart;
+typedef struct SeeMsgPartClass SeeMsgPartClass;
 
 /**
  * \brief a structure to send one specific element over a wire.
  * @private
  */
-struct _SeeMsgPart {
+struct SeeMsgPart {
 
     /**
      * \brief The parent object
@@ -214,7 +214,7 @@ struct _SeeMsgPart {
  *
  * @private
  */
-struct _SeeMsgPartClass {
+struct SeeMsgPartClass {
 
     SeeObjectClass parent_cls;
 
@@ -961,8 +961,8 @@ void see_msg_part_deinit();
 /* **** Message Buffer **** */
 /* ************************ */
 
-typedef struct _SeeMsgBuffer SeeMsgBuffer;
-typedef struct _SeeMsgBufferClass SeeMsgBufferClass;
+typedef struct SeeMsgBuffer SeeMsgBuffer;
+typedef struct SeeMsgBufferClass SeeMsgBufferClass;
 
 /**
  * \brief represents a buffer into which SeeMsgParts can be added.
@@ -971,7 +971,7 @@ typedef struct _SeeMsgBufferClass SeeMsgBufferClass;
  * The message conveys 0 or any number of parts. The receiver can use the
  * id of the msg to know which messages should be available.
  */
-struct _SeeMsgBuffer {
+struct SeeMsgBuffer {
 
     /** It's a SeeObject */
     SeeObject parent_obj;
@@ -1008,7 +1008,7 @@ struct _SeeMsgBuffer {
  *
  * \private
  */
-struct _SeeMsgBufferClass {
+struct SeeMsgBufferClass {
 
     /**
      * \brief SeeMsgBufferClass inherits from SeeObjectClass.
@@ -1416,8 +1416,8 @@ void see_msg_buffer_deinit();
 /* **** Message Part Type Error **** */
 /* ********************************* */
 
-typedef struct _SeeMsgPartTypeError SeeMsgPartTypeError;
-typedef struct _SeeMsgPartTypeErrorClass SeeMsgPartTypeErrorClass;
+typedef struct SeeMsgPartTypeError SeeMsgPartTypeError;
+typedef struct SeeMsgPartTypeErrorClass SeeMsgPartTypeErrorClass;
 
 /**
  * \brief SeeMsgPartTypeError is an error that is raise when trying to
@@ -1425,7 +1425,7 @@ typedef struct _SeeMsgPartTypeErrorClass SeeMsgPartTypeErrorClass;
  *
  * \private
  */
-struct _SeeMsgPartTypeError {
+struct SeeMsgPartTypeError {
     /**
      * \brief This object inherits from SeeError
      */
@@ -1439,7 +1439,7 @@ struct _SeeMsgPartTypeError {
  *
  * \private
  */
-struct _SeeMsgPartTypeErrorClass {
+struct SeeMsgPartTypeErrorClass {
     /**
      * \brief This class inherits from SeeErrorClass.
      * \private
@@ -1536,8 +1536,8 @@ void see_msg_part_type_error_deinit();
 /* **** Message Invalid Error   **** */
 /* ********************************* */
 
-typedef struct _SeeMsgInvalidError SeeMsgInvalidError;
-typedef struct _SeeMsgInvalidErrorClass SeeMsgInvalidErrorClass;
+typedef struct SeeMsgInvalidError SeeMsgInvalidError;
+typedef struct SeeMsgInvalidErrorClass SeeMsgInvalidErrorClass;
 
 
 /**
@@ -1549,7 +1549,7 @@ typedef struct _SeeMsgInvalidErrorClass SeeMsgInvalidErrorClass;
  * correctly formatted or to short for the message it contains, this error
  * is returned.
  */
-struct _SeeMsgInvalidError {
+struct SeeMsgInvalidError {
 
     /**
      * parent is SeeError
@@ -1562,7 +1562,7 @@ struct _SeeMsgInvalidError {
 /**
  * @brief SeeMsgInvalidErrorClass inherits from SeeErrorClass.
  */
-struct _SeeMsgInvalidErrorClass {
+struct SeeMsgInvalidErrorClass {
 
     /**
      * @brief inherit from SeeErrorClass

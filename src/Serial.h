@@ -93,14 +93,14 @@ typedef enum see_speed {
     SEE_B230400  /**< baudrate 230400 */
 } see_speed_t;
 
-typedef struct _SeeSerial SeeSerial;
-typedef struct _SeeSerialClass SeeSerialClass;
+typedef struct SeeSerial SeeSerial;
+typedef struct SeeSerialClass SeeSerialClass;
 
-struct _SeeSerial {
+struct SeeSerial {
     SeeObject parent_obj; /**< the parent instance*/
 };
 
-struct _SeeSerialClass {
+struct SeeSerialClass {
     SeeObjectClass parent_cls; /**< The parent class */
 
     /**

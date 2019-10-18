@@ -33,8 +33,8 @@
 extern "C" {
 #endif
 
-struct _SeeMetaClass;
-typedef struct _SeeMetaClass SeeMetaClass;
+struct SeeMetaClass;
+typedef struct SeeMetaClass SeeMetaClass;
 
 /**
  * \brief A function that is called when a new class is created in
@@ -65,7 +65,7 @@ typedef int (*see_class_init_func)(
  * the default SeeObject->new to generate new classes instance instead
  * of regular instances.
  */
-struct _SeeMetaClass {
+struct SeeMetaClass {
     SeeObjectClass cls;
 
     int (*class_init)(

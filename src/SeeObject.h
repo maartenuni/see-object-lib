@@ -25,15 +25,15 @@
  * that starts with its parent.
  * @code
  *
- * typedef struct _SeeObject SeeObject;
- * typedef struct _SeeObjectClass SeeObjectClass;
+ * typedef struct SeeObject SeeObject;
+ * typedef struct SeeObjectClass SeeObjectClass;
  *
- * struct _SeeObject {
+ * struct SeeObject {
  *     const SeeObjectClass*   cls;
  *     int                     refcount;
  * };
  *
- * struct _SeeObjectClass {
+ * struct SeeObjectClass {
  *
  *     SeeObject obj;
  *
@@ -59,11 +59,11 @@
  *
  * @code
  *
- * typedef struct _SeeShape SeeShape;
- * typedef struct _SeeShapeClass SeeShapeClass;
+ * typedef struct SeeShape SeeShape;
+ * typedef struct SeeShapeClass SeeShapeClass;
  *
  * // Derive a shape from a SeeObject. A shape extends a SeeObject
- * struct _SeeShape {
+ * struct SeeShape {
  *     SeeObject object;
  *     double x;
  *     double y;
@@ -72,7 +72,7 @@
  * // A ShapeClass extends SeeObject by adding extra operations not defined
  * // on a SeeObjectClass.
  *
- * struct _SeeShapeClass {
+ * struct SeeShapeClass {
  *     SeeObjectClass parent; // contains the operations of the parent
  *     int init_shape(Shape
  *     double (*get_x)(const Shape*);
@@ -82,15 +82,15 @@
  * #define SEE_SHAPE(obj)\
  *              ((SeeShape*)(obj))
  *
- * typedef struct _SeeCircle SeeCircle;
- * typedef struct _SeeCircleClass SeeCirleClass;
+ * typedef struct SeeCircle SeeCircle;
+ * typedef struct SeeCircleClass SeeCirleClass;
  *
- * struct _SeeCircle {
+ * struct SeeCircle {
  *      SeeShape    parent; // Contains all the data of a shape and hence object.
  *      double      radius; // A Circle is a Shape with a radius.
  * };
  *
- * struct _SeeCircleClass {
+ * struct SeeCircleClass {
  *     SeeShapeClass parent; // contains the operations of the parent
  *     int (*init_circle)(SeeCircle* circle, SeeCircleClass, x, y, radius);
  *     double (*get_x)(const Shape*);
@@ -131,17 +131,17 @@
 extern "C" {
 #endif
 
-struct _SeeObject;
-typedef struct _SeeObject SeeObject;
-struct _SeeObjectClass;
-typedef struct _SeeObjectClass SeeObjectClass;
+struct SeeObject;
+typedef struct SeeObject SeeObject;
+struct SeeObjectClass;
+typedef struct SeeObjectClass SeeObjectClass;
 
 /* forward declaration */
 struct SeeError;
 
 
 
-struct _SeeClass;
+struct SeeClass;
 
 /**
  * \brief The definition of a SeeObject.
@@ -153,7 +153,7 @@ struct _SeeClass;
  * see_object_decref reaches 0, the object will be destroyed, and after that
  * it shouldn't be used anymore.
  */
-struct _SeeObject {
+struct SeeObject {
 
     /**
      * \brief A pointer to the class this object is an instance of.
@@ -183,7 +183,7 @@ struct _SeeObject {
  * merely exists of methods that operate on the object. Although it is 
  * certainly possible to put class attribute values/data on a class too. 
  */
-struct _SeeObjectClass {
+struct SeeObjectClass {
     /** \brief Classes are SeeObjects too */
     SeeObject obj;
 

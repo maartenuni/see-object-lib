@@ -39,13 +39,13 @@
 extern "C" {
 #endif
 
-typedef struct _SeeClock SeeClock;
-typedef struct _SeeClockClass SeeClockClass;
+typedef struct SeeClock SeeClock;
+typedef struct SeeClockClass SeeClockClass;
 
 /**
  * Implementation of the clock.
  */
-struct _SeeClock {
+struct SeeClock {
     SeeObject parent_obj;
     /**
      * \private
@@ -59,7 +59,7 @@ struct _SeeClock {
  * @brief the SeeClockClass the class defines some of the 
  * virtual operation that can be done on the clock.
  */
-struct _SeeClockClass {
+struct SeeClockClass {
     SeeObjectClass parent_cls;
     
     /**

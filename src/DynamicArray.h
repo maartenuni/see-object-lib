@@ -35,8 +35,8 @@
 extern "C" {
 #endif
 
-typedef struct _SeeDynamicArray SeeDynamicArray;
-typedef struct _SeeDynamicArrayClass SeeDynamicArrayClass;
+typedef struct SeeDynamicArray SeeDynamicArray;
+typedef struct SeeDynamicArrayClass SeeDynamicArrayClass;
 
 /**
  * \brief This is the datastructure that handles one dynamic array.
@@ -45,7 +45,7 @@ typedef struct _SeeDynamicArrayClass SeeDynamicArrayClass;
  *
  * \private
  */
-struct _SeeDynamicArray {
+struct SeeDynamicArray {
     SeeObject   parent_obj;
 
     /**
@@ -106,7 +106,7 @@ struct _SeeDynamicArray {
  * \brief The class that belongs to SeeDynamicArray. This class implements
  * the operations that can be done on SeeDynamicArray.
  */
-struct _SeeDynamicArrayClass {
+struct SeeDynamicArrayClass {
 
     /**
      * \brief This class extends SeeObjectClass.

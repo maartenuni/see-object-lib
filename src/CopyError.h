@@ -31,20 +31,20 @@
 extern "C" {
 #endif
 
-typedef struct _SeeCopyError SeeCopyError;
-typedef struct _SeeCopyErrorClass SeeCopyErrorClass;
+typedef struct SeeCopyError SeeCopyError;
+typedef struct SeeCopyErrorClass SeeCopyErrorClass;
 
 /**
  * \brief SeeCopyError is an error raised when someone tries to copy an non copyable
  * object.
  */
-struct _SeeCopyError {
+struct SeeCopyError {
     SeeError parent_obj;
     /*expand SeeCopyError data here*/
         
 };
 
-struct _SeeCopyErrorClass {
+struct SeeCopyErrorClass {
     SeeErrorClass parent_cls;
     
     int (*copy_error_init)(
