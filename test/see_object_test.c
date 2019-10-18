@@ -28,7 +28,7 @@ static const char* SUITE_NAME = "SeeObject suite";
 static void create_see_object(void)
 {
     SeeObject* obj = NULL;
-    obj = see_object_create();
+    see_object_new(&obj);
     CU_ASSERT_PTR_NOT_NULL(obj);
     see_object_decref(obj);
 }
@@ -36,7 +36,7 @@ static void create_see_object(void)
 static void repr(void)
 {
     SeeObject* obj = NULL;
-    obj = see_object_create();
+    see_object_new(&obj);
 	const char* expected = "Instance of SeeObject at %p";
     char buffer[BUFSIZ] = {0};
 	char* repr = NULL;
@@ -76,7 +76,8 @@ static void instance_of(void)
     if (ret != SEE_SUCCESS)
         goto fail;
 
-    obj = see_object_create();
+    obj = NULL;
+    see_object_new(&obj);
     CU_ASSERT_NOT_EQUAL(obj, NULL);
     if (!obj)
         goto fail;
@@ -157,7 +158,7 @@ void copy(void)
     SeeError*  error= NULL;
     int ret, isinst;
 
-    obj = see_object_create();
+    see_object_new(&obj);
     CU_ASSERT(obj != NULL);
     if (!obj)
         goto fail;

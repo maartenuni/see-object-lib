@@ -188,7 +188,7 @@ array_set(
         array->copy_element(elem, element, array->element_size);
     }
     else {
-        see_index_error_create(error, pos);
+        see_index_error_new(error, pos);
         ret = SEE_ERROR_INDEX;
     }
     return ret;
@@ -198,7 +198,7 @@ static void*
 array_get(SeeDynamicArray* array, size_t pos, SeeError** error)
 {
     if (pos >= array->size) {
-        see_index_error_create(error, pos);
+        see_index_error_new(error, pos);
         return NULL;
     }
     return ARRAY_ELEM_ADDRESS(array, pos);
@@ -220,7 +220,7 @@ array_reserve(
 
     if (a != 0 && x / a != b) {
         errno = EOVERFLOW;
-        see_runtime_error_create(error, errno);
+        see_runtime_error_new(error, errno);
         return SEE_ERROR_RUNTIME;
     }
 
@@ -229,7 +229,7 @@ array_reserve(
     char* new_mem = realloc(array->elements, num_bytes);
 
     if (new_mem == NULL && num_bytes != 0) {
-        see_runtime_error_create(error, errno);
+        see_runtime_error_new(error, errno);
         return SEE_ERROR_RUNTIME;
     }
 
@@ -248,7 +248,7 @@ array_shrink_to_fit(SeeDynamicArray* array, SeeError** error)
     size_t n_bytes = ARRAY_NUM_BYTES(array, array->size);
     char* new_mem = realloc(array->elements, n_bytes);
     if (new_mem == NULL) {
-        see_runtime_error_create(error, errno);
+        see_runtime_error_new(error, errno);
         return SEE_ERROR_RUNTIME;
     }
 
@@ -370,7 +370,7 @@ array_insert(
     cls = SEE_DYNAMIC_ARRAY_GET_CLASS(array);
 
     if (pos > array->size) {
-        see_index_error_create(error, pos);
+        see_index_error_new(error, pos);
         return SEE_ERROR_INDEX;
     }
 

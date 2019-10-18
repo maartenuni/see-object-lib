@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <CUnit/CUnit.h>
 #include "../src/MetaClass.h"
+#include "test_macros.h"
 
 static const char* SUITE_NAME = "SeeMetaClass suite";
 
@@ -37,6 +38,14 @@ struct _SeeCustomReprClass {
 };
 
 SeeCustomReprClass* g_custom_class_instance = NULL;
+
+int see_custom_repr_new(SeeCustomRepr** obj_out) {
+    SeeObjectClass* cls = SEE_OBJECT_CLASS(g_custom_class_instance);
+    if (!cls)
+        return SEE_NOT_INITIALIZED;
+
+    return cls->new_obj(cls, 0, SEE_OBJECT_REF(obj_out));
+}
 
 static int custom_repr(const SeeObject* obj, char** out)
 {
@@ -108,10 +117,11 @@ static void meta_use(void)
     const char* msg = "Hi from a custom class instance.";
     const char* expected_out =
         "Custom Wrapper message = Hi from a custom class instance.";
-    ret = see_object_new(
-        (SeeObjectClass*)g_custom_class_instance,
-        (SeeObject**) &obj
-        );
+    ret = see_custom_repr_new(&obj);
+    CU_ASSERT(ret == 0);
+    if (ret)
+        goto fail;
+
     // Can we successfully create a new instance.
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
     // Is it an instance of the right class.
@@ -123,6 +133,7 @@ static void meta_use(void)
 
     CU_ASSERT_STRING_EQUAL(expected_out, ret_msg);
     free(ret_msg);
+fail:
     see_object_decref((SeeObject*) obj);
 }
 

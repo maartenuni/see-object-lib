@@ -121,7 +121,7 @@ duration_compare(
         );
     assert(ret == SEE_SUCCESS);
     if (!valid_instance) {
-        see_incomparable_error_create(
+        see_incomparable_error_new(
             error,
             SEE_OBJECT_CLASS(see_duration_class()),
             SEE_OBJECT_GET_CLASS(other)
@@ -193,7 +193,7 @@ see_duration_new_s(SeeDuration** out, int64_t s, SeeError** error_out)
     }
     else {
         errno = EOVERFLOW;
-        see_runtime_error_create(error_out, errno);
+        see_runtime_error_new(error_out, errno);
         return SEE_ERROR_RUNTIME;
     }
 }
@@ -212,7 +212,7 @@ see_duration_new_ms(SeeDuration** out, int64_t ms, SeeError** error_out)
     }
     else {
         errno = EOVERFLOW;
-        see_runtime_error_create(error_out, errno);
+        see_runtime_error_new(error_out, errno);
         return SEE_ERROR_RUNTIME;
     }
 }
@@ -231,7 +231,7 @@ see_duration_new_us(SeeDuration** out, int64_t us, SeeError** error_out)
     }
     else {
         errno = EOVERFLOW;
-        see_runtime_error_create(error_out, errno);
+        see_runtime_error_new(error_out, errno);
         return SEE_ERROR_RUNTIME;
     }
 }

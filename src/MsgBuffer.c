@@ -161,7 +161,7 @@ static int msg_part_equal(
 
     assert(ret == SEE_SUCCESS);
     if (!isinstance) {
-        see_incomparable_error_create(
+        see_incomparable_error_new(
             error,
             SEE_OBJECT_CLASS(so_part),
             SEE_OBJECT_CLASS(so_other)
@@ -315,7 +315,7 @@ msg_part_length(
     if (part->value_type == SEE_MSG_PART_NOT_INIT ||
         part->value_type >= SEE_MSG_PART_TRAILER) {
         errno = EINVAL;
-        see_runtime_error_create(error, errno);
+        see_runtime_error_new(error, errno);
         return SEE_ERROR_RUNTIME;
     }
 
@@ -532,7 +532,7 @@ msg_part_write_string(
 {
     char* duplicate = strdup(value);
     if (!duplicate) {
-        see_runtime_error_create(error_out, errno);
+        see_runtime_error_new(error_out, errno);
         return SEE_ERROR_RUNTIME;
     }
 
@@ -565,7 +565,7 @@ msg_part_get_string(
 
     out = strdup(part->value.str_val);
     if (!out) {
-        see_runtime_error_create(error_out, errno);
+        see_runtime_error_new(error_out, errno);
         return SEE_ERROR_RUNTIME;
     }
     *value_out = out;
@@ -663,7 +663,7 @@ msg_part_buffer_length(
     if ( part->value_type == SEE_MSG_PART_NOT_INIT ||
          part->value_type >= SEE_MSG_PART_TRAILER ) {
         errno = EINVAL;
-        see_runtime_error_create(error_out, errno);
+        see_runtime_error_new(error_out, errno);
         return SEE_ERROR_RUNTIME;
     }
 
@@ -749,7 +749,7 @@ msg_part_write(
             break;
         default:
             errno = EINVAL;
-            see_runtime_error_create(error_out, errno);
+            see_runtime_error_new(error_out, errno);
             return SEE_ERROR_RUNTIME;
     }
 
@@ -893,7 +893,7 @@ msg_part_read(
             str = malloc(strlength + 1 );
             if (!str)
             {
-                see_runtime_error_create(error_out, errno);
+                see_runtime_error_new(error_out, errno);
                 goto fail;
             }
             memcpy(str, &bytes[nread], strlength);
@@ -1546,7 +1546,7 @@ msg_buffer_equal(
         );
     assert(ret == SEE_SUCCESS);
     if (!isinstance) {
-        see_incomparable_error_create(
+        see_incomparable_error_new(
             error,
             see_object_get_class(so_self),
             see_object_get_class(so_other)
@@ -1722,7 +1722,7 @@ msg_buffer_calc_length(
 
     if (size > max) {
         errno = EOVERFLOW;
-        see_runtime_error_create(error, errno);
+        see_runtime_error_new(error, errno);
         return SEE_ERROR_RUNTIME;
     }
 
@@ -1822,7 +1822,7 @@ msg_buffer_get_buffer(
 
     bytes = malloc(length);
     if (!bytes) {
-        see_runtime_error_create(error_out, errno);
+        see_runtime_error_new(error_out, errno);
         return SEE_ERROR_RUNTIME;
     }
 

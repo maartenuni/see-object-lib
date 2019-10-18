@@ -170,7 +170,7 @@ see_runtime_error_class();
  * SeeError* error = NULL;
  * int* array = malloc(1000000);
  * if (!array) {
- *     see_runtime_error_create(&error, errno);
+ *     see_runtime_error_new(&error, errno);
  *     return SEE_ERROR_RUNTIME;
  * }
  *
@@ -179,7 +179,7 @@ see_runtime_error_class();
  * @return SEE_SUCCESS, hopefully.
  */
 SEE_EXPORT int
-see_runtime_error_create(SeeError** error, int error_num);
+see_runtime_error_new(SeeError** error, int error_num);
 
 /**
  * Initialize SeeRuntimeError; make it ready for use.

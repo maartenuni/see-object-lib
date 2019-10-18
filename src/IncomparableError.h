@@ -101,7 +101,7 @@ struct _SeeIncomparableErrorClass {
  * @return
  */
 SEE_EXPORT int
-see_incomparable_error_create(
+see_incomparable_error_new(
     SeeError **error,
     const SeeObjectClass *self_class,
     const SeeObjectClass *other_class

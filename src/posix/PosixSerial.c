@@ -177,17 +177,17 @@ posix_serial_open(SeeSerial* self, const char* dev, SeeError** error_out)
 
     pself->fd = open(dev, O_RDWR | O_NOCTTY);
     if (pself->fd < 0) {
-        see_runtime_error_create(error_out, errno);
+        see_runtime_error_new(error_out, errno);
         return SEE_ERROR_RUNTIME;
     }
     if (!isatty(pself->fd)) {
-        see_runtime_error_create(error_out, errno);
+        see_runtime_error_new(error_out, errno);
         close(pself->fd);
         return SEE_ERROR_RUNTIME;
     }
 
     if (tcgetattr(pself->fd, &out_settings) == -1) {
-        see_runtime_error_create(error_out, errno);
+        see_runtime_error_new(error_out, errno);
         close(pself->fd);
         pself->fd = -1;
         return SEE_ERROR_RUNTIME;
@@ -197,7 +197,7 @@ posix_serial_open(SeeSerial* self, const char* dev, SeeError** error_out)
 
     cfmakeraw(&out_settings);
     if (tcsetattr(pself->fd, TCSADRAIN, &out_settings) == -1)  {
-        see_runtime_error_create(error_out, errno);
+        see_runtime_error_new(error_out, errno);
         return SEE_ERROR_RUNTIME;
     }
 
@@ -219,19 +219,19 @@ posix_serial_close(SeeSerial* self, SeeError** error_out)
         return SEE_SUCCESS;
 
     if (tcgetattr(pself->fd, &settings) < 0) {
-        see_runtime_error_create(error_out, errno);
+        see_runtime_error_new(error_out, errno);
         return SEE_ERROR_RUNTIME;
     }
 
     cfsetispeed(&settings, B0);
     cfsetospeed(&settings, B0);
     if (tcsetattr(pself->fd, TCSAFLUSH, &settings) == -1) {
-        see_runtime_error_create(error_out, errno);
+        see_runtime_error_new(error_out, errno);
         return SEE_ERROR_RUNTIME;
     }
 
     if (close(pself->fd)) {
-        see_runtime_error_create(error_out, errno);
+        see_runtime_error_new(error_out, errno);
         return SEE_ERROR_RUNTIME;
     }
     pself->fd = -1;
@@ -260,7 +260,7 @@ posix_serial_write(
 
     ssize_t nwritten = write(pself->fd, *bytes, *length);
     if (nwritten < 0) {
-        see_runtime_error_create(error_out, errno);
+        see_runtime_error_new(error_out, errno);
         return SEE_ERROR_RUNTIME;
     }
     *length -= nwritten;
@@ -290,7 +290,7 @@ posix_serial_read(
 
     ssize_t nread = read(pself->fd, *buffer, *length);
     if (nread < 0) {
-        see_runtime_error_create(error_out, errno);
+        see_runtime_error_new(error_out, errno);
         return SEE_ERROR_RUNTIME;
     } else if (nread == 0) {
         see_timeout_error_new(error_out);
@@ -326,7 +326,7 @@ posix_serial_flush(
 
     int ret = tcflush(pself->fd, queue);
     if (ret < 0) {
-        see_runtime_error_create(error_out, errno);
+        see_runtime_error_new(error_out, errno);
         return SEE_ERROR_RUNTIME;
     }
     return SEE_SUCCESS;
@@ -342,7 +342,7 @@ posix_serial_drain(
 
     int ret = tcdrain(pself->fd);
     if (ret < 0) {
-        see_runtime_error_create(error_out, errno);
+        see_runtime_error_new(error_out, errno);
         return SEE_ERROR_RUNTIME;
     }
     return SEE_SUCCESS;
@@ -362,7 +362,7 @@ posix_serial_set_speed(
 
     int ret = tcgetattr(pself->fd, &settings);
     if (ret < 0) {
-        see_runtime_error_create(error_out, errno);
+        see_runtime_error_new(error_out, errno);
         return SEE_ERROR_RUNTIME;
     }
 
@@ -375,7 +375,7 @@ posix_serial_set_speed(
         cfsetospeed(&settings, speed);
     }
     if (tcsetattr(pself->fd, TCSADRAIN, &settings)) {
-        see_runtime_error_create(error_out, errno);
+        see_runtime_error_new(error_out, errno);
         return SEE_ERROR_RUNTIME;
     }
 
@@ -396,13 +396,13 @@ posix_serial_get_speed(
 
     if (d == SEE_SERIAL_INOUT) {
         errno = EINVAL;
-        see_runtime_error_create(error_out, errno);
+        see_runtime_error_new(error_out, errno);
         return SEE_ERROR_RUNTIME;
     }
 
     int ret = tcgetattr(pself->fd, &settings);
     if (ret < 0) {
-        see_runtime_error_create(error_out, errno);
+        see_runtime_error_new(error_out, errno);
         return SEE_ERROR_RUNTIME;
     }
 
@@ -445,7 +445,7 @@ posix_serial_set_timeout(
     struct termios settings;
     ret = tcgetattr(pself->fd, &settings);
     if (ret < 0) {
-        see_runtime_error_create(error, errno);
+        see_runtime_error_new(error, errno);
         return SEE_ERROR_RUNTIME;
     }
 
@@ -462,7 +462,7 @@ posix_serial_set_timeout(
 
     ret = tcsetattr(pself->fd, TCSANOW, &settings);
     if (ret != 0) {
-        see_runtime_error_create(error, errno);
+        see_runtime_error_new(error, errno);
         return ret;
     }
 
@@ -476,7 +476,7 @@ posix_serial_get_timeout(const SeeSerial* self, SeeDuration** dur, SeeError** er
     struct termios settings;
     int ret = tcgetattr(pself->fd, &settings);
     if (ret < 0) {
-        see_runtime_error_create(error, errno);
+        see_runtime_error_new(error, errno);
         return SEE_ERROR_RUNTIME;
     }
 
@@ -510,7 +510,7 @@ posix_serial_set_min_rd_chars(
     struct termios settings;
     int ret = tcgetattr(pself->fd, &settings);
     if (ret < 0) {
-        see_runtime_error_create(error_out, errno);
+        see_runtime_error_new(error_out, errno);
         return SEE_ERROR_RUNTIME;
     }
 
@@ -518,7 +518,7 @@ posix_serial_set_min_rd_chars(
 
     ret = tcsetattr(pself->fd, TCSANOW, &settings);
     if (ret < 0) {
-        see_runtime_error_create(error_out, errno);
+        see_runtime_error_new(error_out, errno);
         return SEE_ERROR_RUNTIME;
     }
 
@@ -537,7 +537,7 @@ posix_serial_get_min_rd_chars(
     struct termios settings;
     int ret = tcgetattr(pself->fd, &settings);
     if (ret < 0) {
-        see_runtime_error_create(error_out, errno);
+        see_runtime_error_new(error_out, errno);
         return SEE_ERROR_RUNTIME;
     }
 

@@ -157,7 +157,7 @@ object_less (
         *result = cmp < 0 ? 1 : 0;
     }
     else {
-        see_incomparable_error_create(
+        see_incomparable_error_new(
             error,
             SEE_OBJECT_GET_CLASS(self),
             NULL
@@ -186,7 +186,7 @@ object_less_equal (
         *result = cmp <= 0 ? 1 : 0;
     }
     else {
-        see_incomparable_error_create(
+        see_incomparable_error_new(
             error,
             SEE_OBJECT_GET_CLASS(self),
             NULL
@@ -215,7 +215,7 @@ object_equal (
         *result = cmp == 0 ? 1 : 0;
     }
     else {
-        see_incomparable_error_create(
+        see_incomparable_error_new(
             error,
             SEE_OBJECT_GET_CLASS(self),
             NULL
@@ -244,7 +244,7 @@ object_not_equal (
         *result = cmp != 0 ? 1 : 0;
     }
     else {
-        see_incomparable_error_create(
+        see_incomparable_error_new(
             error,
             SEE_OBJECT_GET_CLASS(self),
             NULL
@@ -273,7 +273,7 @@ object_greater_equal (
         *result = cmp >= 0 ? 1 : 0;
     }
     else {
-        see_incomparable_error_create(
+        see_incomparable_error_new(
             error,
             SEE_OBJECT_GET_CLASS(self),
             NULL
@@ -302,7 +302,7 @@ object_greater(
         *result = cmp > 0 ? 1 : 0;
     }
     else {
-        see_incomparable_error_create(
+        see_incomparable_error_new(
             error,
             SEE_OBJECT_GET_CLASS(self),
             NULL
@@ -354,24 +354,16 @@ see_object_class_init()
     return SEE_SUCCESS;
 }
 
-int see_object_new(const SeeObjectClass* cls, SeeObject** out)
+int see_object_new(SeeObject** obj_out)
 {
-    if (!cls)
-        return SEE_INVALID_ARGUMENT;
-    if (!out || *out)
-        return SEE_INVALID_ARGUMENT;
+    const SeeObjectClass* cls = see_object_class();
 
-    return cls->new_obj(cls, 0, out);
-}
-
-SeeObject* see_object_create()
-{
-    SeeObject* obj = NULL;
-    int ret = see_object_new(see_object_class_instance, &obj);
-    if (ret) {
-        return NULL;
+    if (!cls) {
+        assert(0 == 1);
+        return SEE_NOT_INITIALIZED;
     }
-    return obj;
+
+    return cls->new_obj(cls, 0, obj_out);
 }
 
 int see_object_repr(const SeeObject* obj, char** out)
@@ -425,7 +417,7 @@ see_object_compare(
     const SeeObjectClass* cls = see_object_get_class(obj);
 
     if (!cls->compare) {
-        see_incomparable_error_create(error, cls, NULL);
+        see_incomparable_error_new(error, cls, NULL);
         return SEE_ERROR_INCOMPARABLE;
     }
 

@@ -120,7 +120,7 @@ struct _SeeIndexErrorClass {
  * @return SEE_SUCCESS (or you are really out of luck).
  */
 SEE_EXPORT int
-see_index_error_create(SeeError** error, size_t i);
+see_index_error_new(SeeError** error, size_t i);
 
 
 /**

@@ -500,25 +500,14 @@ struct _SeeObjectClass {
 
 /* **** public interface **** */
 
-/**
- * \brief Creates a new object for any SeeObject derived class.
- *
- * This function see_object_new is a functions that takes a class and a
- * reference to a new SeeObject*. The class table should know how to allocate
- * a new instance of its class. Hence, any SeeObjectClass derived class can
- * be used to make an instance of that class.
- */
-SEE_EXPORT int
-see_object_new(const SeeObjectClass* cls, SeeObject** out);
 
 /**
  * \brief Allocates a new SeeObject instance.
  *
- * This is short for see_object_new(see_object_class()); In practice this
- * function isn't used.
+ * Create a new SeeObject, a plain SeeObject isn't very useful though.
  */
-SEE_EXPORT SeeObject*
-see_object_create();
+SEE_EXPORT int
+see_object_new(SeeObject** out);
 
 
 /**

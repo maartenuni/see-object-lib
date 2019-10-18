@@ -78,7 +78,7 @@ init(const SeeObjectClass* cls, SeeObject* obj, va_list args)
 
 /* **** implementation of the public API **** */
 
-int see_runtime_error_create(SeeError** error, int errnum)
+int see_runtime_error_new(SeeError** error, int errnum)
 {
     const SeeObjectClass* cls = SEE_OBJECT_CLASS(see_runtime_error_class());
 

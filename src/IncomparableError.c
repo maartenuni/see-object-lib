@@ -81,7 +81,7 @@ init(const SeeObjectClass* cls, SeeObject* obj, va_list args)
 /* **** implementation of the public API **** */
 
 int
-see_incomparable_error_create(
+see_incomparable_error_new(
     SeeError** error,
     const SeeObjectClass* self_cls,
     const SeeObjectClass* other_cls

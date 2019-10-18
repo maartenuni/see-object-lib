@@ -205,7 +205,7 @@ obtain_synced_msg_buffer(
     size = see_network_to_host32(size);
     bytes = malloc(size);
     if (!bytes) {
-        see_runtime_error_create(error, errno);
+        see_runtime_error_new(error, errno);
         return SEE_ERROR_RUNTIME;
     }
 

@@ -123,7 +123,7 @@ time_point_compare(
 
 
     if (!isinstance) {
-        see_incomparable_error_create(
+        see_incomparable_error_new(
             error,
             SEE_OBJECT_CLASS(cls),
             see_object_get_class(other)

@@ -71,7 +71,7 @@ init(const SeeObjectClass* cls, SeeObject* obj, va_list args)
 
 /* **** implementation of the public API **** */
 
-int see_index_error_create(SeeError** error, size_t index)
+int see_index_error_new(SeeError** error, size_t index)
 {
     const SeeObjectClass* cls = SEE_OBJECT_CLASS(see_index_error_class());
     if (!error || *error)
