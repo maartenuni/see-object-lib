@@ -41,21 +41,22 @@ HEADER_INIT = LIC_STR + r"""
 #define {CLASS_NAME_CAPS}_H
 
 #include "{ParentCamelCaseName}.h"
+#include "Error.h"
 
 #ifdef __cplusplus
 extern "C" {{
 #endif
 
-typedef struct _{CamelCaseName} {CamelCaseName};
-typedef struct _{CamelCaseName}Class {CamelCaseName}Class;
+typedef struct {CamelCaseName} {CamelCaseName};
+typedef struct {CamelCaseName}Class {CamelCaseName}Class;
 
-struct _{CamelCaseName} {{
+struct {CamelCaseName} {{
     {ParentCamelCaseName} parent_obj;
     /*expand {CamelCaseName} data here*/
         
 }};
 
-struct _{CamelCaseName}Class {{
+struct {CamelCaseName}Class {{
     {ParentCamelCaseName}Class parent_cls;
     
     int (*{object_name}_init)(
@@ -101,6 +102,16 @@ struct _{CamelCaseName}Class {{
     ({CLASS_NAME_CAPS}_CLASS(see_object_get_class(SEE_OBJECT(obj)) )  )
 
 /* **** public functions **** */
+
+/*
+ * Carefully examine whether BETWEEN obj_out and error_out should be another
+ * parameter. Eg for SeeError that might be a const char* msg. This
+ * should also be added in the .c file.
+ *
+ * Remove this comment and add useful documentation
+ */
+{NAMESPACE_CAPS}_EXPORT int
+{function_name}_new({CamelCaseName}** obj_out, SeeError** error_out);
 
 /**
  * Gets the pointer to the {CamelCaseName}Class table.
@@ -162,9 +173,12 @@ static int
      * that extends the parent above its parent.
      * Check how the parent is initialized and pass through the right parameters.
      */
-    parent_cls->parent_init({object_name}, {object_name}_cls);
+    parent_cls->{parent_name}_init(
+            {PARENT_CLASS_NAME_CAPS}({object_name}),
+            {PARENT_CLASS_NAME_CAPS}_CLASS({object_name}_cls)
+            );
     
-     /*
+    /*
      * Check if the parent initialization was successful.
      * if not return a useful error value.
      */
@@ -197,11 +211,37 @@ init(const SeeObjectClass* cls, SeeObject* obj, va_list args)
 
 /* **** implementation of the public API **** */
 
+/*
+ * Carefully examine whether BETWEEN obj_out and error_out should be another
+ * parameter. Eg for SeeError that might be a const char* msg. This
+ * should also be added in the header file.
+ */
+int {function_name}_new({CamelCaseName}** obj_out, SeeError** error_out)
+{{
+    const SeeObjectClass* cls = SEE_OBJECT_CLASS(
+        {function_name}_class()
+        );
+
+    if (!cls)
+        return SEE_NOT_INITIALIZED;
+
+    if (!obj_out || !error_out || *obj_out || *error_out)
+        return SEE_INVALID_ARGUMENT;
+
+    return cls->new_obj(
+            cls,
+            0,
+            SEE_OBJECT_REF(obj_out),
+            /* add extra params here and remove,*/
+            error_out
+            );
+}}
+
 /* **** initialization of the class **** */
 
 {CamelCaseName}Class* g_{CamelCaseName}Class = NULL;
 
-static int {function_name}_class_init(SeeObjectClass* new_cls)
+static int {object_name}_class_init(SeeObjectClass* new_cls)
 {{
     int ret = SEE_SUCCESS;
     
@@ -233,7 +273,7 @@ int
         sizeof({CamelCaseName}),
         SEE_OBJECT_CLASS({parent_func_name}_class()),
         sizeof({ParentCamelCaseName}Class),
-        {function_name}_class_init
+        {object_name}_class_init
         );
 
     return ret;
@@ -345,6 +385,7 @@ def implementation_content(
         function_name=cls_func_name,
         CLASS_NAME_CAPS=cls_caps_name,
         ParentCamelCaseName=par_camel_name,
+        parent_name=par_func_name[(len(namespace) + 1):],
         parent_func_name=par_func_name,
         PARENT_CLASS_NAME_CAPS=par_caps_name,
         NAMESPACE_CAP=cls_namespace_caps_name,
