@@ -245,8 +245,28 @@ static int {object_name}_class_init(SeeObjectClass* new_cls)
 {{
     int ret = SEE_SUCCESS;
     
-    /* Override the functions on the parent here */
+    /* Override the functions on the SeeObject here */
     new_cls->init = init;
+
+    // Every class should have a unique name.
+    new_cls->name = "{CamelCaseName}";
+
+    // These can be optionally overwritten
+    // Then you need to create static function above with the proper
+    // signature.
+    // new_cls->compare        = {lowername}_compare;
+    // new_cls->less           = {lowername}_less;
+    // new_cls->less_equal     = {lowername}_less_equal;
+    // new_cls->equal          = {lowername}_equal;
+    // new_cls->not_equal      = {lowername}_not_equal;
+    // new_cls->greater_equal  = {lowername}_greater_equal;
+    // new_cls->greater        = {lowername}_greater;
+    // new_cls->copy           = {lowername}_copy;
+
+
+    // Overwrite functions of the parent here
+    // If the parent doesn't inherent from SeeObject directly, you can
+    {ParentCamelCaseName}Class* parent_cls = {PARENT_CLASS_NAME_CAPS}(new_cls);
     
     /* Set the function pointers of the own class here */
     {CamelCaseName}Class* cls = ({CamelCaseName}Class*) new_cls;
@@ -380,6 +400,7 @@ def implementation_content(
     par_camel_name, par_func_name, par_caps_name, _ = get_class_names(parentname)
     return IMPLEMENTATION_INIT.format(
         ClassName=classname,
+        lowername=classname.lower(),
         CamelCaseName=cls_camel_name,
         object_name=cls_func_name[(len(namespace) + 1):],
         function_name=cls_func_name,
