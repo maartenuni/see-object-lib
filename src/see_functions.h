@@ -69,6 +69,9 @@ SEE_EXPORT void*
 see_copy_by_ref(void* dest_seeobj, const void* src_seeobj, size_t unused);
 
 
+SEE_EXPORT void*
+see_copy_by_value(void* dest_seeobj, const void* src_seeobj, size_t unused);
+
 /**
  * \brief initialize the bytes to a given bytes or 0.
  *

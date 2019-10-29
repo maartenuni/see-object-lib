@@ -59,6 +59,7 @@ set (SEE_OBJ_HDR_PUBLIC
     atomic_operations.h
     utilities.h
     ${CMAKE_CURRENT_BINARY_DIR}/see_export.h
+    ${CMAKE_CURRENT_BINARY_DIR}/see_object_config.h
     )
 
 set (SEE_OBJ_HDR_PRIVATE

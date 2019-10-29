@@ -140,8 +140,8 @@ static void array_copy(void)
         see_dynamic_array_size(array) == see_dynamic_array_size(copy);
     CU_ASSERT(array_equal_size)
 
-    int* array_ptr = see_dynamic_array_get(array, 0, &error);
-    int* copy_ptr  = see_dynamic_array_get(copy, 0, &error);
+    int* array_ptr = see_dynamic_array_data(array);
+    int* copy_ptr  = see_dynamic_array_data(copy);
     CU_ASSERT(array_ptr != NULL)
     CU_ASSERT(copy_ptr != NULL)
     CU_ASSERT_NOT_EQUAL(array_ptr, copy_ptr)
@@ -186,7 +186,7 @@ static void array_add(void)
     }
 
 
-    int* elements_start = see_dynamic_array_get(array, 0, &error);
+    int* elements_start = see_dynamic_array_data(array);
     CU_ASSERT(two_int_arrays_equal(elements_start, input, TEST_N));
     if (error) {
         fprintf(stderr, "%s, %s",
@@ -238,7 +238,7 @@ static void array_set(void)
     CU_ASSERT_EQUAL(see_dynamic_array_size(array), TEST_N/2);
 
     int matches = 1;
-    const int** int_ptr_array = see_dynamic_array_get(array, 0, &error);
+    const int** int_ptr_array = see_dynamic_array_data(array);
 
     for (size_t i = 0; i < TEST_N/2 ;i++) {
         if (input1[i] != *int_ptr_array[i])
@@ -256,7 +256,7 @@ static void array_set(void)
     CU_ASSERT_EQUAL(see_dynamic_array_size(array), TEST_N/2);
 
     matches = 1;
-    int_ptr_array = see_dynamic_array_get(array, 0, &error);
+    int_ptr_array = see_dynamic_array_data(array);
     assert(!error);
     for (size_t i = 0; i < TEST_N/2 ;i++) {
         if (input2[i] != *int_ptr_array[i])
@@ -359,9 +359,9 @@ static void array_insert(void)
     ret = see_dynamic_array_insert(a5, 5, input, N, &error);
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
 
-    int* out0 = see_dynamic_array_get(a0, 0, &error);
-    int* out2 = see_dynamic_array_get(a2, 0, &error);
-    int* out5 = see_dynamic_array_get(a5, 0, &error);
+    int* out0 = see_dynamic_array_data(a0);
+    int* out2 = see_dynamic_array_data(a2);
+    int* out5 = see_dynamic_array_data(a5);
 
     CU_ASSERT(two_int_arrays_equal(output0, out0, N*2));
     CU_ASSERT(two_int_arrays_equal(output2, out2, N*2));
@@ -380,7 +380,7 @@ void array_exception(void)
     SeeError* error = NULL;
     SeeDynamicArray* array = NULL;
     int ret = SEE_SUCCESS;
-    int* elements;
+    int element;
     const char* msg1 = "SeeIndexError: 0";
 	const char* result = NULL;
 
@@ -391,9 +391,9 @@ void array_exception(void)
     if(ret != SEE_SUCCESS)
         return;
 
-    elements = see_dynamic_array_get(array, 0, &error);
-    CU_ASSERT(elements == NULL);
-    CU_ASSERT(error    != NULL);
+    ret = see_dynamic_array_get(array, 0, &element, &error);
+    CU_ASSERT_EQUAL(ret, SEE_ERROR_INDEX);
+    CU_ASSERT_NOT_EQUAL(error, NULL);
     CU_ASSERT_EQUAL(
         see_object_get_class(SEE_OBJECT(error)),
         SEE_OBJECT_CLASS(see_index_error_class())
@@ -412,9 +412,9 @@ void array_exception(void)
         }
     }
 
-    elements = see_dynamic_array_get(array, SIZE, &error);
-    CU_ASSERT(elements == NULL);
-    CU_ASSERT(error    != NULL);
+    ret = see_dynamic_array_get(array, SIZE, &element, &error);
+    CU_ASSERT_EQUAL(ret, SEE_ERROR_INDEX);
+    CU_ASSERT_NOT_EQUAL(error,NULL);
     CU_ASSERT_EQUAL(
         see_object_get_class(SEE_OBJECT(error)),
         SEE_OBJECT_CLASS(see_index_error_class())

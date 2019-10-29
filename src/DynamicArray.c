@@ -194,15 +194,20 @@ array_set(
     return ret;
 }
 
-static void*
-array_get(SeeDynamicArray* array, size_t pos, SeeError** error)
+static int
+array_get(SeeDynamicArray* array, size_t pos, void* out, SeeError** error)
 {
+    int ret = SEE_SUCCESS;
+
     if (pos >= array->size) {
         see_index_error_new(error, pos);
-        return NULL;
+        return SEE_ERROR_INDEX;
     }
-    return ARRAY_ELEM_ADDRESS(array, pos);
 
+    const void* src = ARRAY_ELEM_ADDRESS(array, pos);
+    array->copy_element(out, src, array->element_size);
+
+    return ret;
 }
 
 static int
@@ -503,21 +508,22 @@ see_dynamic_array_add(
     return cls->add(array, element, error);
 }
 
-void*
+int
 see_dynamic_array_get(
     SeeDynamicArray*    array,
     size_t              index,
+    void*               out,
     SeeError**          error
     )
 {
     const SeeDynamicArrayClass* cls = SEE_DYNAMIC_ARRAY_GET_CLASS(array);
     if (!array)
-        return NULL;
+        return SEE_INVALID_ARGUMENT;
 
     if (!error || *error)
-        return NULL;
+        return SEE_INVALID_ARGUMENT;
 
-    return cls->get(array, index, error);
+    return cls->get(array, index, out, error);
 }
 
 int
@@ -538,6 +544,14 @@ see_dynamic_array_set(
 
     cls->set(array, index, element, error);
     return SEE_SUCCESS;
+}
+
+void*
+see_dynamic_array_data(SeeDynamicArray* array)
+{
+    if (!array)
+        return NULL;
+    return array->elements;
 }
 
 int

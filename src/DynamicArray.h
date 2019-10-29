@@ -69,7 +69,7 @@ struct SeeDynamicArray {
     size_t      capacity;
 
     /**
-     * \brief a pointer to the elements storted inside the array.
+     * \brief a pointer to the elements stored inside the array.
      * \private
      */
     char*       elements;
@@ -166,8 +166,9 @@ struct SeeDynamicArrayClass {
      *
      * @param array [in]    A non NULL pointer to the array from which we would
      *                      like to obtain an element
-     * @param pos[IN]       The index of the item to which we would like to
+     * @param pos[in]       The index of the item to which we would like to
      *                      retrieve a pointer
+     * @param out[out]      Pointer to where the result should be stored.
      * @param error[out]    If an error occurs it will be returned here.
      *
      * @return              The pointer to the element stored inside of the
@@ -175,8 +176,9 @@ struct SeeDynamicArrayClass {
      *                      the item in order to use it.
      * \private
      */
-    void*      (*get)  (SeeDynamicArray*    array,
+    int        (*get)  (SeeDynamicArray*    array,
                         size_t              pos,
+                        void*               out,
                         SeeError**          error
                         );
 
@@ -452,17 +454,18 @@ see_dynamic_array_add(
  *
  * @param [in]  array   the array from which to get a pointer.
  * @param [in]  index   a zero based index.
+ * @param [out] out     a pointer to which the element should be copied to.
  * @param [out] error   If an error occurs it will be returned here.
  *
- * @return A pointer into the array. So if index is 0 the first item
- *         in the array is returned, if you cast that to a pointer
- *         desired type, you can index it like a regular c-type array.
- *         Note that the return value should be dereferenced before use.
+ * @return SEE_SUCCESS when you have obtained a valid copy or SEE_ERROR_INDEX
+ *         when you have provided a index that was out of bounds, in theory it
+ *         can also be the case that the copy fails due to lack of resources.
  */
-SEE_EXPORT void*
+SEE_EXPORT int
 see_dynamic_array_get(
     SeeDynamicArray*    array,
     size_t              index,
+    void*               out,
     SeeError**          error
     );
 
@@ -485,6 +488,15 @@ see_dynamic_array_set(
     const void*         element,
     SeeError**          error
     );
+
+/**
+ * \brief get a pointer to the internal c-style array.
+ * @param array [in] The array whose data to use.
+ * @return a pointer to the data.
+ */
+SEE_EXPORT void*
+see_dynamic_array_data(SeeDynamicArray* array);
+
 
 /**
  * \brief preallocate enough space to hold n_elements
