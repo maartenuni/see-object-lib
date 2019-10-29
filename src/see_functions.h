@@ -26,6 +26,7 @@
 
 #include <stdlib.h>
 #include "see_export.h"
+#include "Error.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -67,10 +68,6 @@ typedef int (*see_init_func)(void* element, size_t num_bytes, void* data);
  */
 SEE_EXPORT void*
 see_copy_by_ref(void* dest_seeobj, const void* src_seeobj, size_t unused);
-
-
-SEE_EXPORT void*
-see_copy_by_value(void* dest_seeobj, const void* src_seeobj, size_t unused);
 
 /**
  * \brief initialize the bytes to a given bytes or 0.

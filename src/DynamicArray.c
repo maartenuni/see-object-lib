@@ -387,8 +387,7 @@ array_insert(
     if (ret)
         return ret;
 
-    memmove(
-            ARRAY_ELEM_ADDRESS(array, to),
+    memmove(ARRAY_ELEM_ADDRESS(array, to),
             ARRAY_ELEM_ADDRESS(array, pos),
             ARRAY_NUM_BYTES(array, num_to_copy)
           );

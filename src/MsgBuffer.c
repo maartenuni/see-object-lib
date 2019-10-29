@@ -1465,7 +1465,7 @@ msg_buffer_init(
     ret = see_dynamic_array_new(
         &msg_buffer->parts,
         sizeof(SeeMsgPart*),
-        see_copy_by_value,
+        see_copy_by_ref,
         see_init_memset,
         see_free_see_object,
         error_out
@@ -1769,7 +1769,6 @@ msg_buffer_add_part(
     assert(length == mbuf->length);
 #endif
 
-    return ret;
 fail:
     see_object_decref(SEE_OBJECT(copy));
     return ret;

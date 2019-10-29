@@ -36,24 +36,6 @@ void* see_copy_by_ref(void* dest_seeobj, const void* src, size_t unused)
     return dest_seeobj;
 }
 
-void* see_copy_by_value(void* dest_seeobj, const void* src_seeobj, size_t unused)
-{
-    (void) unused;
-    SeeObject*  out     = NULL;
-    SeeError*   error   = NULL;
-    const SeeObject* const* src_obj = src_seeobj;
-    SeeObject** out_obj = dest_seeobj;
-
-    int ret = see_object_copy(*src_obj, &out, &error);
-    if (ret) {
-        fprintf(stderr, "Oops: %s", see_error_msg(error));
-        see_object_decref(SEE_OBJECT(error));
-        return NULL;
-    }
-    *out_obj = out;
-    return out;
-}
-
 int
 see_init_memset(void* obj, size_t nbytes, void* byte)
 {
