@@ -42,6 +42,7 @@
 #include "utilities.h"
 #include "RuntimeError.h"
 #include "IncomparableError.h"
+#include "IndexError.h"
 
 
 /**
@@ -1464,7 +1465,7 @@ msg_buffer_init(
     ret = see_dynamic_array_new(
         &msg_buffer->parts,
         sizeof(SeeMsgPart*),
-        NULL,
+        see_copy_by_ref,
         see_init_memset,
         see_free_see_object,
         error_out
@@ -1579,10 +1580,10 @@ msg_buffer_equal(
     const SeeObject** self_parts = NULL;
     const SeeObject** other_parts= NULL;
 
-    self_parts = see_dynamic_array_get(self->parts, 0, error);
+    self_parts = see_dynamic_array_data(self->parts);
     if (!self_parts)
         return ret;
-    other_parts = see_dynamic_array_get(self->parts, 0, error);
+    other_parts = see_dynamic_array_data(other->parts);
     if (!other_parts)
         return ret;
 
@@ -1641,15 +1642,17 @@ msg_buffer_copy(
     see_msg_buffer_num_parts(in, &sz);
     SeeDynamicArray* parts = in->parts;
     for (size_t i = 0; i < sz; i++) {
-        const SeeMsgPart** part = NULL;
-        part = see_dynamic_array_get(parts, i, error_out);
-        if (!part) {
-            ret = SEE_ERROR_INDEX;
-            goto fail;
-        }
-        ret = see_msg_buffer_add_part(out, part[0], error_out);
+        const SeeMsgPart* part = NULL;
+        ret = see_dynamic_array_get(parts, i, &part, error_out);
         if (ret)
             goto fail;
+
+        ret = see_msg_buffer_add_part(out, part, error_out);
+        if (ret) {
+            see_object_decref(SEE_OBJECT(part));
+            goto fail;
+        }
+        see_object_decref(SEE_OBJECT(part));
     }
 
     if (*msg_out)
@@ -1766,7 +1769,6 @@ msg_buffer_add_part(
     assert(length == mbuf->length);
 #endif
 
-    return ret;
 fail:
     see_object_decref(SEE_OBJECT(copy));
     return ret;
@@ -1782,10 +1784,14 @@ msg_buffer_get_part(
 {
     SeeMsgPart*  part = NULL;
     SeeMsgPart** part_array = NULL;
-    part_array = see_dynamic_array_get(mbuf->parts, n, error_out);
-    if (!part_array)
+    part_array = see_dynamic_array_data(mbuf->parts);
+
+    size_t n_parts = see_dynamic_array_size(mbuf->parts);
+    if (n >= n_parts) {
+        see_index_error_new(error_out, n);
         return SEE_ERROR_INDEX;
-    part = part_array[0];
+    }
+    part = part_array[n];
 
     return see_object_copy(SEE_OBJECT(part), SEE_OBJECT_REF(mbpart), error_out);
 }
@@ -1840,11 +1846,11 @@ msg_buffer_get_buffer(
     nwritten += sizeof(length_network);
 
     if (n > 0) {
-        const SeeMsgPart **partarray = see_dynamic_array_get(msg->parts, 0, error_out);
+        const SeeMsgPart **part_array = see_dynamic_array_data(msg->parts);
         for (size_t i = 0; i < n; ++i) {
 
             size_t partsize;
-            const SeeMsgPart *part = partarray[i];
+            const SeeMsgPart *part = part_array[i];
 
             ret = see_msg_part_write(part, &bytes[nwritten], error_out);
             if (ret)

@@ -23,8 +23,10 @@
 
 #include <string.h>
 #include <stdint.h>
+#include <stdio.h>
 #include "SeeObject.h"
 #include "see_functions.h"
+#include "Error.h"
 
 void* see_copy_by_ref(void* dest_seeobj, const void* src, size_t unused)
 {
