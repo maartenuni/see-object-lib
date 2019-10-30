@@ -54,6 +54,10 @@ int add_suites()
     res = add_serial_suite();
     if (res)
         return res;
+
+    res = add_stack_suite();
+    if (res)
+        return res;
     
     res = add_utilities_suite();
     

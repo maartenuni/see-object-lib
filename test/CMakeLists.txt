@@ -29,6 +29,7 @@ if (BUILD_UNIT_TESTS)
         msgbuffer_test.c
         see_object_test.c
         serial_test.c
+        stack_test.c
         utilities_tests.c
         time_test.c
         )
