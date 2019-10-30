@@ -588,6 +588,7 @@ static int see_posix_serial_class_init(SeeObjectClass* new_cls)
     
     /* Override the functions on the parent here */
     new_cls->init = init;
+    new_cls->name = "SeePosixSerial";
 
     SeeSerialClass* serial_cls = (SeeSerialClass*) new_cls;
     serial_cls->open        = posix_serial_open;

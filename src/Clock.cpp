@@ -236,6 +236,7 @@ static int see_clock_class_init(SeeObjectClass* new_cls)
     /* Override the functions on the parent here */
     new_cls->init       = init;
     new_cls->destroy    = clock_destroy;
+    new_cls->name       = "SeeClock";
     
     /* Set the function pointers of the own class here */
     SeeClockClass* cls  = (SeeClockClass*) new_cls;

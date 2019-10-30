@@ -616,6 +616,7 @@ static int see_serial_class_init(SeeObjectClass* new_cls)
 
     /* Override the functions on the parent here */
     new_cls->init       = init;
+    new_cls->name       = "SeeSerial";
     new_cls->destroy    = serial_destroy;
 
     /* Set the function pointers of the own class here */

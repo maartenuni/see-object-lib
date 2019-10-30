@@ -480,6 +480,7 @@ static int see_time_point_class_init(SeeObjectClass* new_cls)
     
     /* Override the functions on the parent here */
     new_cls->init       = init;
+    new_cls->name       = "SeeTimePoint";
     new_cls->destroy    = time_point_destroy;
     new_cls->compare    = time_point_compare;
     new_cls->copy       = time_point_copy;

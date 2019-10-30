@@ -1359,7 +1359,7 @@ static int see_msg_part_class_init(SeeObjectClass* new_cls)
 
     /* Override the functions on the parent here */
     new_cls->init   = part_init;
-    new_cls->name   = "SeeMsgPartClass";
+    new_cls->name   = "SeeMsgPart";
     new_cls->destroy= msg_part_destroy;
     new_cls->equal  = msg_part_equal;
     new_cls->not_equal = msg_part_not_equal;
@@ -2121,7 +2121,7 @@ static int see_msg_buffer_class_init(SeeObjectClass* new_cls)
     
     /* Override the functions on the parent here */
     new_cls->init       = init;
-    new_cls->name       = "SeeMsgBufferClass";
+    new_cls->name       = "SeeMsgBuffer";
     new_cls->destroy    = msg_buffer_destroy;
     new_cls->equal      = msg_buffer_equal;
     new_cls->not_equal  = msg_buffer_not_equal;
@@ -2302,7 +2302,7 @@ static int see_msg_part_type_error_class_init(SeeObjectClass* new_cls)
 
     /* Override the functions on the parent here */
     new_cls->init = type_error_init;
-    new_cls->name = "SeeMsgPartTypeErrorClass";
+    new_cls->name = "SeeMsgPartTypeError";
 
     /* Set the function pointers of the own class here */
     SeeMsgPartTypeErrorClass* cls = (SeeMsgPartTypeErrorClass*) new_cls;
@@ -2426,7 +2426,7 @@ static int see_msg_invalid_error_class_init(SeeObjectClass* new_cls)
 
     /* Override the functions on the parent here */
     new_cls->init = invalid_error_init;
-    new_cls->name = "SeeMsgInvalidErrorClass";
+    new_cls->name = "SeeMsgInvalidError";
 
     /* Set the function pointers of the own class here */
     SeeMsgInvalidErrorClass* cls = (SeeMsgInvalidErrorClass*) new_cls;

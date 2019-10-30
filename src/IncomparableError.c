@@ -114,7 +114,7 @@ static int see_incomparable_error_class_init(SeeObjectClass* new_cls)
     
     /* Override the functions on the parent here */
     new_cls->init = init;
-    new_cls->name = "IncomparableError";
+    new_cls->name = "SeeIncomparableError";
     
     /* Set the function pointers of the own class here */
     SeeIncomparableErrorClass* cls = (SeeIncomparableErrorClass*) new_cls;

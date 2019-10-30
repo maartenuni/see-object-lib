@@ -105,6 +105,7 @@ static int see_copy_error_class_init(SeeObjectClass* new_cls)
     
     /* Override the functions on the parent here */
     new_cls->init = init;
+    new_cls->name = "SeeCopyError";
     
     /* Set the function pointers of the own class here */
     SeeCopyErrorClass* cls = (SeeCopyErrorClass*) new_cls;

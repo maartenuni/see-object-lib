@@ -638,6 +638,7 @@ static int see_dynamic_array_class_init(SeeObjectClass* new_cls) {
     new_cls->init   = init;
     new_cls->destroy= dynamic_array_destroy;
     new_cls->copy   = see_dynamic_array_copy;
+
     /* Set the function pointers of the own class here */
     SeeDynamicArrayClass* cls = (SeeDynamicArrayClass*) new_cls;
     cls->array_init = dynamic_array_init;

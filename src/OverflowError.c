@@ -88,6 +88,7 @@ static int see_overflow_error_class_init(SeeObjectClass* new_cls)
     
     /* Override the functions on the parent here */
     new_cls->init = init;
+    new_cls->name = "SeeOverflowError";
     
     /* Set the function pointers of the own class here */
     SeeOverflowErrorClass* cls = (SeeOverflowErrorClass*) new_cls;

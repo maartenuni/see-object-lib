@@ -173,12 +173,23 @@ see_stack_push(SeeStack* stack, const void* new_element, SeeError** error_out);
 /**
  * \brief Obtain the number of items pushed on the stack.
  *
- * @param stack [in] The stack whose size you would like to knowl
+ * @param stack [in] The stack whose size you would like to know.
  *
  * @return The number of elements stored on the stack.
  */
 SEE_EXPORT size_t
 see_stack_size(const SeeStack* stack);
+
+/**
+ * \brief Obtain the capacity of the stack
+ *
+ * @param stack [in] The stack whose capacity you would like to know.
+ *
+ * @return The number of elements that can be stored on the stack prior to
+ *         a new number of elements need to be reserved.
+ */
+SEE_EXPORT size_t
+see_stack_capacity(const SeeStack* stack);
 
 /**
  * Gets the pointer to the SeeStackClass table.

@@ -98,7 +98,10 @@ duration_compare(
     int*             result,
     SeeError**       error)
 {
-    int ret, valid_instance;
+#if !defined(NDEBUG)
+    int ret;
+#endif
+    int valid_instance;
 
     if (self == other) {
         *result = 0;
@@ -114,7 +117,7 @@ duration_compare(
     assert(valid_instance!= 0);
 #endif
 
-    ret = see_object_is_instance_of(
+    see_object_is_instance_of(
         other,
         (const SeeObjectClass*)see_duration_class(),
         &valid_instance
@@ -528,7 +531,7 @@ static int see_duration_class_init(SeeObjectClass* new_cls)
     
     /* Override the functions on the parent here */
     new_cls->init       = init;
-    new_cls->name       = "Duration";
+    new_cls->name       = "SeeDuration";
     new_cls->destroy    = duration_destroy;
     new_cls->compare    = duration_compare;
     new_cls->copy       = duration_copy;

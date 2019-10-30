@@ -78,7 +78,7 @@ static int see_timeout_error_class_init(SeeObjectClass* new_cls)
     
     /* Override the functions on the parent here */
     new_cls->init = init;
-    new_cls->name = "TimeoutError";
+    new_cls->name = "SeeTimeoutError";
     
     /* Set the function pointers of the own class here */
     SeeTimeoutErrorClass* cls = (SeeTimeoutErrorClass*) new_cls;

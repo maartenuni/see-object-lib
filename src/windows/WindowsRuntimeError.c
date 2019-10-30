@@ -103,6 +103,7 @@ static int see_windows_runtime_error_class_init(SeeObjectClass* new_cls)
     
     /* Override the functions on the parent here */
     new_cls->init = init;
+    new_cls->name = "SeeWindowsRuntimeError";
     
     /* Set the function pointers of the own class here */
     SeeWindowsRuntimeErrorClass* cls = (SeeWindowsRuntimeErrorClass*) new_cls;

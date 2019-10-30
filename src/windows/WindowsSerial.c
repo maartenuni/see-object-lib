@@ -565,7 +565,7 @@ static int see_windows_serial_class_init(SeeObjectClass* new_cls)
     
     /* Override the functions on the parent here */
     new_cls->init = init;
-    new_cls->name = "SeeWindowsSerialClass";
+    new_cls->name = "SeeWindowsSerial";
     
     SeeSerialClass* serial_cls = (SeeSerialClass*) new_cls;
     serial_cls->open        = windows_serial_open;
