@@ -507,6 +507,22 @@ see_dynamic_array_add(
     return cls->add(array, element, error);
 }
 
+int see_dynamic_array_resize(
+    SeeDynamicArray*    array,
+    size_t              n_elements,
+    void*               init_data,
+    SeeError**          error_out
+    )
+{
+    const SeeDynamicArrayClass* cls = SEE_DYNAMIC_ARRAY_GET_CLASS(array);
+
+    if (!array || !error_out || *error_out)
+        return SEE_INVALID_ARGUMENT;
+
+    return cls->resize(array, n_elements, init_data, error_out);
+}
+
+
 int
 see_dynamic_array_get(
     SeeDynamicArray*    array,

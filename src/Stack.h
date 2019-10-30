@@ -53,9 +53,9 @@ struct SeeStackClass {
         
     /* expand SeeStack class with extra functions here.*/
 
-    int (*top)(SeeStack* stack, void* element_out);
+    int (*top)(const SeeStack* stack, void* element_out, SeeError** error_out);
 
-    int (*pop)(SeeStack* stack, SeeError* error_out);
+    int (*pop)(SeeStack* stack, SeeError** error_out);
 
     int (*push)(SeeStack* stack, const void* element, SeeError** error_out);
 };
@@ -124,6 +124,22 @@ see_stack_new(SeeStack**    obj_out,
               );
 
 /**
+ * \brief Obtain a copy from the item on top of the stack.
+ *
+ * This method obtains a copy from the item that was last pushed onto the
+ * stack. The size of the stack remains the same. The copy function that was
+ * passed to the function that created the stack is used to copy the item
+ * back to the out parameter.
+ *
+ * @param stack
+ * @param out
+ * @param error_out
+ * @return
+ */
+SEE_EXPORT int
+see_stack_top(const SeeStack* stack, void* out, SeeError** error_out);
+
+/**
  * \brief Pop the top item from the stack.
  *
  * Popping the top item from the stack decreases the stack by one. The stack
@@ -152,6 +168,17 @@ see_stack_pop(SeeStack* stack, SeeError** error_out);
  */
 SEE_EXPORT int
 see_stack_push(SeeStack* stack, const void* new_element, SeeError** error_out);
+
+
+/**
+ * \brief Obtain the number of items pushed on the stack.
+ *
+ * @param stack [in] The stack whose size you would like to knowl
+ *
+ * @return The number of elements stored on the stack.
+ */
+SEE_EXPORT size_t
+see_stack_size(const SeeStack* stack);
 
 /**
  * Gets the pointer to the SeeStackClass table.

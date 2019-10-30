@@ -33,9 +33,10 @@
 #include "IndexError.h"
 #include "RuntimeError.h"
 #include "TimePoint.h"
-#include "Serial.h"
 #include "MsgBuffer.h"
 #include "OverflowError.h"
+#include "Serial.h"
+#include "Stack.h"
 #include "TimeoutError.h"
 #include "IncomparableError.h"
 
@@ -141,6 +142,10 @@ initialize() {
     if (ret)
         return ret;
 
+    ret = see_stack_init();
+    if (ret)
+        return ret;
+
     ret = see_timeout_error_init();
     if (ret)
         return ret;
@@ -180,6 +185,7 @@ deinit()
     see_overflow_error_deinit();
     see_runtime_error_deinit();
     see_serial_deinit();
+    see_stack_deinit();
     see_timeout_error_deinit();
     see_time_point_deinit();
 

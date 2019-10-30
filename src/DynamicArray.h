@@ -450,6 +450,32 @@ see_dynamic_array_add(
     );
 
 /**
+ * \brief Resizes the array to contain n_elements in total.
+ *
+ * If an array resizes to the same size nothing happens. If the array
+ * shrinks, a number of elements will be freed if a free function was
+ * specified. If the number of elements grows the items in the array will
+ * remain the same and for the new item the init element will be called if
+ * specified.
+ *
+ * @param array [in, out] The array to resize.
+ * @param n_elements [in] The number of elements the array should have after
+ *                        the resize operation.
+ * @param error [out]     If an error occurs a SeeError will be delivered
+ *                        here that describes the error.
+ *
+ * @return SEE_SUCCESS or a non zero value when an error occurred.
+ */
+SEE_EXPORT int
+see_dynamic_array_resize(
+    SeeDynamicArray*    array,
+    size_t              n_elements,
+    void*               init_data,
+    SeeError**          error
+    );
+
+
+/**
  * \brief Get a pointer to an element inside of the array.
  *
  * @param [in]  array   the array from which to get a pointer.

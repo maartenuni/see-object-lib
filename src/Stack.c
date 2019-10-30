@@ -18,6 +18,7 @@
 
 #include "MetaClass.h"
 #include "Stack.h"
+#include "IndexError.h"
 
 /* **** functions that implement SeeStack or override SeeObject **** */
 
@@ -87,6 +88,92 @@ init(const SeeObjectClass* cls, SeeObject* obj, va_list args)
         );
 }
 
+void
+stack_destroy(SeeObject* obj)
+{
+    SeeStack* stack = SEE_STACK(obj);
+
+    see_object_decref(SEE_OBJECT(stack->array));
+    see_object_class()->destroy(obj);
+}
+
+int
+stack_copy(const SeeObject* self, SeeObject** out, SeeError** error_out)
+{
+    SeeStack* pself = SEE_STACK(self);
+    SeeStack* temp_out = NULL;
+    SeeDynamicArray* self_array = pself->array;
+
+    // This is a waste of time, but currently necessary.
+    // Currently the only way to construct a new class is to create one
+    // entirely.
+    // it is better to allocate an empty one, and initialize the parent part of
+    // the class and then initialize the members.
+    int ret = see_stack_new(
+        &temp_out,
+        self_array->element_size,
+        self_array->copy_element,
+        self_array->init_element,
+        self_array->free_element,
+        error_out
+        );
+
+    if (ret)
+        return ret;
+
+    see_object_decref(SEE_OBJECT(temp_out->array));
+    temp_out->array = NULL;
+
+    ret = see_object_copy(
+        SEE_OBJECT(pself->array),
+        SEE_OBJECT_REF(&temp_out->array),
+        error_out
+        );
+    if (ret)
+        goto fail;
+
+    *out = SEE_OBJECT(temp_out);
+    return ret;
+fail:
+    see_object_decref(SEE_OBJECT(temp_out));
+    return ret;
+}
+
+int
+stack_top(const SeeStack* stack, void* element_out, SeeError** error_out)
+{
+    int ret;
+    size_t size = see_dynamic_array_size(stack->array);
+    if (size - 1 > size) {
+        see_index_error_new(error_out, size - 1);
+        return SEE_ERROR_INDEX;
+    }
+
+    ret = see_dynamic_array_get(stack->array, size - 1, element_out, error_out);
+    return ret;
+}
+
+int
+stack_pop(SeeStack* stack, SeeError** error_out)
+{
+    int ret;
+    size_t size = see_dynamic_array_size(stack->array);
+
+    if (size - 1 > size) {
+        see_index_error_new(error_out, size - 1);
+        return SEE_ERROR_INDEX;
+    }
+
+    ret = see_dynamic_array_resize(stack->array, size - 1, NULL, error_out);
+    return ret;
+}
+
+int
+stack_push(SeeStack* stack, const void* element, SeeError** error_out)
+{
+    return see_dynamic_array_add(stack->array, element, error_out);
+}
+
 /* **** implementation of the public API **** */
 
 /*
@@ -125,6 +212,39 @@ int see_stack_new(
             );
 }
 
+int
+see_stack_top(const SeeStack* stack, void* out, SeeError** error_out)
+{
+    if(!stack || !out || !error_out || *error_out)
+        return SEE_INVALID_ARGUMENT;
+
+    const SeeStackClass* cls = SEE_STACK_GET_CLASS(stack);
+
+    return cls->top(stack, out, error_out);
+}
+
+int
+see_stack_pop(SeeStack* stack, SeeError** error_out)
+{
+    if(!stack || !error_out || *error_out)
+        return SEE_INVALID_ARGUMENT;
+
+    const SeeStackClass* cls = SEE_STACK_GET_CLASS(stack);
+
+    return cls->pop(stack, error_out);
+}
+
+int
+see_stack_push(SeeStack* stack, const void* element, SeeError** error_out)
+{
+    if(!stack || !element || !error_out || *error_out)
+        return SEE_INVALID_ARGUMENT;
+
+    const SeeStackClass* cls = SEE_STACK_GET_CLASS(stack);
+
+    return cls->push(stack, element, error_out);
+}
+
 /* **** initialization of the class **** */
 
 SeeStackClass* g_SeeStackClass = NULL;
@@ -135,6 +255,7 @@ static int stack_class_init(SeeObjectClass* new_cls)
     
     /* Override the functions on the SeeObject here */
     new_cls->init = init;
+    new_cls->destroy = stack_destroy;
 
     // Every class should have a unique name.
     new_cls->name = "SeeStack";
@@ -149,15 +270,15 @@ static int stack_class_init(SeeObjectClass* new_cls)
     // new_cls->not_equal      = stack_not_equal;
     // new_cls->greater_equal  = stack_greater_equal;
     // new_cls->greater        = stack_greater;
-    // new_cls->copy           = stack_copy;
+    new_cls->copy           = stack_copy;
 
-
-    // Overwrite functions of the parent here
-    // If the parent doesn't inherent from SeeObject directly, you can
-    SeeObjectClass* parent_cls = SEE_OBJECT(new_cls);
-    
     /* Set the function pointers of the own class here */
     SeeStackClass* cls = (SeeStackClass*) new_cls;
+
+    cls->stack_init = stack_init;
+    cls->top        = stack_top;
+    cls->pop        = stack_pop;
+    cls->push       = stack_push;
     
     return ret;
 }
