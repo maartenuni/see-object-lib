@@ -41,13 +41,16 @@
 #define SEE_UNIT_SUITE_CREATE(init_func, finalize_func)                     \
     CU_pTest test;                                                          \
     CU_pSuite suite = CU_add_suite(SUITE_NAME, init_func, finalize_func);   \
-    if (!suite) {                                                           \
-        fprintf(stderr, "Unable to create suite %s:%s.\n",                  \
-            SUITE_NAME,                                                     \
-            CU_get_error_msg()                                              \
-            );                                                              \
-        return CU_get_error();                                              \
-    }
+    do {                                                                    \
+        if (!suite) {                                                       \
+            fprintf(stderr, "Unable to create suite %s:%s.\n",              \
+                SUITE_NAME,                                                 \
+                CU_get_error_msg()                                          \
+                );                                                          \
+            return CU_get_error();                                          \
+        }                                                                   \
+    } while(0)
+
 
 /**
  * \brief add a test to the current test suite as created by the
@@ -56,15 +59,17 @@
  *        runs the actual test.
  */
 #define SEE_UNIT_TEST_CREATE(test_name)                                     \
-    test = CU_add_test(suite, #test_name, test_name);                       \
-    if (!test){                                                             \
-        fprintf(stderr, "Unable to create test %s:%s:%s",                   \
-            SUITE_NAME,                                                     \
-            #test_name,                                                     \
-            CU_get_error_msg()                                              \
-            );                                                              \
-        return CU_get_error();                                              \
-    }
+    do {                                                                    \
+        test = CU_add_test(suite, #test_name, test_name);                   \
+        if (!test){                                                         \
+            fprintf(stderr, "Unable to create test %s:%s:%s",               \
+                SUITE_NAME,                                                 \
+                #test_name,                                                 \
+                CU_get_error_msg()                                          \
+                );                                                          \
+            return CU_get_error();                                          \
+        }                                                                   \
+    } while (0)
 
 
 /**
@@ -94,7 +99,6 @@
  * }
  *
  * @endcode
- *
  *
  * \private
  */

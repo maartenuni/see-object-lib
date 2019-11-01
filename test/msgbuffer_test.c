@@ -536,8 +536,8 @@ int add_msg_buffer_suite()
     SEE_UNIT_TEST_CREATE(msg_part_buffer_numeric);
     SEE_UNIT_TEST_CREATE(msg_part_buffer_string);
 
-    SEE_UNIT_TEST_CREATE(msg_buffer_buffer)
-    SEE_UNIT_TEST_CREATE(msg_buffer_copy)
+    SEE_UNIT_TEST_CREATE(msg_buffer_buffer);
+    SEE_UNIT_TEST_CREATE(msg_buffer_copy);
 
     return 0;
 }
