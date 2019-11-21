@@ -20,9 +20,9 @@ addons:
     apt:
         packages:
             - cunit
-    chocolatey:
-        packages:
-            # - libcunit
+#    chocolatey:
+#        packages:
+#            # - libcunit
         
 
 script:
