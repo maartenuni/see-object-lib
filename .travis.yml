@@ -17,7 +17,7 @@ addons:
         packages:
             - libcunit1
             - libcunit1-dev
-    apt:
+    brew:
         packages:
             - cunit
 #    chocolatey:
