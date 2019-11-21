@@ -1,2 +1,6 @@
 language: C
+sudo: false
 
+script:
+    - cmake .
+    - cmake --build . -- 
