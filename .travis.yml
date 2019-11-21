@@ -14,10 +14,12 @@ os:
 
 addons:
     apt:
+        updated:true
         packages:
             - libcunit1
             - libcunit1-dev
     homebrew:
+        update: true # one needs to update brew.
         packages:
             - cunit
 #    chocolatey:
