@@ -19,5 +19,5 @@ addons:
             - libcunit1-dev
 
 script:
-    - cmake .
-    - cmake --build . -- || cmake --build debug --
+    - cmake . -DCMAKE_BUILD_TYPE=Release
+    - cmake --build . -- || cmake --build Release --
