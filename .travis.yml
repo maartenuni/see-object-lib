@@ -4,8 +4,8 @@ sudo: false
 addons:
     apt:
         packages:
-            -libcunit1
-            -libcunit1-dev
+            - libcunit1
+            - libcunit1-dev
 
 script:
     - cmake .
