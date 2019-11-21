@@ -28,3 +28,4 @@ addons:
 script:
     - cmake . -G "Unix Makefiles"
     - cmake --build . -- 
+    - ./bin/unit-test
