@@ -1,6 +1,12 @@
 language: C
 sudo: false
 
+addons:
+    apt:
+        packages:
+            -libcunit1
+            -libcunit1-dev
+
 script:
     - cmake .
     - cmake --build . -- 
