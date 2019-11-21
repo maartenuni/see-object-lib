@@ -1,4 +1,7 @@
-language: C
+language:
+    - C
+    - C++
+
 sudo: false
 
 git:
@@ -10,10 +13,11 @@ os:
 
 addons:
     apt:
+        update: true
         packages:
             - libcunit1
             - libcunit1-dev
 
 script:
     - cmake .
-    - cmake --build . -- 
+    - cmake --build . -- || cmake --build debug --
