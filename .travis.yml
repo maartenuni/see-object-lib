@@ -10,13 +10,20 @@ git:
 os:
     - linux
     - windows
+    - osx
 
 addons:
     apt:
-        update: true
         packages:
             - libcunit1
             - libcunit1-dev
+    apt:
+        packages:
+            - cunit
+    chocolatey:
+        packages:
+            # - libcunit
+        
 
 script:
     - cmake . -G "Unix Makefiles"
