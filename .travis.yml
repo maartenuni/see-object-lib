@@ -1,6 +1,9 @@
 language: C
 sudo: false
 
+git:
+    depth: 1
+
 addons:
     apt:
         packages:
