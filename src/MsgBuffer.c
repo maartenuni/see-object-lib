@@ -209,7 +209,7 @@ static int msg_part_equal(
             assert(0 == 1);
             return SEE_INVALID_ARGUMENT;
     }
-    return SEE_SUCCESS;
+    return ret;
 }
 
 static int
@@ -1742,7 +1742,9 @@ msg_buffer_add_part(
 {
     int ret;
     size_t size;
+#if !defined(NDEBUG)
     const SeeMsgBufferClass* cls = SEE_MSG_BUFFER_GET_CLASS(mbuf);
+#endif
     SeeMsgPart* copy = NULL;
 
     ret = see_object_copy(

@@ -91,7 +91,7 @@ init(const SeeObjectClass* cls, SeeObject* obj, va_list args)
 static void
 serial_destroy(SeeObject* obj)
 {
-    int ret, open;
+    int open = 0;
     if (!obj)
         return;
     SeeSerial* serial = SEE_SERIAL(obj);
@@ -100,8 +100,7 @@ serial_destroy(SeeObject* obj)
         );
 
     assert(cls->is_open);
-    ret  = cls->is_open(serial, &open);
-    assert(ret == SEE_SUCCESS);
+    cls->is_open(serial, &open);
     SeeError* error = NULL;
     if (open)
         cls->close(serial, &error);
@@ -152,7 +151,9 @@ obtain_synced_msg_buffer(
     uint16_t id;
     uint32_t size;
     const SeeSerialClass* cls = SEE_SERIAL_GET_CLASS(self);
+#if !defined(NDEBUG)
     const SeeMsgBuffer* buf = NULL; // used for sizeof operation below.
+#endif
     int ret = SEE_SUCCESS;
     size_t num_to_read;
     char* bytes = NULL;

@@ -50,8 +50,9 @@ void serial_use_unopened(void)
     SeeError*  error    = NULL;
 
     char buffer[] = "Hello serial world.";
-    char read_buf[1024] = {0};
-    size_t bufsz = sizeof(buffer);
+    const size_t bufsz = 1024;
+    size_t sz = bufsz;
+    char* read_buf = calloc(1, bufsz);
 
     int ret = see_serial_new(&serial, &error);
     SEE_UNIT_HANDLE_ERROR();
@@ -62,7 +63,7 @@ void serial_use_unopened(void)
     CU_ASSERT_EQUAL(ret, SEE_SUCCESS);
 
     char* buf_start = &buffer[0];
-    ret = see_serial_write(serial, &buf_start, &bufsz, &error);
+    ret = see_serial_write(serial, &buf_start, &sz, &error);
     CU_ASSERT_EQUAL(ret, SEE_ERROR_RUNTIME);
 #if HAVE_WINDOWS_H
     CU_ASSERT_EQUAL(
@@ -82,9 +83,9 @@ void serial_use_unopened(void)
         error = NULL;
     }
 
-    bufsz = sizeof(buffer);
+    sz = bufsz;
     char** buf_ptr_ref = &read_buf;
-    ret = see_serial_read(serial, buf_ptr_ref, &bufsz, &error);
+    ret = see_serial_read(serial, buf_ptr_ref, &sz, &error);
     CU_ASSERT_EQUAL(ret, SEE_ERROR_RUNTIME);
 #if HAVE_WINDOWS_H
     CU_ASSERT_EQUAL(
@@ -107,6 +108,7 @@ void serial_use_unopened(void)
 fail:
     see_object_decref(SEE_OBJECT(serial));
     see_object_decref(SEE_OBJECT(error));
+    free(read_buf);
 }
 
 int add_serial_suite(void)
