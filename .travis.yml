@@ -2,43 +2,32 @@ language:
     - C
     - C++
 
-# sudo: false
+sudo: false
 
 git:
     depth: 1
 
+compiler:
+    - gcc
+    - clang
+
 os:
     - linux
-#    - windows
-#    - osx
+    - osx
 
 addons:
     apt:
-#        update: true
+        update: true
         packages:
             - libcunit1
             - libcunit1-dev
-#            - binutils-mingw-w64-i686
-#            - gcc-mingw-w64-i686
-#            - g++-mingw-w64-i686
-#            - wine
-#    homebrew:
-#        update: true # one needs to update brew.
-#        packages:
-#            - cunit
-
+    homebrew:
+        update: true # one needs to update brew.
+        packages:
+            - cunit
 
 script:
-    - mkdir linux
-    - mkdir windows
-    - cd linux
     - cmake .. -DCMAKE_BUILD_TYPE=Release
     - cmake --build .
-    - ./bin/unit-test
-    - cd $OLDPWD
-    - cd windows
-    - CC=i686-w64-mingw32-gcc CXX=i686-w64-mingw32-g++
-    - LDFLAGS="-static-libgcc -static-libstdc++"
-    - cmake .. -DCMAKE_BUILD_TYPE=Release 
     - ./bin/unit-test
 
