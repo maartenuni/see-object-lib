@@ -72,7 +72,7 @@ if (BUILD_UNIT_TESTS)
     # Add compiler warnings
     if (NOT MSVC)
         target_compile_options(${UNIT_TEST}
-            PRIVATE -W -Wall -Wextra -pedantic
+            PRIVATE -W -Wall -Wextra -pedantic -Werror
             )
     else()
         target_compile_options(
