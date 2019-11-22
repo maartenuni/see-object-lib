@@ -197,7 +197,7 @@ see_error_class_init(SeeObjectClass* new_cls)
  */
 int
 see_error_init() {
-    int ret;
+    int ret = SEE_SUCCESS;
 
     if (g_SeeErrorClass)
         return SEE_SUCCESS;
