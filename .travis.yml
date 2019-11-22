@@ -12,12 +12,12 @@ os:
     - windows
     - osx
 
-addons:
-    apt:
-        update: true
-        packages:
-            - libcunit1
-            - libcunit1-dev
+#addons:
+#    apt:
+#        update: true
+#        packages:
+#            - libcunit1
+#            - libcunit1-dev
 #    homebrew:
 #        update: true # one needs to update brew.
 #        packages:
@@ -33,7 +33,14 @@ before_install:
     - wget -O CUnit-2.1-3.tar.bz2 'https://sourceforge.net/projects/cunit/files/CUnit/2.1-3/CUnit-2.1-3.tar.bz2/download'
     - tar -xf 'CUnit-2.1-3.tar.bz2'
     - cd CUnit-2.1-3
-    - ./configure && make && sudo make install
+    - libtoolize --force
+    - aclocal
+    - autoheader
+    - automake --force-missing --add-missing
+    - autoconf
+    - ./configure
+    - make
+    - sudo make install
 
 script:
     - cmake . 
