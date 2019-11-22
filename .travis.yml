@@ -2,7 +2,7 @@ language:
     - C
     - C++
 
-sudo: false
+# sudo: false
 
 git:
     depth: 1
@@ -12,20 +12,28 @@ os:
     - windows
     - osx
 
-addons:
-    apt:
-        update: true
-        packages:
-            - libcunit1
-            - libcunit1-dev
-    homebrew:
-        update: true # one needs to update brew.
-        packages:
-            - cunit
-#    chocolatey:
+#addons:
+#    apt:
+#        update: true
 #        packages:
-#            # - libcunit
-        
+#            - libcunit1
+#            - libcunit1-dev
+#    homebrew:
+#        update: true # one needs to update brew.
+#        packages:
+#            - cunit
+##    chocolatey:
+##        packages:
+##            # - libcunit
+
+# It might save a lot of time especially on windows/mac to just build and install
+# cuint
+#
+before_install:
+    - wget 'https://sourceforge.net/projects/cunit/files/CUnit/2.1-3/CUnit-2.1-3.tar.bz2/download'
+    - tar -xf 'CUnit-2.1-3.tar.bz2'
+    - cd CUnit-2.1.3
+    - ./configure && make && sudo make install
 
 script:
     - cmake . 
