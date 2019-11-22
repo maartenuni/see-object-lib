@@ -162,7 +162,7 @@ write_basic_package_version_file(
 # Add compiler warnings
 if (NOT MSVC)
     target_compile_options(${SEE_OBJ_LIB}
-        PRIVATE -W -Wall -Wextra -pedantic
+        PRIVATE -W -Wall -Wextra -pedantic -Werror
         )
 else()
     target_compile_options(${SEE_OBJ_LIB}

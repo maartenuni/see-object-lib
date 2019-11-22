@@ -123,7 +123,7 @@ static int see_copy_error_class_init(SeeObjectClass* new_cls)
 int
 see_copy_error_init()
 {
-    int ret;
+    int ret = SEE_SUCCESS;
     if (g_SeeCopyErrorClass)
         return SEE_SUCCESS;
 
@@ -155,7 +155,7 @@ see_copy_error_init()
     while (g_copy_error_initialize != 0) // Something is still initializing
         ; // TODO It would be better to yield the processor for other threads.
 
-    return g_SeeCopyErrorClass != NULL ? SEE_SUCCESS : SEE_NOT_INITIALIZED;
+    return ret;
 }
 
 void
