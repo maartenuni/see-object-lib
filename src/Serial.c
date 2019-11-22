@@ -152,7 +152,9 @@ obtain_synced_msg_buffer(
     uint16_t id;
     uint32_t size;
     const SeeSerialClass* cls = SEE_SERIAL_GET_CLASS(self);
+#if !defined(NDEBUG)
     const SeeMsgBuffer* buf = NULL; // used for sizeof operation below.
+#endif
     int ret = SEE_SUCCESS;
     size_t num_to_read;
     char* bytes = NULL;

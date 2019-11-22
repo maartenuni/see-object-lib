@@ -1742,7 +1742,9 @@ msg_buffer_add_part(
 {
     int ret;
     size_t size;
+#if !defined(NDEBUG)
     const SeeMsgBufferClass* cls = SEE_MSG_BUFFER_GET_CLASS(mbuf);
+#endif
     SeeMsgPart* copy = NULL;
 
     ret = see_object_copy(

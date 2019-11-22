@@ -73,6 +73,10 @@ int main(int argc, char** argv) {
 
     int ret = see_init();
     assert(ret == SEE_SUCCESS);
+    if (ret) {
+        fprintf(stderr, "Unable to init the see-objects library\n");
+        return 1;
+    }
 
     add_suites();
 
