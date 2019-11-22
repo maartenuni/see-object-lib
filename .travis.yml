@@ -1,2 +1,33 @@
-language: C
+language:
+    - C
+    - C++
+
+sudo: false
+
+git:
+    depth: 1
+
+compiler:
+    - gcc
+    - clang
+
+os:
+    - linux
+    - osx
+
+addons:
+    apt:
+        update: true
+        packages:
+            - libcunit1
+            - libcunit1-dev
+    homebrew:
+        update: true # one needs to update brew.
+        packages:
+            - cunit
+
+script:
+    - cmake . -DCMAKE_BUILD_TYPE=Release
+    - cmake --build .
+    - ./bin/unit-test
 
