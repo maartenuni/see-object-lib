@@ -37,7 +37,7 @@ script:
     - ./bin/unit-test
     - cd $OLDPWD
     - cd windows
-    - CC=gcc-mingw-w64-i686 CXX=g++-mingw-w64-i686
+    - CC=i686-w64-mingw32-gcc CXX=i686-w64-mingw32-g++
     - LDFLAGS="-static-libgcc -static-libstdc++"
     - cmake .. -DCMAKE_BUILD_TYPE=Release 
 
