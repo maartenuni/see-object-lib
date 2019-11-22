@@ -91,7 +91,7 @@ init(const SeeObjectClass* cls, SeeObject* obj, va_list args)
 static void
 serial_destroy(SeeObject* obj)
 {
-    int ret, open;
+    int open = 0;
     if (!obj)
         return;
     SeeSerial* serial = SEE_SERIAL(obj);
@@ -100,8 +100,7 @@ serial_destroy(SeeObject* obj)
         );
 
     assert(cls->is_open);
-    ret  = cls->is_open(serial, &open);
-    assert(ret == SEE_SUCCESS);
+    cls->is_open(serial, &open);
     SeeError* error = NULL;
     if (open)
         cls->close(serial, &error);
