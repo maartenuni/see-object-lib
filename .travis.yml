@@ -30,9 +30,10 @@ os:
 # cuint
 #
 before_install:
-    - wget 'https://sourceforge.net/projects/cunit/files/CUnit/2.1-3/CUnit-2.1-3.tar.bz2/download'
+    > wget -O CUnit-2.1-3.tar.bz2 
+           'https://sourceforge.net/projects/cunit/files/CUnit/2.1-3/CUnit-2.1-3.tar.bz2/download'
     - tar -xf 'CUnit-2.1-3.tar.bz2'
-    - cd CUnit-2.1.3
+    - cd CUnit-2.1-3
     - ./configure && make && sudo make install
 
 script:
