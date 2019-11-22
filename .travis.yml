@@ -12,12 +12,12 @@ os:
     - windows
     - osx
 
-#addons:
-#    apt:
-#        update: true
-#        packages:
-#            - libcunit1
-#            - libcunit1-dev
+addons:
+    apt:
+        update: true
+        packages:
+            - libcunit1
+            - libcunit1-dev
 #    homebrew:
 #        update: true # one needs to update brew.
 #        packages:
