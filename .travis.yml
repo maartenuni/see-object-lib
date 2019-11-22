@@ -40,4 +40,5 @@ script:
     - CC=i686-w64-mingw32-gcc CXX=i686-w64-mingw32-g++
     - LDFLAGS="-static-libgcc -static-libstdc++"
     - cmake .. -DCMAKE_BUILD_TYPE=Release 
+    - ./bin/unit-test
 
