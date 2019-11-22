@@ -18,10 +18,10 @@ addons:
         packages:
             - libcunit1
             - libcunit1-dev
-            - binutils-mingw-w64-i686
-            - gcc-mingw-w64-i686
-            - g++-mingw-w64-i686
-            - wine
+#            - binutils-mingw-w64-i686
+#            - gcc-mingw-w64-i686
+#            - g++-mingw-w64-i686
+#            - wine
 #    homebrew:
 #        update: true # one needs to update brew.
 #        packages:
