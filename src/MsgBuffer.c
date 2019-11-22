@@ -209,7 +209,7 @@ static int msg_part_equal(
             assert(0 == 1);
             return SEE_INVALID_ARGUMENT;
     }
-    return SEE_SUCCESS;
+    return ret;
 }
 
 static int
