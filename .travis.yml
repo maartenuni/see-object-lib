@@ -6,14 +6,19 @@ git:
   depth: 1
 
 script:
-  - cmake . -DCMAKE_BUILD_TYPE=Release
+  - cmake . -DCMAKE_BUILD_TYPE=Release -DBUILD_UNIT_TESTS=OFF
   - cmake --build .
-  - ./bin/unit-test
+  - cpack
 
 jobs:
   include:
   - os: linux
     compiler: gcc
+    script:
+      - cmake . -DCMAKE_BUILD_TYPE=Release
+      - cmake --build .
+      - ./bin/unit-test
+      - cpack
     addons:
       apt:
         update: true
@@ -22,6 +27,11 @@ jobs:
           - libcunit1-dev
   - os: linux
     compiler: clang 
+    script:
+      - cmake . -DCMAKE_BUILD_TYPE=Release
+      - cmake --build .
+      - ./bin/unit-test
+      # don't run cpack use the gcc version
     addons:
       apt:
         update: true
@@ -30,24 +40,4 @@ jobs:
           - libcunit1-dev
   - os: osx
     compiler: clang
-    addons:
-      homebrew:
-        update: true
-        packages:
-          - cunit
-    cache:
-        directories:
-            - $HOME/Library/Caches/Homebrew
-    before_cache:
-        - brew cleanup
   - os: windows
-#    before_script:
-#      - wget https://github.com/lelegard/CUnit-msvc/releases/download/v2.1-3/CUnit-msvc-2.1-3.exe
-#       - ./CUnit-msvc-2.1-3.exe /S
-    script:
-      # disable unit test until we have a way of installing CUnit
-      - cmake . -DCMAKE_BUILD_TYPE=Release -DBUILD_UNIT_TESTS=OFF
-      - cmake --build .
-# if we don't build the test, don't run them
-#      - ./bin/unit-test
-
