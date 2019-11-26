@@ -37,7 +37,7 @@ jobs:
     script:
       - cmake . -DCMAKE_BUILD_TYPE=Release -DBUILD_UNIT_TESTS=OFF
       - cmake --build .
-      - cpack
+      - cpack -G BUNDLE
   - os: windows
     install:
       - choco install nsis
