@@ -16,18 +16,18 @@ jobs:
     compiler: gcc
     addons:
       apt:
-        update: true
+#        update: true
         packages:
           - libcunit1
-          - libcunit-dev
+          - libcunit1-dev
   - os: linux
     compiler: clang 
     addons:
       apt:
-        update: true
+#        update: true
         packages:
           - libcunit1
-          - libcunit-dev
+          - libcunit1-dev
   - os: osx
     compiler: clang
     addons:
