@@ -1,6 +1,4 @@
-language:
-  - C
-  - C++
+language: c
 
 sudo: false
 
@@ -35,20 +33,26 @@ script:
 
 jobs:
   include:
-    - os: linux
-      compiler:
-        - gcc
-        - clang
-      addons:
-        apt:
-          update: true
-          packages:
-            - libcunit1
-            - libcunit-dev
-    - os: osx
-      compiler: clang
-      addons:
-        - homebrew:
-          update: true
-          packages:
-            - cunit
+  - os: linux
+    compiler: gcc
+    addons:
+      apt:
+#        update: true
+        packages:
+          - libcunit1
+          - libcunit-dev
+  - os: linux
+    compiler: clang 
+    addons:
+      apt:
+#        update: true
+        packages:
+          - libcunit1
+          - libcunit-dev
+  - os: osx
+    compiler: clang
+    addons:
+      homebrew:
+        update: true
+        packages:
+          - cunit
