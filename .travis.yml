@@ -10,10 +10,12 @@ git:
 compiler:
     - gcc
     - clang
+    - msvc
 
 os:
     - linux
     - osx
+    - windows
 
 addons:
     apt:
@@ -31,3 +33,22 @@ script:
     - cmake --build .
     - ./bin/unit-test
 
+jobs:
+  include:
+    - os: linux
+      compiler:
+        - gcc
+        - clang
+      addons:
+        apt:
+          update: true
+          packages:
+            - libcunit1
+            - libcunit-dev
+      - os: osx
+        compiler: clang
+        addons:
+          - homebrew:
+            update: true
+            packages:
+              - cunit
