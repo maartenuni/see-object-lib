@@ -39,6 +39,7 @@ jobs:
       - cmake --build .
       - cpack
   - os: windows
+    script:
       - cmake . -DCMAKE_BUILD_TYPE=Release -DBUILD_UNIT_TESTS=OFF
       - cmake --build .
       - cpack -G NSIS64
