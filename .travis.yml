@@ -16,7 +16,7 @@ jobs:
     compiler: gcc
     addons:
       apt:
-#        update: true
+        update: true
         packages:
           - libcunit1
           - libcunit1-dev
@@ -24,7 +24,7 @@ jobs:
     compiler: clang 
     addons:
       apt:
-#        update: true
+        update: true
         packages:
           - libcunit1
           - libcunit1-dev
