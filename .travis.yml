@@ -39,6 +39,11 @@ jobs:
       - cmake --build .
       - cpack
   - os: windows
+    addons:
+      chocolatey:
+        packages:
+          - nsis
+        
     script:
       - cmake . -DCMAKE_BUILD_TYPE=Release -DBUILD_UNIT_TESTS=OFF
       - cmake --build .
