@@ -36,11 +36,13 @@ jobs:
         packages:
           - cunit
   - os: windows
-    before_script:
-      - wget https://github.com/lelegard/CUnit-msvc/releases/download/v2.1-3/CUnit-msvc-2.1-3.exe
-      # - ./CUnit-msvc-2.1-3.exe /S
+#    before_script:
+#      - wget https://github.com/lelegard/CUnit-msvc/releases/download/v2.1-3/CUnit-msvc-2.1-3.exe
+#       - ./CUnit-msvc-2.1-3.exe /S
     script:
+      # disable unit test until we have a way of installing CUnit
       - cmake . -DCMAKE_BUILD_TYPE=Release -DBUILD_UNIT_TESTS=OFF
       - cmake --build .
-      - ./bin/unit-test
+# if we don't build the test, don't run them
+#      - ./bin/unit-test
 
