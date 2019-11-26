@@ -5,11 +5,6 @@ sudo: false
 git:
   depth: 1
 
-script:
-  - cmake . -DCMAKE_BUILD_TYPE=Release -DBUILD_UNIT_TESTS=OFF
-  - cmake --build .
-  - cpack
-
 jobs:
   include:
   - os: linux
@@ -18,7 +13,7 @@ jobs:
       - cmake . -DCMAKE_BUILD_TYPE=Release
       - cmake --build .
       - ./bin/unit-test
-      - cpack
+      - cpack -G DEB
     addons:
       apt:
         update: true
@@ -39,5 +34,11 @@ jobs:
           - libcunit1
           - libcunit1-dev
   - os: osx
-    compiler: clang
+    script:
+      - cmake . -DCMAKE_BUILD_TYPE=Release -DBUILD_UNIT_TESTS=OFF
+      - cmake --build .
+      - cpack
   - os: windows
+      - cmake . -DCMAKE_BUILD_TYPE=Release -DBUILD_UNIT_TESTS=OFF
+      - cmake --build .
+      - cpack -G NSIS64
