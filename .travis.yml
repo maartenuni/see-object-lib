@@ -5,26 +5,26 @@ sudo: false
 git:
   depth: 1
 
-compiler:
-  - gcc
-  - clang
-  - msvc
+#compiler:
+#  - gcc
+#  - clang
+#  - msvc
+#
+#os:
+#  - linux
+#  - osx
+#  - windows
 
-os:
-  - linux
-  - osx
-  - windows
-
-addons:
-  apt:
-    update: true
-    packages:
-      - libcunit1
-      - libcunit1-dev
-  homebrew:
-    update: true # one needs to update brew.
-    packages:
-      - cunit
+#addons:
+#  apt:
+#    update: true
+#    packages:
+#      - libcunit1
+#      - libcunit1-dev
+#  homebrew:
+#    update: true # one needs to update brew.
+#    packages:
+#      - cunit
 
 script:
   - cmake . -DCMAKE_BUILD_TYPE=Release
