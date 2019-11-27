@@ -46,7 +46,7 @@ jobs:
             # - pushd /bin/Release & ./unit-test.exe & popd ### first install CUnit.
         - which cmake
         - which cpack
-        - /c/Program\ files/cmake/cpack
-        - cpack -G NSIS64
+        - /c/Program files/cmake/cpack -G NSIS64
+#        - cpack -G NSIS64
         - popd
  
