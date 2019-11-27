@@ -33,10 +33,13 @@ jobs:
             - libcunit1
             - libcunit1-dev
     - os: osx
+      compiler: clang
       script:
         - cmake . -DCMAKE_BUILD_TYPE=Release -DBUILD_UNIT_TESTS=OFF
         - cmake --build .
          cpack -G BUNDLE
+       allow_failures:
+         compiler=clang
     - os: windows
 #      addons:
 #        chocolatey:
