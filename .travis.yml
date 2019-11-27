@@ -26,12 +26,12 @@ jobs:
         - cmake . -DCMAKE_BUILD_TYPE=Release
         - cmake --build .
         - ./bin/unit-test
-        addons:
-          apt:
-            update: true
-            packages:
-              - libcunit1
-              - libcunit1-dev
+      addons:
+        apt:
+          update: true
+          packages:
+            - libcunit1
+            - libcunit1-dev
     - os: osx
       script:
         - cmake . -DCMAKE_BUILD_TYPE=Release -DBUILD_UNIT_TESTS=OFF
