@@ -38,10 +38,12 @@ jobs:
         - cmake --build .
          cpack -G BUNDLE
     - os: windows
-      addons:
-        chocolatey:
-          packages:
-            - nsis
+#      addons:
+#        chocolatey:
+#          packages:
+#            - nsis
+      install:
+        - choco install nsis
       script:
         - mkdir x64
         - pushd x64
