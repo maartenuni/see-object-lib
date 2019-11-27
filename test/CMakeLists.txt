@@ -9,8 +9,17 @@ if (BUILD_UNIT_TESTS)
     #option(CUnit_DIR CACHE PATH)
     #find_package(CUnit)
     set(CUNIT_HINT_PREFIX "C:/Program Files (x86)/CUnit")
+    set(CUNIT_LIB_DIR_HINT "")
+    
+    # Set the right hint for Win32 vs Win64
+    if ("${CMAKE_GENERATOR}" MATCHES "(Win64|IA64)") # Win64 build
+        set (CUNIT_LIB_DIR_HINT "${CUNIT_HINT_PREFIX}/Lib/Debug-x64")
+    else() # win32 build
+        set (CUNIT_LIB_DIR_HINT "${CUNIT_HINT_PREFIX}/Lib/Debug-x68")
+    endif()
+    
     find_library(LIB_CUINIT cunit
-        HINTS "${CUNIT_HINT_PREFIX}/Lib/Release-Win32"
+        HINTS ${CUNIT_LIB_DIR_HINT}
         )
     #Find the headers on windows
     if (MSVC)

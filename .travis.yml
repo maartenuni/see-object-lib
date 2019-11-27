@@ -1,33 +1,59 @@
-language:
-    - C
-    - C++
+language: c
 
 sudo: false
 
 git:
-    depth: 1
+  depth: 1
 
-compiler:
-    - gcc
-    - clang
-
-os:
-    - linux
-    - osx
-
-addons:
-    apt:
-        update: true
-        packages:
+jobs:
+  include:
+    - os: linux
+      compiler: gcc
+      script:
+        - cmake . -DCMAKE_BUILD_TYPE=Release
+        - cmake --build .
+        - ./bin/unit-test
+        - cpack -G DEB
+      addons:
+        apt:
+          update: true
+          packages:
             - libcunit1
             - libcunit1-dev
-    homebrew:
-        update: true # one needs to update brew.
-        packages:
-            - cunit
-
-script:
-    - cmake . -DCMAKE_BUILD_TYPE=Release
-    - cmake --build .
-    - ./bin/unit-test
-
+    - os: linux
+      compiler: clang
+      script:
+        - cmake . -DCMAKE_BUILD_TYPE=Release
+        - cmake --build .
+        - ./bin/unit-test
+      addons:
+        apt:
+          update: true
+          packages:
+            - libcunit1
+            - libcunit1-dev
+    - os: osx
+      compiler: clang
+      script:
+        - cmake . -DCMAKE_BUILD_TYPE=Release -DBUILD_UNIT_TESTS=OFF
+        - cmake --build .
+#        - cpack -G Bundle
+    - os: windows
+#      addons:
+#        chocolatey:
+#          packages:
+#            - nsis
+      install:
+        - choco install nsis
+      script:
+        - mkdir x64
+        - pushd x64
+        - cmake .. -DBUILD_UNIT_TESTS=OFF -G "Visual Studio 15 2017 Win64"
+        - cmake --build . --config Release
+            # - pushd /bin/Release & ./unit-test.exe & popd ### first install CUnit.
+        - which cmake
+        - which cpack
+        - /c/Program\ files/cmake/bin/cpack -G NSIS64
+#        - cpack -G NSIS64
+        - popd
+ 
