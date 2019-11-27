@@ -41,11 +41,14 @@ jobs:
   - os: windows
 #    install:
 #      - choco install nsis
-    script:
-      - mkdir x64
-      - pushd x64
-      - cmake .. -DBUILD_UNIT_TESTS=OFF -G "Visual Studio 15 2017 Win64"
-      - cmake --build . --config=Release
-      # - pushd /bin/Release & ./unit-test.exe & popd ### first install CUnit.
-      - cpack -G NSIS64
-      - popd
+        script:
+            - mkdir x64
+            - pushd x64
+            - cmake .. -DBUILD_UNIT_TESTS=OFF -G "Visual Studio 15 2017 Win64"
+            - cmake --build . --config=Release
+            # - pushd /bin/Release & ./unit-test.exe & popd ### first install CUnit.
+            - which cmake
+            - which cpack
+            - /c/Program\ files/cmake/cpack
+            - cpack -G NSIS64
+            - popd
