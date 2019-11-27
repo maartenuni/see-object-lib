@@ -37,9 +37,7 @@ jobs:
       script:
         - cmake . -DCMAKE_BUILD_TYPE=Release -DBUILD_UNIT_TESTS=OFF
         - cmake --build .
-        - cpack -G Bundle
-      allow_failures:
-        - compiler: clang
+#        - cpack -G Bundle
     - os: windows
 #      addons:
 #        chocolatey:
