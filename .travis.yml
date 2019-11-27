@@ -6,42 +6,46 @@ git:
   depth: 1
 
 jobs:
-  include:
+    include:
+        - os: linux
+            compiler: gcc
+            script:
+                - cmake . -DCMAKE_BUILD_TYPE=Release
+                - cmake --build .
+                - ./bin/unit-test
+                - cpack -G DEB
+            addons:
+                apt:
+                    update: true
+                    packages:
+                        - libcunit1
+                        - libcunit1-dev
   - os: linux
-    compiler: gcc
-    script:
-      - cmake . -DCMAKE_BUILD_TYPE=Release
-      - cmake --build .
-      - ./bin/unit-test
-      - cpack -G DEB
-    addons:
-      apt:
-        update: true
-        packages:
-          - libcunit1
-          - libcunit1-dev
-  - os: linux
-    compiler: clang 
-    script:
-      - cmake . -DCMAKE_BUILD_TYPE=Release
-      - cmake --build .
-      - ./bin/unit-test
-      # don't run cpack use the gcc version
-    addons:
-      apt:
-        update: true
-        packages:
-          - libcunit1
-          - libcunit1-dev
+        compiler: clang 
+        script:
+            - cmake . -DCMAKE_BUILD_TYPE=Release
+            - cmake --build .
+            - ./bin/unit-test
+            # don't run cpack use the gcc version
+        addons:
+        apt:
+            update: true
+            packages:
+                - libcunit1
+                - libcunit1-dev
   - os: osx
-    script:
-      - cmake . -DCMAKE_BUILD_TYPE=Release -DBUILD_UNIT_TESTS=OFF
-      - cmake --build .
-      - cpack -G BUNDLE
+        script:
+            - cmake . -DCMAKE_BUILD_TYPE=Release -DBUILD_UNIT_TESTS=OFF
+            - cmake --build .
+            - cpack -G BUNDLE
   - os: windows
-    install:
-      - choco install nsis
+#    install:
+#      - choco install nsis
     script:
-      - cmake . -DCMAKE_BUILD_TYPE=Release -DBUILD_UNIT_TESTS=OFF
-      - cmake --build .
+      - mkdir x64
+      - pushd x64
+      - cmake .. -DBUILD_UNIT_TESTS=OFF -G "Visual Studio 15 2017 Win64"
+      - cmake --build . --config=Release
+      # - pushd /bin/Release & ./unit-test.exe & popd ### first install CUnit.
       - cpack -G NSIS64
+      - popd
