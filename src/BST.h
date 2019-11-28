@@ -104,15 +104,64 @@ struct SeeBSTClass {
 
 /* **** public functions **** */
 
-/*
- * Carefully examine whether BETWEEN obj_out and error_out should be another
- * parameter. Eg for SeeError that might be a const char* msg. This
- * should also be added in the .c file.
+/**
+ * \brief Create a new binary search tree.
  *
- * Remove this comment and add useful documentation
+ * @param [out] obj_out The newly generated binary search tree.
+ * @param [in]  bst_cmp_node The function that compares two of the node
+ *                           the function should take care of a total ordering.
+ * @param [in]  bst_free_node If a node is freed from the tree this function
+ *                           will release all resources.
+ * @param [out] error_out    If an error occurs it will be returned here.
+ * @return SEE_SUCCESS or another function when not successful.
  */
 SEE_EXPORT int
-see_bst_new(SeeBST** obj_out, SeeError** error_out);
+see_bst_new(
+    SeeBST**        obj_out,
+    see_cmp_func    bst_cmp_node,
+    see_free_func   bst_free_node,
+    SeeError**      error_out
+    );
+
+/**
+ * \brief Insert a new key value pair into the tree
+ *
+ * If there already is a node with the same key, the existing node will be
+ * popped from the tree using the free function specified when creating
+ * the tree.
+ *
+ * @param [in, out]tree The tree in which the key should be inserted.
+ * @param [in]     node The node (key-value pair) to insert in the tree.
+ * @return SEE_SUCCESS or SEE_INVALID_ARGUMENT
+ */
+SEE_EXPORT int
+see_bst_insert(SeeBST* tree, SeeBSTNode* node);
+
+/**
+ * \brief Compute the depth of the tree
+ *
+ * This function visits every node in the tree. The returned size will be
+ * the length from the root to the deepest layer in the tree.
+ *
+ * @param [in] tree The tree whose depth you would like to know.
+ * @param [out] size_out The depth of the tree will be returned here.
+ * @return SEE_SUCCESS or SEE_INVALID_ARGUMENT
+ */
+SEE_EXPORT int
+see_bst_depth(const SeeBST* tree, size_t* size_out);
+
+/**
+ * \brief Compute the size of the tree
+ *
+ * This function visits every node in the tree. The returned size will be
+ * the length from the root to the deepest layer in the tree.
+ *
+ * @param [in] tree The tree whose size you would like to know.
+ * @param [out] size_out The size of the tree will be returned here.
+ * @return SEE_SUCCESS or SEE_INVALID_ARGUMENT
+ */
+SEE_EXPORT int
+see_bst_size(const SeeBST* tree, size_t* size_out);
 
 /**
  * Gets the pointer to the SeeBSTClass table.

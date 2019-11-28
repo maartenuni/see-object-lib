@@ -142,6 +142,28 @@ bst_find(
     return tree_find(tree, tree->root, key, out, error_out);
 }
 
+static size_t
+bst_depth(const SeeBSTNode* node)
+{
+    size_t left;
+    size_t right;
+    if (!node)
+        return 0;
+
+    left = bst_depth(node->node_left);
+    right = bst_depth(node->node_right);
+    return (left > right ? left : right) + 1;
+}
+
+static size_t
+bst_size(const SeeBSTNode* node)
+{
+    if (!node)
+        return 0;
+
+    return bst_size(node->node_left) + bst_size(node->node_right) + 1;
+}
+
 /* **** implementation of the public API **** */
 
 /*
@@ -149,7 +171,13 @@ bst_find(
  * parameter. Eg for SeeError that might be a const char* msg. This
  * should also be added in the header file.
  */
-int see_bst_new(SeeBST** obj_out, SeeError** error_out)
+int
+see_bst_new(
+   SeeBST**        obj_out,
+   see_cmp_func    bst_cmp_node,
+   see_free_func   bst_free_node,
+   SeeError**      error_out
+   )
 {
     const SeeObjectClass* cls = SEE_OBJECT_CLASS(
         see_bst_class()
@@ -165,9 +193,41 @@ int see_bst_new(SeeBST** obj_out, SeeError** error_out)
             cls,
             0,
             SEE_OBJECT_REF(obj_out),
-            /* add extra params here and remove,*/
+            bst_cmp_node,
+            bst_free_node,
             error_out
             );
+}
+
+int
+see_bst_insert(SeeBST* tree, SeeBSTNode* node)
+{
+    if (!tree || !node)
+        return SEE_INVALID_ARGUMENT;
+
+    const SeeBSTClass* cls = SEE_BST_GET_CLASS(tree);
+    return cls->insert(tree, node);
+}
+
+int
+see_bst_depth(const SeeBST* tree, size_t* size_out)
+{
+    if (!tree || !size_out)
+        return SEE_INVALID_ARGUMENT;
+
+    size_t depth = bst_depth(tree->root);
+    *size_out = depth;
+    return SEE_SUCCESS;
+}
+
+int
+see_bst_size(const SeeBST* tree, size_t* size_out)
+{
+    if (!tree || !size_out)
+        return SEE_INVALID_ARGUMENT;
+
+    *size_out = bst_size(tree->root);
+    return SEE_SUCCESS;
 }
 
 /* **** initialization of the class **** */
