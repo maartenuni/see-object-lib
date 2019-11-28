@@ -31,23 +31,16 @@ typedef struct SeeBST SeeBST;
 typedef struct SeeBSTClass SeeBSTClass;
 typedef struct SeeBSTNode SeeBSTNode;
 
-/**
- * \brief In essence a tree consist of nodes that point to other nodes
- *
- * If one would like to use the binary search tree, one would derive from
- * SeeBSTNode
- */
 struct SeeBSTNode {
-    SeeBSTNode* left;
-    SeeBSTNode* right;
+    SeeBSTNode* node_left;
+    SeeBSTNode* node_right;
 };
 
 struct SeeBST {
-    SeeObject parent_obj;
-    /*expand SeeBST data here*/
+    SeeObject       parent_obj;
     SeeBSTNode*     root;
-    see_cmp_func    cmp_nodes;
-    see_free_func   free_func;
+    see_cmp_func    cmp_node;
+    see_free_func   free_node;
 };
 
 struct SeeBSTClass {
@@ -56,22 +49,23 @@ struct SeeBSTClass {
     int (*bst_init)(
         SeeBST*             bst,
         const SeeBSTClass*  bst_cls,
-        see_cmp_func        node_cmp_func,
-        see_free_func       free_func,
+        see_cmp_func        bst_cmp_node,
+        see_free_func       bst_free_node,
         SeeError**          error_out
         );
 
-    /**
-     * \brief Insert a new node in the tree, if a node with equal key exists, it
-     * will be deleted from the tree.
-     * \private
-     */
-    void* (*insert)(SeeBSTNode* node);
-    /**
-     * \brief Remove a node from the tree.
-     * \private
-     */
-    void* (*delete)(SeeBSTNode* node);
+    int (*insert)   (SeeBST* tree, SeeBSTNode* node);
+
+    int (*find)     (SeeBST* tree,
+                     const SeeBSTNode* key,
+                     SeeBSTNode** out,
+                     SeeError** error_out
+                     );
+
+    int (*delete)   (SeeBST* tree,
+                     const SeeBSTNode* key,
+                     SeeError** error_out
+                     );
 
 };
 
@@ -110,11 +104,15 @@ struct SeeBSTClass {
 
 /* **** public functions **** */
 
-/**
- * Find a node with similar key in the tree.
+/*
+ * Carefully examine whether BETWEEN obj_out and error_out should be another
+ * parameter. Eg for SeeError that might be a const char* msg. This
+ * should also be added in the .c file.
+ *
+ * Remove this comment and add useful documentation
  */
-SEE_EXPORT void*
-see_bst_find(SeeBST* tree, const SeeBSTNode* node, SeeError);
+SEE_EXPORT int
+see_bst_new(SeeBST** obj_out, SeeError** error_out);
 
 /**
  * Gets the pointer to the SeeBSTClass table.

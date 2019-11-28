@@ -48,6 +48,7 @@ enum see_error {
     SEE_ERROR_TIMEOUT,         /**< Some read or write reached its timeout.*/
     SEE_ERROR_INCOMPARABLE,    /**< This combination of objects is not comparable*/
     SEE_ERROR_NOT_COPYABLE,    /**< The object is not copyable.*/
+    SEE_ERROR_KEY,             /**< The key isn't found.*/
 
     /**
      * Some unspecified error occurred.
