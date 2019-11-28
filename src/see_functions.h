@@ -57,6 +57,39 @@ typedef void (*see_free_func)(void* free_me);
 typedef int (*see_init_func)(void* element, size_t num_bytes, void* data);
 
 /**
+ * \brief compares two opaque objects.
+ *
+ * This function can be used to compare two object. It computes *rhs - *lhs,
+ * hence if the result is 0 the two objects are equal, if the result is positive
+ * lhs < rhs and if the result negative, than lhs > rhs. This type of function
+ * has to be implemented for ordering in data structures or sorting.
+ * Generally the user has to implement this for a given data type.
+ * For example in order to sort cards:
+ * \code {.c}
+ * enum color {CLUBS, DIAMONDS, HEARTS, SPADES};
+ * typedef struct Card {
+ *    color color;
+ *    int   rank; 1 - 10 and 11 - 14 Jack, Queen, King, Ace
+ * } Card
+ * \endcode
+ * A see_cmp_function might be implemented like:
+ * \code{.c}
+ * int my_color_above_rank_cmp(const void* lhs, const void* rhs)
+ * {
+ *     const Card* c_lhs = lhs;
+ *     const Card* c_rhs = lhs;
+ *     int cmp = c_rhs->color - c_lhs->color;
+ *     if (cmp) // if cmp != 0 colors are unequal
+ *         return cmp;
+ *      c_rhs->rank - c_lhs->rank;
+ *      return cmp;
+ * }
+ * \endcode
+ * If one would compare them with rank first, it might be
+ */
+typedef int (*see_cmp_func)(const void* lhs, const void* rhs);
+
+/**
  * @brief Copy a seeobject by copying the pointer and increasing the reference
  *        count.
  *
@@ -94,6 +127,7 @@ see_init_memset(void* object, size_t nbytes, void* byte);
  */
 SEE_EXPORT void
 see_free_see_object(void* see_object);
+
 
 #ifdef __cplusplus
 }
