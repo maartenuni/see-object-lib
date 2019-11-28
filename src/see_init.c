@@ -44,6 +44,7 @@
 #include "windows/WindowsRuntimeError.h"
 #elif HAVE_UNISTD_H
 #include "posix/PosixSerial.h"
+#include "BST.h"
 
 #endif
 
@@ -86,6 +87,10 @@ initialize() {
         return ret;
 
     // Initialize the other objects.
+    ret = see_bst_init();
+    if (ret)
+        return ret;
+
     ret = see_clock_init();
     if (ret)
         return ret;
@@ -171,6 +176,7 @@ initialize() {
 static void
 deinit()
 {
+    see_bst_deinit();
     see_clock_deinit();
     see_copy_error_deinit();
     see_duration_deinit();
