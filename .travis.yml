@@ -40,7 +40,7 @@ jobs:
       script:
         - cmake . -DCMAKE_BUILD_TYPE=Release -DBUILD_UNIT_TESTS=OFF
         - cmake --build .
-        - cpack 
+        - cpack -G DragNDrop
     - os: windows
       #     addons:
       #       chocolatey:
