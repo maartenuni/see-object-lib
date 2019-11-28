@@ -28,7 +28,7 @@ jobs:
         - cmake . -DCMAKE_BUILD_TYPE=Release
         - cmake --build .
         - ./bin/unit-test
-        - cpack
+        # - cpack we cpack the gcc version
       addons:
         apt:
           update: true
@@ -40,7 +40,7 @@ jobs:
       script:
         - cmake . -DCMAKE_BUILD_TYPE=Release -DBUILD_UNIT_TESTS=OFF
         - cmake --build .
-        # - cpack -G Bundle
+        - cpack 
     - os: windows
       #     addons:
       #       chocolatey:
