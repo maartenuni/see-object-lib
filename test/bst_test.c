@@ -54,20 +54,27 @@ bst_create(void)
 {
     SeeError* error = NULL;
     SeeBST* bst = NULL;
-    size_t size;
+    size_t depth, size;
 
     int ret = see_bst_new(&bst, int_int_node_cmp, free, &error);
     SEE_UNIT_HANDLE_ERROR();
 
-    ret = see_bst_depth(bst, &size);
+    ret = see_bst_depth(bst, &depth);
+    SEE_UNIT_HANDLE_ERROR();
+    ret = see_bst_size(bst, &size);
     SEE_UNIT_HANDLE_ERROR();
 
+    CU_ASSERT_EQUAL(depth, 0);
     CU_ASSERT_EQUAL(size, 0);
     SeeBSTNode* n = (SeeBSTNode*) int_int_node_new(1, 2);
 
     ret = see_bst_insert(bst, n);
     SEE_UNIT_HANDLE_ERROR();
 
+    see_bst_depth(bst, &depth);
+    CU_ASSERT_EQUAL(depth, 1);
+    see_bst_size(bst, &size);
+    CU_ASSERT_EQUAL(size, 1);
 
 fail:
     see_object_decref(SEE_OBJECT(bst));

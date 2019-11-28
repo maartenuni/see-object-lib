@@ -76,6 +76,24 @@ init(const SeeObjectClass* cls, SeeObject* obj, va_list args)
         );
 }
 
+static void
+bst_destroy(SeeBSTNode* tree, see_free_func freefunc)
+{
+    if (!tree)
+        return;
+    bst_destroy(tree->node_left, freefunc);
+    bst_destroy(tree->node_right, freefunc);
+    freefunc(tree);
+}
+
+static void
+destroy(SeeObject* obj)
+{
+    SeeBST* tree = SEE_BST(obj);
+    bst_destroy(tree->root, tree->free_node);
+    see_object_class()->destroy(obj);
+}
+
 static SeeBSTNode* tree_insert(
     SeeBST* tree,
     SeeBSTNode* tree_node,
@@ -240,6 +258,7 @@ static int bst_class_init(SeeObjectClass* new_cls)
     
     /* Override the functions on the SeeObject here */
     new_cls->init = init;
+    new_cls->destroy = destroy;
 
     // Every class should have a unique name.
     new_cls->name = "SeeBST";
