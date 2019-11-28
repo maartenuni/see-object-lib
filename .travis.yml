@@ -23,8 +23,8 @@ jobs:
     - os: linux # Debug build with -fsanitize
       compiler: gcc
       env:
-        - CFLAGS="-fsanitize=memory -fsanitize=address -fsanitize=undefined -fsanitize=leak" 
-        - CXXFLAGS="-fsanitize=memory -fsanitize=address -fsanitize=undefined -fsanitize=leak" 
+        - CFLAGS="-fsanitize=address -fsanitize=undefined -fsanitize=leak" 
+        - CXXFLAGS="-fsanitize=address -fsanitize=undefined -fsanitize=leak" 
       script:
         - cmake . -DCMAKE_BUILD_TYPE=Debug
         - cmake --build .
