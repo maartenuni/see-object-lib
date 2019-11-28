@@ -7,13 +7,28 @@ git:
 
 jobs:
   include:
-    - os: linux
+    - os: linux # Release build creates packages
       compiler: gcc
       script:
         - cmake . -DCMAKE_BUILD_TYPE=Release
         - cmake --build .
         - ./bin/unit-test
         - cpack -G DEB
+      addons:
+        apt:
+          update: true
+          packages:
+            - libcunit1
+            - libcunit1-dev
+    - os: linux # Debug build with -fsanitize
+      compiler: gcc
+      env:
+        - CFLAGS="-fsanitize=address -fsanitize=undefined -fsanitize=leak" 
+        - CXXFLAGS="-fsanitize=address -fsanitize=undefined -fsanitize=leak" 
+      script:
+        - cmake . -DCMAKE_BUILD_TYPE=Debug
+        - cmake --build .
+        - ./bin/unit-test
       addons:
         apt:
           update: true
