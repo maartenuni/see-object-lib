@@ -28,6 +28,7 @@ jobs:
       script:
         - cmake . -DCMAKE_BUILD_TYPE=Debug
         - cmake --build .
+        - ./bin/unit-test
       addons:
         apt:
           update: true
