@@ -102,6 +102,23 @@ struct SeeBSTClass {
 #define SEE_BST_GET_CLASS(obj)                \
     (SEE_BST_CLASS(see_object_get_class(SEE_OBJECT(obj)) )  )
 
+/**
+ * \brief cast a pointer from a in SeeObject style derived instance of
+ *        SeeBSTNode. Clients for a bst node need to derive from a SeeBSTNode
+ *        and add a key and value type. The functions however, expect a
+ *        SeeBSTNode*, this helps with casting a derived pointer back to its
+ *        SeeBSTNode* signature.
+ */
+#define SEE_BST_NODE(obj)\
+    ((SeeBSTNode*) obj)
+
+/**
+ * \brief Cast a pointer to pointer to a SeeBSTNode derived instance to a
+ *        SeeBSTNode** (a reference to a node).
+ */
+#define SEE_BST_NODE_REF(obj)\
+    ((SeeBSTNode**) obj)
+
 /* **** public functions **** */
 
 /**
@@ -136,6 +153,28 @@ see_bst_new(
  */
 SEE_EXPORT int
 see_bst_insert(SeeBST* tree, SeeBSTNode* node);
+
+/**
+ * \brief Find and return a node in the tree.
+ *
+ * @param [in] tree  The tree to search for a key.
+ * @param [in] key   A node whose key is set for comparison. It depends on how
+ *                   the compare_function is implemented, but in theory they
+ *                   should only compare the key, hence setting the key should
+ *                   be enough.
+ * @param [out]out   If a node with similar key is in the tree,
+ *                   a pointer to the node is returned here.
+ * @param error_out  If an error occurs it is returned here.
+ *
+ * @return  SEE_SUCCESS, SEE_INVALID_ARGUMENT, SEE_ERROR_KEY
+ */
+SEE_EXPORT int
+see_bst_find(
+    SeeBST*             tree,
+    const SeeBSTNode*   key,
+    SeeBSTNode**        out,
+    SeeError**          error_out
+    );
 
 /**
  * \brief Compute the depth of the tree

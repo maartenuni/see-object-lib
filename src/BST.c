@@ -108,9 +108,9 @@ static SeeBSTNode* tree_insert(
 
     int ret = tree->cmp_node(tree_node, new_node);
     if (ret > 0) // new node is smaller
-        tree_node->node_left = tree_insert(tree, tree_node, new_node);
+        tree_node->node_left = tree_insert(tree, tree_node->node_left, new_node);
     else if(ret < 0) // new node is larger
-        tree_node->node_right = tree_insert(tree, tree_node, new_node);
+        tree_node->node_right = tree_insert(tree, tree_node->node_right, new_node);
     else { // they are equal
         new_node->node_right = tree_node->node_right;
         new_node->node_left =  tree_node->node_left;
@@ -146,10 +146,10 @@ tree_find(
         *out = root;
         return SEE_SUCCESS;
     }
-    else if (cmp > 0)
-        return tree_find(tree, root->node_right, key, out, error_out);
-    else
+    else if (cmp > 0) //key is smaller then root, hence look in the right subtree
         return tree_find(tree, root->node_left, key, out, error_out);
+    else
+        return tree_find(tree, root->node_right, key, out, error_out);
 }
 
 static int
@@ -246,6 +246,23 @@ see_bst_size(const SeeBST* tree, size_t* size_out)
 
     *size_out = bst_size(tree->root);
     return SEE_SUCCESS;
+}
+
+int see_bst_find(
+    SeeBST*             tree,
+    const SeeBSTNode*   key,
+    SeeBSTNode**        out,
+    SeeError**          error_out
+    )
+{
+    if (!tree || !key)
+        return SEE_INVALID_ARGUMENT;
+
+    if (!out || *out || !error_out || *error_out)
+        return SEE_INVALID_ARGUMENT;
+
+    const SeeBSTClass* cls = SEE_BST_GET_CLASS(tree);
+    return cls->find(tree, key, out, error_out);
 }
 
 /* **** initialization of the class **** */
