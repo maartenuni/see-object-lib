@@ -118,6 +118,7 @@ bst_create(void)
 
 fail:
     see_object_decref(SEE_OBJECT(bst));
+    see_object_decref(SEE_OBJECT(error));
 }
 
 static void
@@ -160,6 +161,7 @@ bst_insert(void)
 
 fail:
     see_object_decref(SEE_OBJECT(bst));
+    see_object_decref(SEE_OBJECT(error));
 }
 
 static void
@@ -209,8 +211,19 @@ bst_find(void)
         CU_ASSERT_STRING_EQUAL(table[i].key, n->key);
     }
 
+    str_int_node* found_key = NULL;
+    str_int_node key = {.key = "noot"};
+    ret = see_bst_find(
+        bst,
+        SEE_BST_NODE(&key),
+        SEE_BST_NODE_REF(&found_key),
+        &error
+        );
+    CU_ASSERT_EQUAL(ret, SEE_ERROR_KEY);
+
 fail:
     see_object_decref(SEE_OBJECT(bst));
+    see_object_decref(SEE_OBJECT(error));
 }
 
 int

@@ -20,16 +20,18 @@
 #include "MetaClass.h"
 #include "BST.h"
 #include "see_functions.h"
+#include "KeyError.h"
 
 /* **** functions that implement SeeBST or override SeeObject **** */
 
 static int
 bst_init(
-    SeeBST*             bst,
-    const SeeBSTClass*  bst_cls,
-    see_cmp_func        bst_cmp_node,
-    see_free_func       bst_free_node,
-    SeeError**          error_out
+    SeeBST*                 bst,
+    const SeeBSTClass*      bst_cls,
+    see_cmp_func            bst_cmp_node,
+    see_free_func           bst_free_node,
+    see_node_stringfy_func  bst_stringify_key,
+    SeeError**              error_out
     )
 {
     int ret = SEE_SUCCESS;
@@ -50,8 +52,9 @@ bst_init(
             SEE_OBJECT_CLASS(bst_cls)
             );
 
-    bst->cmp_node = bst_cmp_node;
-    bst->free_node= bst_free_node;
+    bst->cmp_node       = bst_cmp_node;
+    bst->free_node      = bst_free_node;
+    bst->stringify_node = bst_stringify_key;
     
     return ret;
 }
@@ -65,6 +68,7 @@ init(const SeeObjectClass* cls, SeeObject* obj, va_list args)
     /*Extract parameters here from va_list args here.*/
     see_cmp_func cmp_func = va_arg(args, see_cmp_func);
     see_free_func free_func = va_arg(args,see_free_func);
+    see_node_stringfy_func stringify_func = va_arg(args, see_node_stringfy_func);
     SeeError** error = va_arg(args, SeeError**);
     
     return bst_cls->bst_init(
@@ -72,6 +76,7 @@ init(const SeeObjectClass* cls, SeeObject* obj, va_list args)
         bst_cls,
         cmp_func,
         free_func,
+        stringify_func,
         error
         );
 }
@@ -137,7 +142,8 @@ tree_find(
     )
 {
     if (!root) {
-        // TODO new_error_here;
+        char* strkey = tree->stringify_node(key);
+        see_key_error_new(error_out, strkey);
         return SEE_ERROR_KEY;
     }
 

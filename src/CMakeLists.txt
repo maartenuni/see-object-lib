@@ -25,6 +25,7 @@ set (SEE_OBJ_SRC
     Error.c
     IncomparableError.c
     IndexError.c
+    KeyError.c
     MsgBuffer.c
     MetaClass.c
     OverflowError.c
@@ -50,6 +51,7 @@ set (SEE_OBJ_HDR_PUBLIC
     Error.h
     IncomparableError.h
     IndexError.h
+    KeyError.h
     see_init.h
     MsgBuffer.h
     MetaClass.h

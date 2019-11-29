@@ -30,6 +30,7 @@ extern "C" {
 typedef struct SeeBST SeeBST;
 typedef struct SeeBSTClass SeeBSTClass;
 typedef struct SeeBSTNode SeeBSTNode;
+typedef char*(*see_node_stringfy_func)(const SeeBSTNode* node);
 
 struct SeeBSTNode {
     SeeBSTNode* node_left;
@@ -38,20 +39,45 @@ struct SeeBSTNode {
 
 struct SeeBST {
     SeeObject       parent_obj;
+
+    /**
+     * \brief The root of the tree.
+     * \private
+     */
     SeeBSTNode*     root;
+
+    /**
+     * \brief Compares two nodes in the tree to achieve a total ordering of the
+     * nodes in the tree.
+     * \private
+     */
     see_cmp_func    cmp_node;
+
+    /**
+     * \brief Frees a node when a node is removed from the tree.
+     */
     see_free_func   free_node;
+
+    /**
+     * \brief a function that stringifies a key from a node.
+     *
+     * When a key isn't found, this function is used to give a descriptive
+     * key error because the key isn't found.
+     * \private
+     */
+    see_node_stringfy_func stringify_node;
 };
 
 struct SeeBSTClass {
     SeeObjectClass parent_cls;
     
     int (*bst_init)(
-        SeeBST*             bst,
-        const SeeBSTClass*  bst_cls,
-        see_cmp_func        bst_cmp_node,
-        see_free_func       bst_free_node,
-        SeeError**          error_out
+        SeeBST*                 bst,
+        const SeeBSTClass*      bst_cls,
+        see_cmp_func            bst_cmp_node,
+        see_free_func           bst_free_node,
+        see_node_stringfy_func  bst_node_stringify,
+        SeeError**              error_out
         );
 
     int (*insert)   (SeeBST* tree, SeeBSTNode* node);

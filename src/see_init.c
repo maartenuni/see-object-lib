@@ -31,6 +31,7 @@
 #include "Error.h"
 #include "atomic_operations.h"
 #include "IndexError.h"
+#include "KeyError.h"
 #include "RuntimeError.h"
 #include "TimePoint.h"
 #include "MsgBuffer.h"
@@ -119,6 +120,10 @@ initialize() {
     if (ret)
         return ret;
 
+    ret = see_key_error_init();
+    if (ret)
+        return ret;
+
     ret = see_msg_buffer_init();
     if (ret)
         return ret;
@@ -184,6 +189,7 @@ deinit()
     see_error_deinit();
     see_incomparable_error_deinit();
     see_index_error_deinit();
+    see_key_error_deinit();
     see_msg_buffer_deinit();
     see_msg_invalid_error_deinit();
     see_msg_part_deinit();
