@@ -39,6 +39,14 @@ int_int_node_cmp(const void* l, const void* r)
     return right->key - left->key;
 }
 
+static char* int_int_stringify(const SeeBSTNode* key)
+{
+    char buffer [64];
+    int_int_node* n = (int_int_node*) key;
+    snprintf(buffer, sizeof(buffer), "%d", n->key);
+    return strdup(buffer);
+}
+
 //static int_int_node*
 //int_int_node_new(int key, int value)
 //{
@@ -66,6 +74,12 @@ str_int_node_cmp(const void* l, const void* r)
     const str_int_node* left = l;
     const str_int_node* right = r;
     return strcmp(left->key, right->key);
+}
+
+static char* str_int_stringify(const SeeBSTNode* key)
+{
+    str_int_node* n = (str_int_node*) key;
+    return strdup(n->key);
 }
 
 static str_int_node*
@@ -105,7 +119,13 @@ bst_create(void)
     SeeBST* bst = NULL;
     size_t depth, size;
 
-    int ret = see_bst_new(&bst, int_int_node_cmp, free, &error);
+    int ret = see_bst_new(
+        &bst,
+        int_int_node_cmp,
+        free,
+        &int_int_stringify,
+        &error
+        );
     SEE_UNIT_HANDLE_ERROR();
 
     ret = see_bst_depth(bst, &depth);
@@ -143,7 +163,13 @@ bst_insert(void)
         {"school",  6},
     };
 
-    int ret = see_bst_new(&bst, str_int_node_cmp, str_int_node_free, &error);
+    int ret = see_bst_new(
+        &bst,
+        str_int_node_cmp,
+        str_int_node_free,
+        &str_int_stringify,
+        &error
+        );
     SEE_UNIT_HANDLE_ERROR();
 
     for (size_t i = 0; i < sizeof(table)/sizeof(table[0]); i++)
@@ -185,7 +211,13 @@ bst_find(void)
         {"school",  6},
     };
 
-    int ret = see_bst_new(&bst, str_int_node_cmp, str_int_node_free, &error);
+    int ret = see_bst_new(
+        &bst,
+        str_int_node_cmp,
+        str_int_node_free,
+        str_int_stringify,
+        &error
+        );
     SEE_UNIT_HANDLE_ERROR();
 
     for (size_t i = 0; i < sizeof(table)/sizeof(table[0]); i++)

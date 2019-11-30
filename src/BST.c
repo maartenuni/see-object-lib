@@ -144,6 +144,7 @@ tree_find(
     if (!root) {
         char* strkey = tree->stringify_node(key);
         see_key_error_new(error_out, strkey);
+        free(strkey);
         return SEE_ERROR_KEY;
     }
 
@@ -197,10 +198,11 @@ bst_size(const SeeBSTNode* node)
  */
 int
 see_bst_new(
-   SeeBST**        obj_out,
-   see_cmp_func    bst_cmp_node,
-   see_free_func   bst_free_node,
-   SeeError**      error_out
+   SeeBST**                 obj_out,
+   see_cmp_func             bst_cmp_node,
+   see_free_func            bst_free_node,
+   see_node_stringfy_func   key_stringify,
+   SeeError**               error_out
    )
 {
     const SeeObjectClass* cls = SEE_OBJECT_CLASS(
@@ -219,6 +221,7 @@ see_bst_new(
             SEE_OBJECT_REF(obj_out),
             bst_cmp_node,
             bst_free_node,
+            key_stringify,
             error_out
             );
 }

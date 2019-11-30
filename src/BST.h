@@ -160,10 +160,11 @@ struct SeeBSTClass {
  */
 SEE_EXPORT int
 see_bst_new(
-    SeeBST**        obj_out,
-    see_cmp_func    bst_cmp_node,
-    see_free_func   bst_free_node,
-    SeeError**      error_out
+    SeeBST**                obj_out,
+    see_cmp_func            bst_cmp_node,
+    see_free_func           bst_free_node,
+    see_node_stringfy_func  key_stringify,
+    SeeError**              error_out
     );
 
 /**
