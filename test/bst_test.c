@@ -47,20 +47,20 @@ static char* int_int_stringify(const SeeBSTNode* key)
     return strdup(buffer);
 }
 
-//static int_int_node*
-//int_int_node_new(int key, int value)
-//{
-//    int_int_node* new = malloc(sizeof(int_int_node));
-//    memset(new, 0, sizeof(int_int_node));
-//
-//    if (!new)
-//        return new;
-//
-//    new->key = key;
-//    new->value = value;
-//
-//    return new;
-//}
+static int_int_node*
+int_int_node_new(int key, int value)
+{
+    int_int_node* new = malloc(sizeof(int_int_node));
+    memset(new, 0, sizeof(int_int_node));
+
+    if (!new)
+        return new;
+
+    new->key = key;
+    new->value = value;
+
+    return new;
+}
 
 typedef struct str_int_node{
     SeeBSTNode node;
@@ -200,6 +200,7 @@ bst_find(void)
         const char* key;
         int value;
     };
+    const char* expected_error = "SeeKeyError: No such key \"noot\"";
 
     struct key_val_pair table[] = {
         {"boom",    0},
@@ -252,6 +253,43 @@ bst_find(void)
         &error
         );
     CU_ASSERT_EQUAL(ret, SEE_ERROR_KEY);
+    CU_ASSERT_PTR_NOT_NULL(error);
+    CU_ASSERT_STRING_EQUAL(expected_error, see_error_msg(error));
+
+fail:
+    see_object_decref(SEE_OBJECT(bst));
+    see_object_decref(SEE_OBJECT(error));
+}
+
+static void
+bst_insert_in_order(void)
+{
+    SeeError* error = NULL;
+    SeeBST* bst = NULL;
+    size_t depth, size;
+    const size_t N = 32;
+
+    int ret = see_bst_new(
+        &bst,
+        int_int_node_cmp,
+        free,
+        &int_int_stringify,
+        &error
+        );
+    SEE_UNIT_HANDLE_ERROR();
+
+    for (size_t i = 0; i < N; i++)
+    {
+        int_int_node* n = int_int_node_new(i, (N-1)-i);
+        assert(n);
+        ret = see_bst_insert(bst, SEE_BST_NODE(n));
+        SEE_UNIT_HANDLE_ERROR();
+    }
+
+    see_bst_depth(bst, &depth);
+    see_bst_size(bst, &size);
+    CU_ASSERT_EQUAL(depth, N);
+    CU_ASSERT_EQUAL(size, N);
 
 fail:
     see_object_decref(SEE_OBJECT(bst));
@@ -265,6 +303,7 @@ add_bst_suite(void)
     SEE_UNIT_TEST_CREATE(bst_create);
     SEE_UNIT_TEST_CREATE(bst_insert);
     SEE_UNIT_TEST_CREATE(bst_find);
+    SEE_UNIT_TEST_CREATE(bst_insert_in_order);
 
     return 0;
 }

@@ -16,6 +16,23 @@
  */
 
 
+/**
+ * @file BST.h
+ *
+ * @brief Export the public API of the Binary Search Tree.
+
+ * BSTs are relatively effective in storing key-value pairs in a total order.
+ * The main problem is that some branches of the tree can grow relatively
+ * long. If the nodes are inserted in a optimal way, this is not the case,
+ * however, if they are inserted in order, the tree becomes a linked list
+ * with only one branch. Than performance will be quite low, because a key
+ * needs to be compared with n/2 nodes on average where n is the number
+ * of nodes in the tree. So in order to obtain a good performing tree, the
+ * tree should be balanced. Balanced search trees, have yet to be implemented.
+ *
+ * @public
+ */
+
 #ifndef SEE_BST_H
 #define SEE_BST_H
 
@@ -200,6 +217,22 @@ see_bst_find(
     SeeBST*             tree,
     const SeeBSTNode*   key,
     SeeBSTNode**        out,
+    SeeError**          error_out
+    );
+
+/**
+ * \brief Delete a node with a given key from the tree.
+ *
+ * @param [in]  tree        The tree to remove a key-value pair from.
+ * @param [in]  key         A node with the key set.
+ * @param [out] error_out   If an error occurres it will be returned here.
+ *
+ * @return SEE_SUCCESS or SEE_INVALID_KEY.
+ */
+SEE_EXPORT int
+see_bst_delete(
+    SeeBST*             tree,
+    const SeeBSTNode*   key,
     SeeError**          error_out
     );
 

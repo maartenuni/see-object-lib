@@ -15,7 +15,6 @@
  * along with see-object.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include <assert.h>
 #include "MetaClass.h"
 #include "BST.h"
@@ -161,10 +160,63 @@ tree_find(
 
 static int
 bst_find(
-    SeeBST* tree, const SeeBSTNode* key, SeeBSTNode** out, SeeError** error_out
-)
+    SeeBST*             tree,
+    const SeeBSTNode*   key,
+    SeeBSTNode**        out,
+    SeeError**          error_out
+    )
 {
     return tree_find(tree, tree->root, key, out, error_out);
+}
+
+static SeeBSTreeNode*
+bst_delete_min(
+        SeeBSTTree*     tree,
+        SeeBSTTreeNode* node,
+        )
+{
+    if (node->node_left) {
+        node->node_left = bst_delete_min(tree->node_left);
+        return node;
+    }
+    SeeBSTTreeNode* temp = node->node_right;
+    tree->free_node(node);
+    return temp
+}
+
+
+static int
+bst_delete(
+        SeeBST*             tree,
+        SeeBSTNode*         node,
+        const SeeBSTTNode*  key,
+        SeeError**          error_out
+        )
+{
+    int cmp, ret;
+
+    if (!node) {
+        if (error_out) {
+            char* tempstr = tree->stringify_node(key);
+            see_key_error_new(error_out, tempstr);
+            free(tempstr);
+        }
+        return SEE_KEY_ERROR;
+    }
+
+    cmp = tree->cmp_func(node, key);
+    if (cmp > 0) // Key is larger.
+        ret = bst_delete(tree, tree->right, key, error_out);
+    else if (cmp < 0) // Key is smaller
+        ret = bst_delete(tree, tree->left, key, error_out);
+    else {
+        if (tree->right == NULL)
+            ; // TODO Return left node
+        if (tree->left == NULL);
+            ; // TODO Return right node
+        // find max in m
+    }
+    return ret;
 }
 
 static size_t
@@ -191,11 +243,6 @@ bst_size(const SeeBSTNode* node)
 
 /* **** implementation of the public API **** */
 
-/*
- * Carefully examine whether BETWEEN obj_out and error_out should be another
- * parameter. Eg for SeeError that might be a const char* msg. This
- * should also be added in the header file.
- */
 int
 see_bst_new(
    SeeBST**                 obj_out,
@@ -257,7 +304,8 @@ see_bst_size(const SeeBST* tree, size_t* size_out)
     return SEE_SUCCESS;
 }
 
-int see_bst_find(
+int
+see_bst_find(
     SeeBST*             tree,
     const SeeBSTNode*   key,
     SeeBSTNode**        out,
@@ -272,6 +320,21 @@ int see_bst_find(
 
     const SeeBSTClass* cls = SEE_BST_GET_CLASS(tree);
     return cls->find(tree, key, out, error_out);
+}
+
+int
+see_bst_delete(
+    SeeBST*             tree,
+    const SeeBSTNode*   key,
+    SeeError**          error_out
+    )
+{
+    if (!tree || !key)
+        return SEE_INVALID_ARGUMENT;
+    if (!error_out || *error_out)
+        return SEE_INVALID_ARGUMENT;
+    
+    return SEE_BST_GET_CLASS(tree)->delete(tree, key, error_out);
 }
 
 /* **** initialization of the class **** */
@@ -307,8 +370,7 @@ static int bst_class_init(SeeObjectClass* new_cls)
     cls->bst_init = bst_init;
     cls->insert   = bst_insert;
     cls->find     = bst_find;
-    //TODO
-    //cls->delete   = bst_delete;
+    cls->delete   = bst_delete;
     
     return ret;
 }
