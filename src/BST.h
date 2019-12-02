@@ -50,8 +50,8 @@ typedef struct SeeBSTNode SeeBSTNode;
 typedef char*(*see_node_stringfy_func)(const SeeBSTNode* node);
 
 struct SeeBSTNode {
-    SeeBSTNode* node_left;
-    SeeBSTNode* node_right;
+    SeeBSTNode* left;
+    SeeBSTNode* right;
 };
 
 struct SeeBST {
@@ -99,15 +99,16 @@ struct SeeBSTClass {
 
     int (*insert)   (SeeBST* tree, SeeBSTNode* node);
 
-    int (*find)     (SeeBST* tree,
-                     const SeeBSTNode* key,
-                     SeeBSTNode** out,
-                     SeeError** error_out
+    int (*find)     (SeeBST*            tree,
+                     const SeeBSTNode*  key,
+                     SeeBSTNode**       out,
+                     SeeError**         error_out
                      );
 
-    int (*delete)   (SeeBST* tree,
-                     const SeeBSTNode* key,
-                     SeeError** error_out
+    int (*delete)   (SeeBST*            tree,
+                     SeeBSTNode**       root,
+                     const SeeBSTNode*  key,
+                     SeeError**         error_out
                      );
 
 };

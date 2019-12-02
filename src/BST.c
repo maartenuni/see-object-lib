@@ -85,8 +85,8 @@ bst_destroy(SeeBSTNode* tree, see_free_func freefunc)
 {
     if (!tree)
         return;
-    bst_destroy(tree->node_left, freefunc);
-    bst_destroy(tree->node_right, freefunc);
+    bst_destroy(tree->left, freefunc);
+    bst_destroy(tree->right, freefunc);
     freefunc(tree);
 }
 
@@ -104,20 +104,20 @@ static SeeBSTNode* tree_insert(
     SeeBSTNode* new_node
     )
 {
-    assert(new_node->node_left == NULL);
-    assert(new_node->node_right == NULL);
+    assert(new_node->left == NULL);
+    assert(new_node->right == NULL);
 
     if (!tree_node)
         return new_node;
 
     int ret = tree->cmp_node(tree_node, new_node);
     if (ret > 0) // new node is smaller
-        tree_node->node_left = tree_insert(tree, tree_node->node_left, new_node);
+        tree_node->left = tree_insert(tree, tree_node->left, new_node);
     else if(ret < 0) // new node is larger
-        tree_node->node_right = tree_insert(tree, tree_node->node_right, new_node);
+        tree_node->right = tree_insert(tree, tree_node->right, new_node);
     else { // they are equal
-        new_node->node_right = tree_node->node_right;
-        new_node->node_left =  tree_node->node_left;
+        new_node->right = tree_node->right;
+        new_node->left =  tree_node->left;
         tree->free_node(tree_node);
         tree_node = new_node;
     }
@@ -153,9 +153,9 @@ tree_find(
         return SEE_SUCCESS;
     }
     else if (cmp > 0) //key is smaller then root, hence look in the right subtree
-        return tree_find(tree, root->node_left, key, out, error_out);
+        return tree_find(tree, root->left, key, out, error_out);
     else
-        return tree_find(tree, root->node_right, key, out, error_out);
+        return tree_find(tree, root->right, key, out, error_out);
 }
 
 static int
@@ -169,52 +169,74 @@ bst_find(
     return tree_find(tree, tree->root, key, out, error_out);
 }
 
-static SeeBSTreeNode*
-bst_delete_min(
-        SeeBSTTree*     tree,
-        SeeBSTTreeNode* node,
+/**
+ * \brief Removes the minimal node of a given subtree.
+ *
+ * This function retrieves the minimum key-value pair from the tree
+ * by storing it in out. 
+ */
+static SeeBSTNode*
+bst_extract_min(
+        SeeBSTNode* node,
+        SeeBSTNode** out
         )
 {
-    if (node->node_left) {
-        node->node_left = bst_delete_min(tree->node_left);
+    if (!node) {
+        *out = NULL;
         return node;
     }
-    SeeBSTTreeNode* temp = node->node_right;
-    tree->free_node(node);
-    return temp
+    
+    if (node->left) {
+        node->left = bst_extract_min(node->left, out);
+        return node;
+    }
+
+    *out = node;
+    return node->right;
 }
 
 
 static int
 bst_delete(
         SeeBST*             tree,
-        SeeBSTNode*         node,
-        const SeeBSTTNode*  key,
+        SeeBSTNode**        node,
+        const SeeBSTNode*   key,
         SeeError**          error_out
         )
 {
     int cmp, ret;
 
-    if (!node) {
+    if (!(*node)) {
         if (error_out) {
             char* tempstr = tree->stringify_node(key);
             see_key_error_new(error_out, tempstr);
             free(tempstr);
         }
-        return SEE_KEY_ERROR;
+        return SEE_ERROR_KEY;
     }
 
-    cmp = tree->cmp_func(node, key);
+    cmp = tree->cmp_node(*node, key);
     if (cmp > 0) // Key is larger.
-        ret = bst_delete(tree, tree->right, key, error_out);
+        ret = bst_delete(tree, &((*node)->right), key, error_out);
     else if (cmp < 0) // Key is smaller
-        ret = bst_delete(tree, tree->left, key, error_out);
+        ret = bst_delete(tree, &((*node)->left), key, error_out);
     else {
-        if (tree->right == NULL)
-            ; // TODO Return left node
-        if (tree->left == NULL);
-            ; // TODO Return right node
-        // find max in m
+        SeeBSTNode* minormax = NULL;
+        if ((*node)->right == NULL) { // Return left node.
+            SeeBSTNode* left = (*node)->left;
+            tree->free_node(*node);
+            *node = left;
+            return SEE_SUCCESS;
+        }
+        if ((*node)->left == NULL) { // Return right node
+            SeeBSTNode* right = (*node)->right;
+            tree->free_node(*node);
+            *node = right;
+            return SEE_SUCCESS;
+        }
+        //TODO  randomly replace the current node with either the largest
+        //      of the left subtree or with the smallest of the right subtree
+        (*node)-> right = bst_extract_min((*node)->right, &minormax);
     }
     return ret;
 }
@@ -227,8 +249,8 @@ bst_depth(const SeeBSTNode* node)
     if (!node)
         return 0;
 
-    left = bst_depth(node->node_left);
-    right = bst_depth(node->node_right);
+    left = bst_depth(node->left);
+    right = bst_depth(node->right);
     return (left > right ? left : right) + 1;
 }
 
@@ -238,7 +260,7 @@ bst_size(const SeeBSTNode* node)
     if (!node)
         return 0;
 
-    return bst_size(node->node_left) + bst_size(node->node_right) + 1;
+    return bst_size(node->left) + bst_size(node->right) + 1;
 }
 
 /* **** implementation of the public API **** */
@@ -334,7 +356,7 @@ see_bst_delete(
     if (!error_out || *error_out)
         return SEE_INVALID_ARGUMENT;
     
-    return SEE_BST_GET_CLASS(tree)->delete(tree, key, error_out);
+    return SEE_BST_GET_CLASS(tree)->delete(tree, &tree->root, key, error_out);
 }
 
 /* **** initialization of the class **** */
