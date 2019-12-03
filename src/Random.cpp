@@ -1,0 +1,189 @@
+/*
+ * This file is part of see-object.
+ *
+ * see-object is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * see-object is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with see-object.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+
+#include "MetaClass.h"
+#include "Random.h"
+#include "cpp/Random.hpp"
+
+/* **** functions that implement SeeRandom or override SeeObject **** */
+
+static int
+random_init(
+    SeeRandom* random,
+    const SeeRandomClass* random_cls
+    )
+{
+    int ret = SEE_SUCCESS;
+    const SeeObjectClass* parent_cls = SEE_OBJECT_GET_CLASS(
+        random
+        );
+        
+    /* Because every class has its own members to initialize, you have
+     * to check how your parent is initialized and pass through all relevant
+     * parameters here. Typically, this should be parent_name_init, where
+     * parent_name is the name of the parent and it should be the first function
+     * that extends the parent above its parent.
+     * Check how the parent is initialized and pass through the right parameters.
+     */
+    parent_cls->object_init(
+            SEE_OBJECT(random),
+            SEE_OBJECT_CLASS(random_cls)
+            );
+
+    random->priv = static_cast<void*>(new Random());
+    
+    
+    return ret;
+}
+
+static int
+init(const SeeObjectClass* cls, SeeObject* obj, va_list args)
+{
+    (void) args;
+    const SeeRandomClass* random_cls = SEE_RANDOM_CLASS(cls);
+    SeeRandom* random = SEE_RANDOM(obj);
+    
+    /*Extract parameters here from va_list args here.*/
+    
+    return random_cls->random_init(
+        random,
+        random_cls
+        );
+}
+
+static int
+random_seed(SeeRandom* random, unsigned seed)
+{
+    Random* r = static_cast<Random*>(random->priv);
+    r->seed_rand(seed);
+    return SEE_SUCCESS;
+}
+
+static int
+random_get_seed(SeeRandom* random, unsigned* seed)
+{
+    Random* r = static_cast<Random*>(random->priv);
+    *seed = r->get_seed();
+    return SEE_SUCCESS;
+}
+
+/* **** implementation of the public API **** */
+
+/*
+ * Carefully examine whether BETWEEN obj_out and error_out should be another
+ * parameter. Eg for SeeError that might be a const char* msg. This
+ * should also be added in the header file.
+ */
+int see_random_new(SeeRandom** obj_out, SeeError** error_out)
+{
+    const SeeObjectClass* cls = SEE_OBJECT_CLASS(
+        see_random_class()
+        );
+
+    if (!cls)
+        return SEE_NOT_INITIALIZED;
+
+    if (!obj_out || !error_out || *obj_out || *error_out)
+        return SEE_INVALID_ARGUMENT;
+
+    return cls->new_obj(
+            cls,
+            0,
+            SEE_OBJECT_REF(obj_out),
+            /* add extra params here and remove,*/
+            error_out
+            );
+}
+
+/* **** initialization of the class **** */
+
+SeeRandomClass* g_SeeRandomClass = NULL;
+
+static int random_class_init(SeeObjectClass* new_cls)
+{
+    int ret = SEE_SUCCESS;
+    
+    /* Override the functions on the SeeObject here */
+    new_cls->init = init;
+
+    // Every class should have a unique name.
+    new_cls->name = "SeeRandom";
+
+    // These can be optionally overwritten
+    // Then you need to create static function above with the proper
+    // signature.
+    // new_cls->compare        = random_compare;
+    // new_cls->less           = random_less;
+    // new_cls->less_equal     = random_less_equal;
+    // new_cls->equal          = random_equal;
+    // new_cls->not_equal      = random_not_equal;
+    // new_cls->greater_equal  = random_greater_equal;
+    // new_cls->greater        = random_greater;
+    // new_cls->copy           = random_copy;
+    
+    /* Set the function pointers of the own class here */
+    SeeRandomClass* cls = (SeeRandomClass*) new_cls;
+    cls->random_init    = random_init;
+    cls->seed           = random_seed;
+    cls->get_seed       = random_get_seed;
+
+    
+    return ret;
+}
+
+/**
+ * \private
+ * \brief this class initializes SeeRandom(Class).
+ *
+ * You might want to call this from the library initialization func.
+ */
+int
+see_random_init()
+{
+    int ret;
+    const SeeMetaClass* meta = see_meta_class_class();
+
+    ret = see_meta_class_new_class(
+        meta,
+        (SeeObjectClass**) &g_SeeRandomClass,
+        sizeof(SeeRandomClass),
+        sizeof(SeeRandom),
+        SEE_OBJECT_CLASS(see_object_class()),
+        sizeof(SeeObjectClass),
+        random_class_init
+        );
+
+    return ret;
+}
+
+void
+see_random_deinit()
+{
+    if(!g_SeeRandomClass)
+        return;
+
+    see_object_decref(SEE_OBJECT(g_SeeRandomClass));
+    g_SeeRandomClass = NULL;
+}
+
+const SeeRandomClass*
+see_random_class()
+{
+    return g_SeeRandomClass;
+}
+
