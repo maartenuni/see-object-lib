@@ -358,7 +358,6 @@ bst_delete(void)
 
     for (size_t i = N - 1; i > 0; --i) {
         int_pair pair;
-        //int_int_node* node = NULL;
         size_t randomindex = random_index(0, i);
         ret = see_dynamic_array_get(array, randomindex, &pair, &error);
         SEE_UNIT_HANDLE_ERROR();
@@ -382,3 +381,5 @@ add_bst_suite(void)
 
     return 0;
 }
+
+
