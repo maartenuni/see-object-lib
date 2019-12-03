@@ -20,6 +20,8 @@
 #include "Random.h"
 #include "cpp/Random.hpp"
 
+static SeeRandom* global_random_device = NULL;
+
 /* **** functions that implement SeeRandom or override SeeObject **** */
 
 static int
@@ -65,23 +67,6 @@ init(const SeeObjectClass* cls, SeeObject* obj, va_list args)
         random_cls
         );
 }
-
-static int
-random_seed(SeeRandom* random, unsigned seed)
-{
-    Random* r = static_cast<Random*>(random->priv);
-    r->seed_rand(seed);
-    return SEE_SUCCESS;
-}
-
-static int
-random_get_seed(SeeRandom* random, unsigned* seed)
-{
-    Random* r = static_cast<Random*>(random->priv);
-    *seed = r->get_seed();
-    return SEE_SUCCESS;
-}
-
 /* **** implementation of the public API **** */
 
 /*
@@ -110,11 +95,60 @@ int see_random_new(SeeRandom** obj_out, SeeError** error_out)
             );
 }
 
+int
+see_random_seed(SeeRandom* random, unsigned seed)
+{
+    Random* r = static_cast<Random*>(random->priv);
+    r->seed_rand(seed);
+    return SEE_SUCCESS;
+}
+
+int
+see_random_get_seed(const SeeRandom* random, unsigned* seed)
+{
+    auto* r = static_cast<const Random*>(random->priv);
+    *seed = r->get_seed();
+    return SEE_SUCCESS;
+}
+
+int32_t
+see_random_int32(SeeRandom* random)
+{
+    SeeRandom* sr = random != nullptr ? random : global_random_device;
+    auto* r = static_cast<Random*>(sr->priv);
+    return r->uniform_int32();
+}
+
+int32_t
+see_random_int32_range(SeeRandom* random, int32_t min,int32_t max)
+{
+    SeeRandom *sr = random != nullptr ? random : global_random_device;
+    auto *r = static_cast<Random *>(sr->priv);
+    return r->uniform_int32_range(min, max);
+}
+
+uint32_t
+see_random_uint32(SeeRandom* random)
+{
+    SeeRandom* sr = random != nullptr ? random : global_random_device;
+    auto* r = static_cast<Random*>(sr->priv);
+    return r->uniform_uint32();
+}
+
+uint32_t
+see_random_uint32_range(SeeRandom* random, uint32_t min,uint32_t max)
+{
+    SeeRandom *sr = random != nullptr ? random : global_random_device;
+    auto *r = static_cast<Random *>(sr->priv);
+    return r->uniform_uint32_range(min, max);
+}
+
 /* **** initialization of the class **** */
 
 SeeRandomClass* g_SeeRandomClass = NULL;
 
-static int random_class_init(SeeObjectClass* new_cls)
+static int
+random_class_init(SeeObjectClass* new_cls)
 {
     int ret = SEE_SUCCESS;
     
@@ -139,10 +173,7 @@ static int random_class_init(SeeObjectClass* new_cls)
     /* Set the function pointers of the own class here */
     SeeRandomClass* cls = (SeeRandomClass*) new_cls;
     cls->random_init    = random_init;
-    cls->seed           = random_seed;
-    cls->get_seed       = random_get_seed;
 
-    
     return ret;
 }
 
@@ -158,6 +189,8 @@ see_random_init()
     int ret;
     const SeeMetaClass* meta = see_meta_class_class();
 
+    see_object_decref(SEE_OBJECT(global_random_device));
+
     ret = see_meta_class_new_class(
         meta,
         (SeeObjectClass**) &g_SeeRandomClass,
@@ -167,6 +200,9 @@ see_random_init()
         sizeof(SeeObjectClass),
         random_class_init
         );
+
+    SeeError* error = NULL;
+    ret = see_random_new(&global_random_device, &error);
 
     return ret;
 }

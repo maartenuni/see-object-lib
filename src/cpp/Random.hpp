@@ -26,9 +26,10 @@ class Random {
     public:
 
         Random()
+            : m_seed(0)
         {
             std::random_device rd;
-            seed_rand(m_seed);
+            seed_rand(std::random_device()());
         }
 
         void seed_rand(unsigned seed)
@@ -37,7 +38,7 @@ class Random {
             gen.seed(m_seed);
         }
 
-        unsigned get_seed()
+        unsigned get_seed() const
         {
             return m_seed;
         }
@@ -45,15 +46,62 @@ class Random {
         /**
          * \brief return a value from the range [min, max].
          */
-        unsigned uniform_uint(unsigned min, unsigned max)
+        unsigned uniform_uint32_range(unsigned min, unsigned max)
         {
             std::uniform_int_distribution<unsigned>dist(min, max);
             return dist(gen);
         }
 
+        /**
+         * \brief return a random 32bit integer
+         */
+        unsigned uniform_uint32()
+        {
+            constexpr unsigned min = std::numeric_limits<unsigned>::min();
+            constexpr unsigned max = std::numeric_limits<unsigned>::max();
+            return uniform_uint32_range(min, max);
+        }
+
+        /**
+         * \brief return a value from the range [min, max].
+         */
+        int uniform_int32_range(int min, int max)
+        {
+            std::uniform_int_distribution<int>dist(min, max);
+            return dist(gen);
+        }
+
+        /**
+         * \brief return a random 32bit integer
+         * @return
+         */
+        int uniform_int32()
+        {
+            constexpr auto min = std::numeric_limits<int>::min();
+            constexpr auto max = std::numeric_limits<int>::max();
+            return uniform_uint32_range(min, max);
+        }
+
+        double random_float_range(double min, double max)
+        {
+            std::uniform_real_distribution<double>dist(min, max);
+            return dist(gen);
+        }
+
+        /**
+         * \brief return a number in the range[0.0, 1.0]
+         * @return value between and including 0.0  and 1.0
+         */
+        double random_float()
+        {
+            return random_float_range(0.0f, 1.0f);
+        }
+
     private:
+
         std::mt19937 gen;
+
         unsigned m_seed;
 };
 
-#endif //ifndef SEE_RANDOM_H
+#endif //ifndef SEE_RANDOM_HPP

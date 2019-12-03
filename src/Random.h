@@ -21,6 +21,7 @@
 
 #include "SeeObject.h"
 #include "Error.h"
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,10 +42,6 @@ struct SeeRandomClass {
         SeeRandom*            random,
         const SeeRandomClass* random_cls
         );
-        
-    int (*seed) (SeeRandom* random, unsigned i);
-    
-    int (*get_seed) (SeeRandom* random, unsigned* i);
 };
 
 /* **** function style macro casts **** */
@@ -82,15 +79,88 @@ struct SeeRandomClass {
 
 /* **** public functions **** */
 
-/*
- * Carefully examine whether BETWEEN obj_out and error_out should be another
- * parameter. Eg for SeeError that might be a const char* msg. This
- * should also be added in the .c file.
+/**
+ * \brief Create a new random generator.
  *
- * Remove this comment and add useful documentation
+ * @param [out] rand_out
+ * @param [out] error_out
+ *
+ * @return SEE_SUCCESS if successful.
  */
 SEE_EXPORT int
-see_random_new(SeeRandom** obj_out, SeeError** error_out);
+see_random_new(SeeRandom** rand_out, SeeError** error_out);
+
+/**
+ * \brief Set the random seed of the generator it should produce identical
+ * results when given the same seed.
+ *
+ * @param [in] random
+ * @param [in] seed
+ *
+ * @return SEE_SUCCESS or SEE_INVALID_ARGUMENT
+ */
+SEE_EXPORT int
+see_random_seed(SeeRandom* random, unsigned seed);
+
+
+/**
+ * \brief Get the random seed of the generator.
+ *
+ * @param [in] random
+ * @param [out]seed
+ *
+ * @return SEE_SUCCESS or SEE_INVALID_ARGUMENT
+ */
+SEE_EXPORT int
+see_random_get_seed(SeeRandom* random, unsigned* seed);
+
+/**
+ * \brief return a random int32_t.
+ *
+ * @param [in] random may be NULL, then a global default will be used,
+ *                    note this isn't thread safe.
+ * @return a random value between and including the maximal and minimal
+ *         32 bit integer value.
+ */
+SEE_EXPORT int32_t
+see_random_int32(SeeRandom* random);
+
+/**
+ * \brief return a random value in the range [min, max]
+ *
+ * @param [in] random A random device. This may be null, then a global device is
+ *                    used, note that this isn't thread safe.
+ * @param [in] min    The minimal value (inclusive)
+ * @param [in] max    The maximal value (inclusive)
+ *
+ * @return a uniformly drawn number in the range [min, max]
+ */
+SEE_EXPORT int32_t
+see_random_int32_range(SeeRandom* random, int32_t min, int32_t max);
+/**
+ * \brief return a random int32_t.
+ *
+ * @param [in] random may be NULL, then a global default will be used,
+ *                    note this isn't thread safe.
+ * @return a random value between and including the maximal and minimal
+ *         32 bit integer value.
+ */
+
+SEE_EXPORT uint32_t
+see_random_uint32(SeeRandom* random);
+
+/**
+ * \brief return a random value in the range [min, max]
+ *
+ * @param [in] random A random device. This may be null, then a global device is
+ *                    used, note that this isn't thread safe.
+ * @param [in] min    The minimal value (inclusive)
+ * @param [in] max    The maximal value (inclusive)
+ *
+ * @return a uniformly drawn number in the range [min, max]
+ */
+SEE_EXPORT int32_t
+see_random_int32_range(SeeRandom* random, int32_t min, int32_t max);
 
 /**
  * Gets the pointer to the SeeRandomClass table.
