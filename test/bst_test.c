@@ -16,14 +16,37 @@
  */
 
 #include <assert.h>
+#include <stdlib.h>
 #include "test_macros.h"
 #include "../src/BST.h"
+#include "../src/DynamicArray.h"
 
 static const char* SUITE_NAME = "SeeBST Suite";
 
 /* *************************************************/
 /* ******** helper functions and structs ***********/
 /* *************************************************/
+
+/**
+ * \brief select a random index from a range [min, max).
+ *
+ * I wouldn't recommend this function for production code.
+ */
+static size_t
+random_index(size_t min, size_t max)
+{
+    assert(min < max);
+    long int r = random();
+    if (r < 0)
+        r *= -1;
+    size_t posrand = (size_t) r;
+    posrand %= (max - min);
+    posrand += min;
+    fprintf(stderr, "random = %lu\n", posrand);
+    assert(posrand>= min);
+    assert(posrand < max);
+    return posrand;
+}
 
 typedef struct int_int_node{
     SeeBSTNode node;
@@ -108,9 +131,9 @@ str_int_node_free(void* node)
     free(node);
 }
 
-/* *******************************/
-/* ******** unit tests ***********/
-/* *******************************/
+/* ****************************** */
+/* ******** unit tests ********** */
+/* ****************************** */
 
 static void
 bst_create(void)
@@ -296,6 +319,57 @@ fail:
     see_object_decref(SEE_OBJECT(error));
 }
 
+static void
+bst_delete(void)
+{
+    SeeError* error = NULL;
+    SeeBST* tree = NULL;
+    SeeDynamicArray* array = NULL;
+    const size_t N = 1024;
+
+    typedef struct int_pair {
+        int key;
+        int value;
+    }int_pair;
+
+    int ret = see_bst_new(
+            &tree,
+            &int_int_node_cmp,
+            &free,
+            &int_int_stringify,
+            &error
+            );
+    SEE_UNIT_HANDLE_ERROR();
+
+    ret = see_dynamic_array_new(
+            &array,
+            sizeof(int_pair),
+            NULL,
+            NULL,
+            NULL,
+            &error
+            );
+    SEE_UNIT_HANDLE_ERROR();
+    for (size_t i = 0; i < N; ++i) {
+        int_pair pair = {i, i};
+        ret = see_dynamic_array_add(array, &pair, &error);
+        SEE_UNIT_HANDLE_ERROR();
+    }
+
+    for (size_t i = N - 1; i > 0; --i) {
+        int_pair pair;
+        //int_int_node* node = NULL;
+        size_t randomindex = random_index(0, i);
+        ret = see_dynamic_array_get(array, randomindex, &pair, &error);
+        SEE_UNIT_HANDLE_ERROR();
+    }
+
+fail:
+    see_object_decref(SEE_OBJECT(error));
+    see_object_decref(SEE_OBJECT(tree));
+    see_object_decref(SEE_OBJECT(array));
+}
+
 int
 add_bst_suite(void)
 {
@@ -304,6 +378,7 @@ add_bst_suite(void)
     SEE_UNIT_TEST_CREATE(bst_insert);
     SEE_UNIT_TEST_CREATE(bst_find);
     SEE_UNIT_TEST_CREATE(bst_insert_in_order);
+    SEE_UNIT_TEST_CREATE(bst_delete);
 
     return 0;
 }

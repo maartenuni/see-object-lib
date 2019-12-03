@@ -221,7 +221,6 @@ bst_delete(
     else if (cmp < 0) // Key is smaller
         ret = bst_delete(tree, &((*node)->left), key, error_out);
     else {
-        SeeBSTNode* minormax = NULL;
         if ((*node)->right == NULL) { // Return left node.
             SeeBSTNode* left = (*node)->left;
             tree->free_node(*node);
@@ -236,7 +235,14 @@ bst_delete(
         }
         //TODO  randomly replace the current node with either the largest
         //      of the left subtree or with the smallest of the right subtree
+        SeeBSTNode* minormax = NULL;
         (*node)-> right = bst_extract_min((*node)->right, &minormax);
+        minormax->right = (*node)->right;
+        minormax->left  = (*node)->left;
+        tree->free_node(*node);
+        *node = minormax;
+
+        ret = SEE_SUCCESS;
     }
     return ret;
 }
