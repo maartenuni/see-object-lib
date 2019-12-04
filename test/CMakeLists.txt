@@ -52,7 +52,11 @@ if (BUILD_UNIT_TESTS)
 
     target_link_libraries(${UNIT_TEST} PRIVATE ${LIB_CUINIT})
     target_link_libraries(${UNIT_TEST} PRIVATE ${SEE_OBJ_LIB})
-    target_include_directories(${UNIT_TEST} PRIVATE "${CMAKE_BINARY_DIR}/src" )
+    target_include_directories(${UNIT_TEST} PRIVATE "${CMAKE_BINARY_DIR}/src")
+    if (MSVC)
+    else()
+        target_link_libraries(${UNIT_TEST} PRIVATE m)
+    endif()
     
     if (MSVC)
         # Specify the include directory from which the include files are found

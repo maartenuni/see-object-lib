@@ -32,13 +32,13 @@ class Random {
             seed_rand(std::random_device()());
         }
 
-        void seed_rand(unsigned seed)
+        void seed_rand(uint64_t seed)
         {
             m_seed = seed;
             gen.seed(m_seed);
         }
 
-        unsigned get_seed() const
+        uint64_t get_seed() const
         {
             return m_seed;
         }
@@ -46,28 +46,28 @@ class Random {
         /**
          * \brief return a value from the range [min, max].
          */
-        unsigned uniform_uint32_range(unsigned min, unsigned max)
+        uint32_t uniform_uint32_range(uint32_t min, uint32_t max)
         {
-            std::uniform_int_distribution<unsigned>dist(min, max);
+            std::uniform_int_distribution<uint32_t>dist(min, max);
             return dist(gen);
         }
 
         /**
          * \brief return a random 32bit integer
          */
-        unsigned uniform_uint32()
+        uint32_t uniform_uint32()
         {
-            constexpr unsigned min = std::numeric_limits<unsigned>::min();
-            constexpr unsigned max = std::numeric_limits<unsigned>::max();
+            constexpr uint32_t min = std::numeric_limits<uint32_t>::min();
+            constexpr uint32_t max = std::numeric_limits<uint32_t>::max();
             return uniform_uint32_range(min, max);
         }
 
         /**
          * \brief return a value from the range [min, max].
          */
-        int uniform_int32_range(int min, int max)
+        int32_t uniform_int32_range(int32_t min, int32_t max)
         {
-            std::uniform_int_distribution<int>dist(min, max);
+            std::uniform_int_distribution<int32_t>dist(min, max);
             return dist(gen);
         }
 
@@ -77,9 +77,48 @@ class Random {
          */
         int uniform_int32()
         {
-            constexpr auto min = std::numeric_limits<int>::min();
-            constexpr auto max = std::numeric_limits<int>::max();
+            constexpr auto min = std::numeric_limits<int32_t>::min();
+            constexpr auto max = std::numeric_limits<int32_t>::max();
             return uniform_uint32_range(min, max);
+        }
+
+        /**
+         * \brief return a value from the range [min, max].
+         */
+        uint64_t uniform_uint64_range(uint64_t min, uint64_t max)
+        {
+            std::uniform_int_distribution<uint64_t>dist(min, max);
+            return dist(gen);
+        }
+
+        /**
+         * \brief return a random 64bit integer
+         */
+        uint64_t uniform_uint64()
+        {
+            constexpr uint64_t min = std::numeric_limits<uint64_t>::min();
+            constexpr uint64_t max = std::numeric_limits<uint64_t>::max();
+            return uniform_uint64_range(min, max);
+        }
+
+        /**
+         * \brief return a value from the range [min, max].
+         */
+        int64_t uniform_int64_range(int64_t min, int64_t max)
+        {
+            std::uniform_int_distribution<int64_t>dist(min, max);
+            return dist(gen);
+        }
+
+        /**
+         * \brief return a random 64bit integer
+         * @return
+         */
+        int uniform_int64()
+        {
+            constexpr auto min = std::numeric_limits<int64_t>::min();
+            constexpr auto max = std::numeric_limits<int64_t>::max();
+            return uniform_uint64_range(min, max);
         }
 
         /**

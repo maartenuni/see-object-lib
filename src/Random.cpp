@@ -108,7 +108,8 @@ int see_random_new(SeeRandom** obj_out, SeeError** error_out)
 int
 see_random_seed(SeeRandom* random, unsigned seed)
 {
-    Random* r = static_cast<Random*>(random->priv);
+    SeeRandom* sr = random != nullptr ? random : global_random_device;
+    Random* r = static_cast<Random*>(sr->priv);
     r->seed_rand(seed);
     return SEE_SUCCESS;
 }
@@ -116,7 +117,8 @@ see_random_seed(SeeRandom* random, unsigned seed)
 int
 see_random_get_seed(const SeeRandom* random, unsigned* seed)
 {
-    auto* r = static_cast<const Random*>(random->priv);
+    const SeeRandom* sr = random != nullptr ? random : global_random_device;
+    auto* r = static_cast<const Random*>(sr->priv);
     *seed = r->get_seed();
     return SEE_SUCCESS;
 }
@@ -151,6 +153,38 @@ see_random_uint32_range(SeeRandom* random, uint32_t min,uint32_t max)
     SeeRandom *sr = random != nullptr ? random : global_random_device;
     auto *r = static_cast<Random *>(sr->priv);
     return r->uniform_uint32_range(min, max);
+}
+
+int64_t
+see_random_int64(SeeRandom* random)
+{
+    SeeRandom* sr = random != nullptr ? random : global_random_device;
+    auto* r = static_cast<Random*>(sr->priv);
+    return r->uniform_int64();
+}
+
+int64_t
+see_random_int64_range(SeeRandom* random, int64_t min,int64_t max)
+{
+    SeeRandom *sr = random != nullptr ? random : global_random_device;
+    auto *r = static_cast<Random *>(sr->priv);
+    return r->uniform_int64_range(min, max);
+}
+
+uint64_t
+see_random_uint64(SeeRandom* random)
+{
+    SeeRandom* sr = random != nullptr ? random : global_random_device;
+    auto* r = static_cast<Random*>(sr->priv);
+    return r->uniform_uint64();
+}
+
+uint64_t
+see_random_uint64_range(SeeRandom* random, uint64_t min,uint64_t max)
+{
+    SeeRandom *sr = random != nullptr ? random : global_random_device;
+    auto *r = static_cast<Random *>(sr->priv);
+    return r->uniform_uint64_range(min, max);
 }
 
 double
