@@ -163,6 +163,33 @@ SEE_EXPORT int32_t
 see_random_int32_range(SeeRandom* random, int32_t min, int32_t max);
 
 /**
+ * \brief return a double precision floating point number
+ *        in the range [0.0, 1.0]
+ *
+ * @param [in] random A random device. This may be null, then a global device is
+ *                    used, note that this isn't thread safe.
+ */
+SEE_EXPORT double
+see_random_float(SeeRandom* random);
+
+/**
+ * \brief return a double precision floating point number
+ *        in the range [0.0, 1.0]
+ *
+ * @param [in] random A random device. This may be null, then a global device is
+ *                    used, note that this isn't thread safe.
+ */
+SEE_EXPORT double
+see_random_float_range(SeeRandom* random, double min, double max);
+
+/**
+ * \brief return a value from a normal distribution in with
+ * a mean and a given standard deviation.
+ */
+SEE_EXPORT double
+see_random_normal_float(SeeRandom* random, double mean, double std);
+
+/**
  * Gets the pointer to the SeeRandomClass table.
  */
 SEE_EXPORT const SeeRandomClass*

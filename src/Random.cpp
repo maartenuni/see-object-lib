@@ -143,6 +143,30 @@ see_random_uint32_range(SeeRandom* random, uint32_t min,uint32_t max)
     return r->uniform_uint32_range(min, max);
 }
 
+double
+see_random_float(SeeRandom* random)
+{
+    SeeRandom *sr = random != nullptr ? random : global_random_device;
+    auto *r = static_cast<Random *>(sr->priv);
+    return r->uniform_float();
+}
+
+double
+see_random_float_range(SeeRandom* random, double min, double max)
+{
+    SeeRandom *sr = random != nullptr ? random : global_random_device;
+    auto *r = static_cast<Random *>(sr->priv);
+    return r->uniform_float_range(min, max);
+}
+
+double
+see_random_normal_float(SeeRandom* random, double mean, double max)
+{
+    SeeRandom *sr = random != nullptr ? random : global_random_device;
+    auto *r = static_cast<Random *>(sr->priv);
+    return r->uniform_float_range(min, max);
+}
+
 /* **** initialization of the class **** */
 
 SeeRandomClass* g_SeeRandomClass = NULL;
