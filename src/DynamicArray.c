@@ -623,6 +623,76 @@ see_dynamic_array_insert(
     return cls->insert(array, pos, elements, n, error);
 }
 
+int
+see_dynamic_array_shuffle_range(
+    SeeDynamicArray*    array,
+    size_t              start,
+    size_t              end,
+    SeeRandom*          rgen,
+    SeeError**          error_out
+    )
+{
+    int ret = SEE_SUCCESS;
+    size_t size = see_dynamic_array_size(array);
+    if (!array || !error_out || *error_out)
+        return SEE_INVALID_ARGUMENT;
+
+    if (end >= size) {
+        see_index_error_new(error_out, end);
+        return SEE_ERROR_INDEX;
+    }
+
+    void* temp = malloc(array->element_size);
+    if (!temp) {
+        see_runtime_error_new(error_out, errno);
+        return SEE_ERROR_RUNTIME;
+    }
+
+    for (size_t i = start; i < end; i++) {
+        size_t rindex = see_random_uint64_range(rgen, i, end);
+
+        array->copy_element(
+            temp,
+            ARRAY_ELEM_ADDRESS(array, rindex),
+            array->element_size
+            );
+        if (array->free_element)
+            array->free_element(ARRAY_ELEM_ADDRESS(array, rindex));
+
+        array->copy_element(
+            ARRAY_ELEM_ADDRESS(array, rindex),
+            ARRAY_ELEM_ADDRESS(array, i),
+            array->element_size
+            );
+        if (array->free_element)
+            array->free_element(ARRAY_ELEM_ADDRESS(array, i));
+
+        array->copy_element(
+            ARRAY_ELEM_ADDRESS(array, i),
+            temp,
+            array->element_size
+            );
+        if (array->free_element)
+            array->free_element(temp);
+    }
+    free(temp);
+
+    return ret;
+}
+
+int
+see_dynamic_array_shuffle(
+    SeeDynamicArray* array,
+    SeeRandom*       rgen,
+    SeeError**       error_out
+    )
+{
+    size_t size;
+    size = see_dynamic_array_size(array);
+
+    return see_dynamic_array_shuffle_range(array, 0, size, rgen, error_out);
+}
+
 /* **** initialization of the class **** */
 
 /**

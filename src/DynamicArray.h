@@ -30,6 +30,7 @@
 #include "SeeObject.h"
 #include "see_functions.h"
 #include "Error.h"
+#include "Random.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -595,6 +596,47 @@ see_dynamic_array_insert(
         size_t           n,
         SeeError**       error
         );
+
+/**
+ * \brief shuffle a sub selection of an array.
+ *
+ * Shuffles the array using the provided copy function. items in the
+ * range [start, end) will be shuffled.
+ *
+ * @param [in,out] array The array to be shuffled
+ * @param [in]     start The index of the start of the range
+ * @param [in]     end   The index should be larger than start, otherwise
+ *                       nothing is shuffled.
+ * @param [in,out] rgen  A random generator, if NULL, the default global
+ *                       random generator will be used. For thread safety
+ *                       you should provide your own.
+ * @param [out]    error_out If an error occurres a message might provided here.
+ *
+ * @return SEE_SUCCESS, SEE_ERROR_INDEX
+ */
+SEE_EXPORT int
+see_dynamic_array_shuffle_range(
+        SeeDynamicArray* array,
+        size_t           start,
+        size_t           end,
+        SeeRandom*       rgen,
+        SeeError**       error_out
+        );
+
+/**
+ * \brief Shuffles the entire array.
+ * @param [in,out] array
+ * @param [in,out] rgen  A random generator, if NULL, the default global
+ *                       random generator will be used. For thread safety
+ *                       you should provide your own.
+ * @return SEE_SUCCESS, SEE_ERROR_INDEX
+ */
+SEE_EXPORT int
+see_dynamic_array_shuffle(
+    SeeDynamicArray* array,
+    SeeRandom*       rgen,
+    SeeError**       error_out
+    );
 
 /**
  * Gets the pointer to the SeeDynamicArrayClass table.
