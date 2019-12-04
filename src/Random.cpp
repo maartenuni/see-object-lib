@@ -53,6 +53,16 @@ random_init(
     return ret;
 }
 
+static void
+random_destroy(SeeObject* obj)
+{
+    SeeRandom* random = SEE_RANDOM(obj);
+    auto* priv = static_cast<Random*>(random->priv);
+    delete priv;
+
+    see_object_class()->destroy(obj);
+}
+
 static int
 init(const SeeObjectClass* cls, SeeObject* obj, va_list args)
 {
@@ -177,7 +187,8 @@ random_class_init(SeeObjectClass* new_cls)
     int ret = SEE_SUCCESS;
     
     /* Override the functions on the SeeObject here */
-    new_cls->init = init;
+    new_cls->init    = init;
+    new_cls->destroy = random_destroy;
 
     // Every class should have a unique name.
     new_cls->name = "SeeRandom";
