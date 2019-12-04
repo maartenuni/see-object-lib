@@ -82,7 +82,10 @@ class Random {
             return uniform_uint32_range(min, max);
         }
 
-        double random_float_range(double min, double max)
+        /**
+         * \brief generate floats in the range [min, max]
+         */
+        double uniform_float_range(double min, double max)
         {
             std::uniform_real_distribution<double>dist(min, max);
             return dist(gen);
@@ -92,9 +95,15 @@ class Random {
          * \brief return a number in the range[0.0, 1.0]
          * @return value between and including 0.0  and 1.0
          */
-        double random_float()
+        double uniform_float()
         {
             return random_float_range(0.0f, 1.0f);
+        }
+
+        double normal_float(double mean, double std)
+        {
+            std::normal_dist dist{mean, std};
+            return dist(gen);
         }
 
     private:
