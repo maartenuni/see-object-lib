@@ -160,11 +160,11 @@ see_random_float_range(SeeRandom* random, double min, double max)
 }
 
 double
-see_random_normal_float(SeeRandom* random, double mean, double max)
+see_random_normal_float(SeeRandom* random, double mean, double std)
 {
     SeeRandom *sr = random != nullptr ? random : global_random_device;
     auto *r = static_cast<Random *>(sr->priv);
-    return r->uniform_float_range(min, max);
+    return r->normal_float(mean, std);
 }
 
 /* **** initialization of the class **** */

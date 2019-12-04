@@ -97,12 +97,28 @@ class Random {
          */
         double uniform_float()
         {
-            return random_float_range(0.0f, 1.0f);
+            return uniform_float_range(0.0, 1.0);
         }
 
+        /**
+         * \brief return a number from the range [0.0, 1.0)
+         * \note in contrast to uniform_float, this will not generate 1.0
+         */
+        double canonical_float()
+        {
+            return std::generate_canonical<
+                double,
+                std::numeric_limits<double>::digits
+                >(gen);
+        }
+
+        /**
+         * \brief Draw a number from a normal distribution with a mean and
+         *        standard deviation.
+         */
         double normal_float(double mean, double std)
         {
-            std::normal_dist dist{mean, std};
+            std::normal_distribution<double> dist{mean, std};
             return dist(gen);
         }
 
