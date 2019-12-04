@@ -36,6 +36,7 @@ if (BUILD_UNIT_TESTS)
         error_test.c
         meta_test.c
         msgbuffer_test.c
+        random_test.c
         see_object_test.c
         serial_test.c
         stack_test.c
