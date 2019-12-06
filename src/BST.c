@@ -216,10 +216,10 @@ bst_delete(
     }
 
     cmp = tree->cmp_node(*node, key);
-    if (cmp > 0) // Key is larger.
-        ret = bst_delete(tree, &((*node)->right), key, error_out);
-    else if (cmp < 0) // Key is smaller
+    if (cmp > 0) // Key is smaller.
         ret = bst_delete(tree, &((*node)->left), key, error_out);
+    else if (cmp < 0) // Key is larger
+        ret = bst_delete(tree, &((*node)->right), key, error_out);
     else {
         if ((*node)->right == NULL) { // Return left node.
             SeeBSTNode* left = (*node)->left;

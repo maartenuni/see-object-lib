@@ -27,27 +27,6 @@ static const char* SUITE_NAME = "SeeBST Suite";
 /* ******** helper functions and structs ***********/
 /* *************************************************/
 
-/**
- * \brief select a random index from a range [min, max).
- *
- * I wouldn't recommend this function for production code.
- */
-static size_t
-random_index(size_t min, size_t max)
-{
-    assert(min < max);
-    long int r = random();
-    if (r < 0)
-        r *= -1;
-    size_t posrand = (size_t) r;
-    posrand %= (max - min);
-    posrand += min;
-    fprintf(stderr, "random = %lu\n", posrand);
-    assert(posrand>= min);
-    assert(posrand < max);
-    return posrand;
-}
-
 typedef struct int_int_node{
     SeeBSTNode node;
     int key;
@@ -326,11 +305,12 @@ bst_delete(void)
     SeeBST* tree = NULL;
     SeeDynamicArray* array = NULL;
     const size_t N = 1024;
+    size_t depth, size;
 
     typedef struct int_pair {
         int key;
         int value;
-    }int_pair;
+    } int_pair;
 
     int ret = see_bst_new(
             &tree,
@@ -356,12 +336,55 @@ bst_delete(void)
         SEE_UNIT_HANDLE_ERROR();
     }
 
-    for (size_t i = N - 1; i > 0; --i) {
+    ret = see_dynamic_array_shuffle(array, NULL, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    for (size_t i = 0; i < N; i++) {
         int_pair pair;
-        size_t randomindex = random_index(0, i);
-        ret = see_dynamic_array_get(array, randomindex, &pair, &error);
-        SEE_UNIT_HANDLE_ERROR();
+        ret = see_dynamic_array_get(array, i, &pair, &error);
+        if (ret)
+            SEE_UNIT_HANDLE_ERROR();
+        int_int_node* n = int_int_node_new(pair.key, pair.value);
+        if (!n) {
+            CU_ASSERT_PTR_NOT_NULL(n);
+            goto fail;
+        }
+        ret = see_bst_insert(tree, SEE_BST_NODE(n));
+        if (ret)
+            SEE_UNIT_HANDLE_ERROR();
     }
+
+    ret = see_bst_size(tree, &size);
+    SEE_UNIT_HANDLE_ERROR();
+    ret = see_bst_depth(tree, &depth);
+    SEE_UNIT_HANDLE_ERROR();
+
+    CU_ASSERT_EQUAL(size, N);
+    CU_ASSERT(depth < N);
+
+    ret = see_dynamic_array_shuffle(array, NULL, &error);
+    SEE_UNIT_HANDLE_ERROR();
+
+    for (size_t i = 0; i < N; i++) {
+        int_pair pair;
+        int_int_node key;
+        see_dynamic_array_get(array, i, &pair, &error);
+        if (ret)
+            SEE_UNIT_HANDLE_ERROR();
+        key.key = pair.key;
+        ret = see_bst_delete(tree, SEE_BST_NODE(&key), &error);
+        if (ret)
+            SEE_UNIT_HANDLE_ERROR();
+    }
+    
+    ret = see_bst_size(tree, &size);
+    SEE_UNIT_HANDLE_ERROR();
+    ret = see_bst_depth(tree, &depth);
+    SEE_UNIT_HANDLE_ERROR();
+    
+    CU_ASSERT_EQUAL(size, 0);
+    CU_ASSERT_EQUAL(depth, 0);
+
 
 fail:
     see_object_decref(SEE_OBJECT(error));
