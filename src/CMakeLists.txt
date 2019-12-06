@@ -29,6 +29,7 @@ set (SEE_OBJ_SRC
     MsgBuffer.c
     MetaClass.c
     OverflowError.c
+    Random.cpp
     RuntimeError.c
     SeeObject.c
     Serial.c
@@ -56,6 +57,7 @@ set (SEE_OBJ_HDR_PUBLIC
     MsgBuffer.h
     MetaClass.h
     OverflowError.h
+    Random.h
     RuntimeError.h
     SeeObject.h
     Serial.h
@@ -72,6 +74,7 @@ set (SEE_OBJ_HDR_PRIVATE
     cpp/Clock.hpp
     cpp/Duration.hpp
     cpp/TimePoint.hpp
+    cpp/Random.hpp
     posix/PosixSerial.h
     windows/WindowsSerial.h
     )

@@ -426,6 +426,56 @@ run_error:
     see_object_decref(SEE_OBJECT(array));
 }
 
+#define SHUFSIZ (10)
+
+static void
+array_shuffle(void)
+{
+    SeeError* error         = NULL;
+    SeeDynamicArray* array  = NULL;
+    const size_t NSHUFFLES  = 100;
+    int changed[SHUFSIZ]    = {0};
+    int allnonzero          = 0;
+
+    int ret = see_dynamic_array_new(
+            &array,
+            sizeof(int),
+            NULL,
+            see_init_memset,
+            NULL,
+            &error
+            );
+    SEE_UNIT_HANDLE_ERROR();
+    for (int i = 0; i < SHUFSIZ; i++) {
+        ret = see_dynamic_array_add(array, &i, &error);
+        if (ret)
+            SEE_UNIT_HANDLE_ERROR();
+    }
+
+    // This loops shuffles a number of time and examines whether
+    // not by incident the first and last item of an array are forgotten.
+    for (size_t j = 0; j < NSHUFFLES && !allnonzero; j++) {
+        const int* data = see_dynamic_array_data(array);
+        ret = see_dynamic_array_shuffle(array, NULL, &error);
+        for (int i = 0; i < SHUFSIZ; ++i) {
+            if (data[i] != i )
+                changed[i] = 1;
+        }
+        int found0 = 0;
+        for (int i = 0; i < SHUFSIZ; ++i) {
+            if (changed[i] == 0)
+                found0 = 1;
+        }
+        if (!found0)
+            allnonzero = 1;
+    }
+    CU_ASSERT_NOT_EQUAL(allnonzero, 0);
+
+fail:
+    SEE_OBJECT_DECREF(error);
+    SEE_OBJECT_DECREF(array);
+}
+
 int add_dynamic_array_suite()
 {
     SEE_UNIT_SUITE_CREATE(NULL, NULL);
@@ -437,6 +487,7 @@ int add_dynamic_array_suite()
     SEE_UNIT_TEST_CREATE(array_capacity);
     SEE_UNIT_TEST_CREATE(array_insert);
     SEE_UNIT_TEST_CREATE(array_exception);
+    SEE_UNIT_TEST_CREATE(array_shuffle);
 
     return 0;
 }
