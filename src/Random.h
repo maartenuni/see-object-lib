@@ -132,19 +132,23 @@ see_random_new(SeeRandom** rand_out, SeeError** error_out);
  * @return SEE_SUCCESS or SEE_INVALID_ARGUMENT
  */
 SEE_EXPORT int
-see_random_seed(SeeRandom* random, unsigned seed);
+see_random_seed(SeeRandom* random, uint64_t seed);
 
 
 /**
  * \brief Get the random seed of the generator.
  *
+ * The seed that is returned here is the seed, that was last used to
+ * obtain the random device. Hence, if the random device has been used
+ * this value isn't up to date anymore.
+ *
  * @param [in] random
- * @param [out]seed
+ * @param [out]seed The seed that was last used to seed the random device.
  *
  * @return SEE_SUCCESS or SEE_INVALID_ARGUMENT
  */
 SEE_EXPORT int
-see_random_get_seed(const SeeRandom* random, unsigned* seed);
+see_random_get_seed(const SeeRandom* random, uint64_t* seed);
 
 /**
  * \brief return a random int32_t.

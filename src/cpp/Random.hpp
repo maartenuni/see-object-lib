@@ -15,6 +15,11 @@
  * along with see-object.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/**
+ * \file Random.hpp
+ * \brief Provides the private random number generator
+ * \private
+ */
 
 #ifndef SEE_RANDOM_HPP
 #define SEE_RANDOM_HPP
@@ -163,7 +168,7 @@ class Random {
 
     private:
 
-        std::mt19937 gen;
+        std::mt19937_64 gen;
 
         unsigned m_seed;
 };

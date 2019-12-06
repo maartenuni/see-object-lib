@@ -106,7 +106,7 @@ int see_random_new(SeeRandom** obj_out, SeeError** error_out)
 }
 
 int
-see_random_seed(SeeRandom* random, unsigned seed)
+see_random_seed(SeeRandom* random, uint64_t seed)
 {
     SeeRandom* sr = random != nullptr ? random : global_random_device;
     Random* r = static_cast<Random*>(sr->priv);
@@ -115,7 +115,7 @@ see_random_seed(SeeRandom* random, unsigned seed)
 }
 
 int
-see_random_get_seed(const SeeRandom* random, unsigned* seed)
+see_random_get_seed(const SeeRandom* random, uint64_t* seed)
 {
     const SeeRandom* sr = random != nullptr ? random : global_random_device;
     auto* r = static_cast<const Random*>(sr->priv);

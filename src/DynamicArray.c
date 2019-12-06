@@ -637,7 +637,7 @@ see_dynamic_array_shuffle_range(
     if (!array || !error_out || *error_out)
         return SEE_INVALID_ARGUMENT;
 
-    if (end >= size) {
+    if (end > size) {
         see_index_error_new(error_out, end);
         return SEE_ERROR_INDEX;
     }
@@ -649,7 +649,7 @@ see_dynamic_array_shuffle_range(
     }
 
     for (size_t i = start; i < end; i++) {
-        size_t rindex = see_random_uint64_range(rgen, i, end);
+        size_t rindex = see_random_uint64_range(rgen, i, end - 1);
 
         array->copy_element(
             temp,

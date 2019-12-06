@@ -75,8 +75,8 @@ random_seed(void)
 {
     SeeError*  error = NULL;
     SeeRandom* rgen1 = NULL, *rgen2 = NULL;
-    unsigned seed1, seed2;
-    unsigned seed0; // from the global default random device.
+    uint64_t seed1, seed2;
+    uint64_t seed0; // from the global default random device.
     int ret;
     int rand0[ASIZ];
     int rand1[ASIZ];
@@ -86,7 +86,13 @@ random_seed(void)
     int oneandtwoequal;  // are rand0 and rand1 equal
     int oneandthreequal; // are rand0 and rand2 equal
     // If both are equal, two and three are also equal.
-
+    
+    // Since other tests might have used the random device seed it once more.
+    // The stored seed is the seed that was last used to seed the random
+    // device. Hence once the generator is used it is not up to date anymore.
+    uint64_t seed = see_random_uint64(NULL);
+    see_random_seed(NULL, seed);
+    
     ret = see_random_new(&rgen1, &error);
     SEE_UNIT_HANDLE_ERROR();
 
