@@ -11,7 +11,7 @@ jobs:
       compiler: gcc
       script:
         - cmake . -DCMAKE_BUILD_TYPE=Release
-        - cmake --build . -- -j8
+        - cmake --build . -- -j2
         - ./bin/unit-test
         - cpack -G DEB
       addons:
@@ -27,7 +27,7 @@ jobs:
         - CXXFLAGS="-fsanitize=address -fsanitize=undefined -fsanitize=leak" 
       script:
         - cmake . -DCMAKE_BUILD_TYPE=Debug
-        - cmake --build . -- -j8
+        - cmake --build . -- -j2
         - ./bin/unit-test
       addons:
         apt:
@@ -39,7 +39,7 @@ jobs:
       compiler: clang
       script:
         - cmake . -DCMAKE_BUILD_TYPE=Release
-        - cmake --build . -- -j8
+        - cmake --build . -- -j2
         - ./bin/unit-test
         # - cpack we cpack the gcc version
       addons:
@@ -52,7 +52,7 @@ jobs:
       compiler: clang
       script:
         - cmake . -DCMAKE_BUILD_TYPE=Release -DBUILD_UNIT_TESTS=OFF
-        - cmake --build . -- -j8
+        - cmake --build . -- -j2
         - cpack -G DragNDrop
     - os: windows
       #     addons:
