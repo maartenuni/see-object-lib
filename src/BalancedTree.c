@@ -92,10 +92,7 @@ SeeBalancedTreeClass* g_SeeBalancedTreeClass = NULL;
 static int balanced_tree_class_init(SeeObjectClass* new_cls)
 {
     int ret = SEE_SUCCESS;
-    ret = see_bst_init();
-    if (ret)
-        return ret;
-    
+
     /* Override the functions on the SeeObject here */
     // 
     // new_cls->init = init;
@@ -135,6 +132,10 @@ see_balanced_tree_init()
 {
     int ret;
     const SeeMetaClass* meta = see_meta_class_class();
+
+    ret = see_bst_init();
+    if (ret)
+        return ret;
 
     ret = see_meta_class_new_class(
         meta,

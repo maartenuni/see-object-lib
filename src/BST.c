@@ -412,8 +412,11 @@ static int bst_class_init(SeeObjectClass* new_cls)
 int
 see_bst_init()
 {
-    int ret;
+    int ret = SEE_SUCCESS;
     const SeeMetaClass* meta = see_meta_class_class();
+
+    if (g_SeeBSTClass)
+        return ret;
 
     ret = see_meta_class_new_class(
         meta,
