@@ -39,7 +39,7 @@ jobs:
       compiler: clang
       script:
         - cmake . -DCMAKE_BUILD_TYPE=Release
-        - cmake --build . -- j8
+        - cmake --build . -- -j8
         - ./bin/unit-test
         # - cpack we cpack the gcc version
       addons:
