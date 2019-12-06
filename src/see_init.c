@@ -24,6 +24,8 @@
 #include "see_object_config.h"
 #include "MetaClass.h"
 #include "see_init.h"
+#include "BalancedTree.h"
+#include "BST.h"
 #include "Clock.h"
 #include "CopyError.h"
 #include "Duration.h"
@@ -46,7 +48,6 @@
 #include "windows/WindowsRuntimeError.h"
 #elif HAVE_UNISTD_H
 #include "posix/PosixSerial.h"
-#include "BST.h"
 
 #endif
 
@@ -89,6 +90,10 @@ initialize() {
         return ret;
 
     // Initialize the other objects.
+    ret = see_balanced_tree_init();
+    if(ret)
+        return ret;
+
     ret = see_bst_init();
     if (ret)
         return ret;
@@ -186,6 +191,7 @@ initialize() {
 static void
 deinit()
 {
+    see_balanced_tree_deinit();
     see_bst_deinit();
     see_clock_deinit();
     see_copy_error_deinit();

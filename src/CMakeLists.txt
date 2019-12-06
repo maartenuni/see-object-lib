@@ -17,6 +17,7 @@ configure_file(
 set (SEE_OBJ_SRC
     see_functions.c
     see_init.c
+    BalancedTree.c
     BST.c
     Clock.cpp
     CopyError.c
@@ -44,6 +45,7 @@ set (SEE_OBJ_SRC
 set (SEE_OBJ_HDR_PUBLIC
     errors.h
     see_functions.h
+    BalancedTree.h
     BST.h
     Clock.h
     CopyError.h
