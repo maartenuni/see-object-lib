@@ -28,9 +28,10 @@ int add_meta_suite();
 int add_dynamic_array_suite();
 int add_error_suite();
 int add_msg_buffer_suite();
-int add_time_suite();
+int add_random_suite();
 int add_serial_suite();
 int add_stack_suite();
+int add_time_suite();
 int add_utilities_suite();
 
 #ifdef __cplusplus

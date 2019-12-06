@@ -47,7 +47,7 @@ int add_suites()
     if (res)
         return res;
 
-    res = add_time_suite();
+    res = add_random_suite();
     if (res)
         return res;
 
@@ -56,6 +56,10 @@ int add_suites()
         return res;
 
     res = add_stack_suite();
+    if (res)
+        return res;
+    
+    res = add_time_suite();
     if (res)
         return res;
     
