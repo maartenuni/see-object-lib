@@ -266,8 +266,9 @@ bst_size(const SeeBSTNode* node)
     if (!node)
         return 0;
 
-    return bst_size(node->left) + bst_size(node->right) + 1;
+    return node->size;
 }
+
 
 /* **** implementation of the public API **** */
 

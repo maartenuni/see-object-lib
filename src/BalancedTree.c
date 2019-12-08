@@ -19,6 +19,54 @@
 #include "MetaClass.h"
 #include "BST.h"
 #include "BalancedTree.h"
+#include <stdbool.h>
+#include <assert.h>
+
+#define SIZE_MASK (~((size_t) 0) >> 1u)
+#define COLOR_MASK ~SIZE_MASK
+
+typedef enum {
+    RED,
+    BLACK
+} rb_color;
+
+static rb_color
+node_color(const SeeBSTNode* n)
+{
+    if (n && n->size & COLOR_MASK)
+        return RED;
+    return BLACK;
+}
+
+static void
+set_color(SeeBSTNode* node, rb_color color)
+{
+    assert(node != NULL);
+    if (color == RED)
+        node->size |= COLOR_MASK;
+    else
+        node->size &= ~COLOR_MASK;
+}
+
+static void
+rotate_left(SeeBSTNode** node_ref)
+{
+    SeeBSTNode* x = (*node_ref)->right;
+    (*node_ref)->right = x->left;
+    x->left = (*node_ref);
+    set_color(x, node_color(*node_ref));
+    *node_ref = x;
+    x->size = (*node_ref)->size;
+    (*node_ref)->size =
+        bst_size((*node_ref)->left) +
+        bst_size((*node_ref)->right) + 1u;
+}
+
+static int
+is_red(SeeBSTNode* node)
+{
+    return node_color(node) == RED;
+}
 
 /* **** functions that implement SeeBalancedTree or override SeeBST **** */
 
@@ -27,8 +75,7 @@ balanced_insert(SeeBST* tree, SeeBSTNode* node)
 {
     //TODO
     int ret = SEE_SUCCESS;
-    (void) tree;
-    (void) node;
+    int cmp = tree->cmp_node();
     return ret;
 }
 

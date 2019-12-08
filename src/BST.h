@@ -49,9 +49,15 @@ typedef struct SeeBSTClass SeeBSTClass;
 typedef struct SeeBSTNode SeeBSTNode;
 typedef char*(*see_node_stringfy_func)(const SeeBSTNode* node);
 
+/**
+ * \brief The trees are build with this kind of nodes.
+ *
+ *
+ */
 struct SeeBSTNode {
     SeeBSTNode* left;
     SeeBSTNode* right;
+    size_t      size;
 };
 
 struct SeeBST {
@@ -87,7 +93,7 @@ struct SeeBST {
 
 struct SeeBSTClass {
     SeeObjectClass parent_cls;
-    
+
     int (*bst_init)(
         SeeBST*                 bst,
         const SeeBSTClass*      bst_cls,
@@ -111,6 +117,7 @@ struct SeeBSTClass {
                      SeeError**         error_out
                      );
 
+    size_t (*size)  (const SeeBST* tree);
 };
 
 /* **** function style macro casts **** */
