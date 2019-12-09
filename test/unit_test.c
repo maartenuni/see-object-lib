@@ -35,6 +35,10 @@ int add_suites()
     if (res)
         return res;
 
+    res = add_balanced_tree_suite();
+    if (res)
+        return res;
+
     res = add_bst_suite();
     if (res)
         return res;

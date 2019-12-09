@@ -52,12 +52,37 @@ typedef char*(*see_node_stringfy_func)(const SeeBSTNode* node);
 /**
  * \brief The trees are build with this kind of nodes.
  *
+ * The trees of the see object library work by "deriving" from this nodes,
+ * Then the tree will update everything in the SeeBSTNodes and store your
+ * key value pairs
  *
+ * Deriving can be done via:
+ *
+ * @code
+ *
+ * typedef struct MyNode {
+ *     SeeBSTNode node; // This one must be the first item of a SeeBSTNode
+ *                      // derived node.
+ *     char key[1024];
+ *     int  value;
+ * } MyNode;
+ *
+ * @endcode
+ *
+ * Typically you alloc your node on the heap, insert it in the tree. By adding
+ * it to the tree via see_bst_insert. You must cast the MyNode* to a SeeBSTNode*
+ * The tree will also return SeeBSTNode* when you call see_bst_find() on it.
+ * You can then cast the SeeBSTNode back to a MyNode* and access the key and
+ * value.
+ * If you omit a value, then the tree functions as a set data structure. On the
+ * other hand, you are free to add multiple values to your declaration of the
+ * node.
  */
 struct SeeBSTNode {
     SeeBSTNode* left;
     SeeBSTNode* right;
     size_t      size;
+    int         color;
 };
 
 struct SeeBST {
@@ -269,6 +294,17 @@ see_bst_depth(const SeeBST* tree, size_t* size_out);
  */
 SEE_EXPORT int
 see_bst_size(const SeeBST* tree, size_t* size_out);
+
+/**
+ * \brief return the size of a subtree starting at Node.
+ *
+ * @param [in] node Returns the size of the subtree, if node == NULL, 0 is
+ *                  returned.
+ *
+ * @return the size of the subtree.
+ */
+SEE_EXPORT size_t
+see_bst_node_size(const SeeBSTNode* node);
 
 /**
  * Gets the pointer to the SeeBSTClass table.

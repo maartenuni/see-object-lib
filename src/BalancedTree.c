@@ -22,30 +22,51 @@
 #include <stdbool.h>
 #include <assert.h>
 
-#define SIZE_MASK (~((size_t) 0) >> 1u)
-#define COLOR_MASK ~SIZE_MASK
+// It might be an idea to use the most significant bit of the size to store
+// the tree nodes' color. That might save a int/char to store that is stored
+// separately.
+//
+//#define SIZE_MASK (~((size_t) 0) >> 1u)
+//#define COLOR_MASK ~SIZE_MASK
 
 typedef enum {
     RED,
     BLACK
 } rb_color;
 
+/**
+ * \brief Determines the color of a node.
+ *
+ * This function determines the color of a node. If the node == NULL, its
+ * considered a BLACK node. Otherwise the node->color is examined.
+ *
+ * \private
+ *
+ * @param n
+ * @return
+ */
 static rb_color
 node_color(const SeeBSTNode* n)
 {
-    if (n && n->size & COLOR_MASK)
-        return RED;
-    return BLACK;
+    return n && n->color == RED ? RED : BLACK;
 }
 
+/**
+ * \brief Set the color of a node
+ *
+ * @param [out] node  The node whose color you want to set. May NOT be NULL.
+ * @param [in]  color The desired color of the node.
+ *
+ * \private
+ */
 static void
 set_color(SeeBSTNode* node, rb_color color)
 {
     assert(node != NULL);
     if (color == RED)
-        node->size |= COLOR_MASK;
+        node->color = RED;
     else
-        node->size &= ~COLOR_MASK;
+        node->color = BLACK;
 }
 
 static void
@@ -55,13 +76,47 @@ rotate_left(SeeBSTNode** node_ref)
     (*node_ref)->right = x->left;
     x->left = (*node_ref);
     set_color(x, node_color(*node_ref));
+    set_color(*node_ref, RED);
+    x->size = see_bst_node_size(*node_ref);
+    (*node_ref)->size = 1 + see_bst_node_size((*node_ref)->left) +
+                            see_bst_node_size((*node_ref)->right);
     *node_ref = x;
-    x->size = (*node_ref)->size;
-    (*node_ref)->size =
-        bst_size((*node_ref)->left) +
-        bst_size((*node_ref)->right) + 1u;
 }
 
+static void
+rotate_right(SeeBSTNode** node_ref)
+{
+    SeeBSTNode* x = (*node_ref)->left;
+    (*node_ref)->left = x->right;
+    x->right = (*node_ref);
+    set_color(x, node_color(*node_ref));
+    set_color(*node_ref, RED);
+    x->size = see_bst_node_size(*node_ref);
+    (*node_ref)->size = 1 + see_bst_node_size((*node_ref)->left) +
+                            see_bst_node_size((*node_ref)->right);
+    *node_ref = x;
+}
+
+static void
+flip_colors(SeeBSTNode* n)
+{
+    assert(n != NULL);
+    assert(node_color(n->left) == RED);
+    assert(node_color(n->right) == RED);
+    set_color(n, RED);
+    set_color(n->left, BLACK);
+    set_color(n->right, BLACK);
+}
+
+/**
+ * Determine whether the node is red or not.
+ *
+ * @param [in] node May be NULL, but then its black, for other nodes the node
+ *                  will be examined which color it is.
+ *
+ * @return 1 if it is red, 0 if it is black.
+ * @private
+ */
 static int
 is_red(SeeBSTNode* node)
 {
@@ -70,13 +125,58 @@ is_red(SeeBSTNode* node)
 
 /* **** functions that implement SeeBalancedTree or override SeeBST **** */
 
-static int
-balanced_insert(SeeBST* tree, SeeBSTNode* node)
+static SeeBSTNode*
+tree_insert(
+   SeeBST*      tree,
+   SeeBSTNode*  tree_node,
+   SeeBSTNode*  new_node
+   )
 {
-    //TODO
-    int ret = SEE_SUCCESS;
-    int cmp = tree->cmp_node();
-    return ret;
+    assert(new_node->left == NULL);
+    assert(new_node->right == NULL);
+
+    if (!tree_node)
+        return new_node;
+
+    int ret = tree->cmp_node(tree_node, new_node);
+    if (ret > 0) // new node is smaller
+        tree_node->left = tree_insert(tree, tree_node->left, new_node);
+    else if(ret < 0) // new node is larger
+        tree_node->right = tree_insert(tree, tree_node->right, new_node);
+    else { // they are equal
+        new_node->right = tree_node->right;
+        new_node->left =  tree_node->left;
+        tree->free_node(tree_node);
+        tree_node = new_node;
+    }
+
+    if (is_red(tree_node->right) && !is_red(tree_node->left))
+        rotate_left(&tree_node);
+    if (is_red(tree_node->left) && !is_red(tree_node->left))
+        rotate_right(&tree_node);
+    if (is_red(tree_node->left) && is_red(tree_node->right))
+        flip_colors(tree_node);
+
+    tree_node->size = 1 + see_bst_node_size(tree_node->left) +
+                          see_bst_node_size(tree_node->right);
+
+    return tree_node;
+}
+
+static int
+balanced_insert(
+    SeeBST* tree,
+    SeeBSTNode* new_node)
+{
+    // A little housekeeping
+    new_node->size = 0;
+    set_color(new_node, RED);
+
+    tree->root = tree_insert(tree, tree->root, new_node);
+
+    // The root should be kept black.
+    set_color(tree->root, BLACK);
+    return SEE_SUCCESS;
 }
 
 static int

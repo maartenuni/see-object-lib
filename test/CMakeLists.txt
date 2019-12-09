@@ -32,6 +32,7 @@ if (BUILD_UNIT_TESTS)
     set(UNIT_TEST unit-test)
     set(UNIT_TEST_SOURCES
         unit_test.c
+        balanced_tree_test.c
         bst_test.c
         dynamic_array_test.c
         error_test.c

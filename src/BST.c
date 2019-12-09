@@ -107,8 +107,10 @@ static SeeBSTNode* tree_insert(
     assert(new_node->left == NULL);
     assert(new_node->right == NULL);
 
-    if (!tree_node)
+    if (!tree_node) {
+        new_node->size = 1;
         return new_node;
+    }
 
     int ret = tree->cmp_node(tree_node, new_node);
     if (ret > 0) // new node is smaller
@@ -121,6 +123,10 @@ static SeeBSTNode* tree_insert(
         tree->free_node(tree_node);
         tree_node = new_node;
     }
+
+    tree_node->size = 1 + see_bst_node_size(tree_node->left) +
+                          see_bst_node_size(tree_node->right);
+
     return tree_node;
 }
 
@@ -364,6 +370,15 @@ see_bst_delete(
         return SEE_INVALID_ARGUMENT;
     
     return SEE_BST_GET_CLASS(tree)->delete(tree, &tree->root, key, error_out);
+}
+
+size_t
+see_bst_node_size(const SeeBSTNode* n)
+{
+    if (!n)
+        return 0;
+    else
+        return n->size;
 }
 
 /* **** initialization of the class **** */

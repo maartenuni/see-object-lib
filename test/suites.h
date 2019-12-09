@@ -25,6 +25,7 @@ extern "C" {
 
 int add_see_object_suite();
 int add_meta_suite();
+int add_balanced_tree_suite();
 int add_bst_suite();
 int add_dynamic_array_suite();
 int add_error_suite();
