@@ -135,8 +135,10 @@ tree_insert(
     assert(new_node->left == NULL);
     assert(new_node->right == NULL);
 
-    if (!tree_node)
+    if (!tree_node) {
+        new_node->size = 1;
         return new_node;
+    }
 
     int ret = tree->cmp_node(tree_node, new_node);
     if (ret > 0) // new node is smaller

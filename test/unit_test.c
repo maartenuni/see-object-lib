@@ -79,6 +79,7 @@ int add_suites()
 int main(int argc, char** argv) {
     
     (void) argc; (void) argv; // prevent compiler warnings.
+    unsigned failures = 0;
 
     if (CU_initialize_registry() != CUE_SUCCESS)
         return EXIT_FAILURE;
@@ -97,9 +98,13 @@ int main(int argc, char** argv) {
         return EXIT_FAILURE;
     }
 
+    failures = CU_get_number_of_tests_failed();
+    if (failures)
+        fprintf(stderr, "%u test failed\n", failures);
+
     see_deinit();
 
     CU_cleanup_registry();
 
-    return 0;
+    return (int) failures;
 }
