@@ -270,6 +270,7 @@ balanced_tree_insert_in_order(void)
     SeeBST* bst = NULL;
     size_t depth, size;
     const size_t N = 32;
+    double logbase2;
 
     int ret = see_balanced_tree_new(
         SEE_BALANCED_TREE_REF(&bst),
@@ -290,7 +291,11 @@ balanced_tree_insert_in_order(void)
 
     see_bst_depth(bst, &depth);
     see_bst_size(bst, &size);
-    CU_ASSERT_EQUAL(depth, N);
+
+    logbase2 = log(depth) / log(2.0);
+    fprintf(stderr, "Depth of tree = %lu\n", depth);
+
+    CU_ASSERT(N <= ceil(logbase2));
     CU_ASSERT_EQUAL(size, N);
 
 fail:

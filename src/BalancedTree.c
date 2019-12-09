@@ -154,7 +154,7 @@ tree_insert(
 
     if (is_red(tree_node->right) && !is_red(tree_node->left))
         rotate_left(&tree_node);
-    if (is_red(tree_node->left) && !is_red(tree_node->left))
+    if (is_red(tree_node->left) && is_red(tree_node->left->left))
         rotate_right(&tree_node);
     if (is_red(tree_node->left) && is_red(tree_node->right))
         flip_colors(tree_node);
