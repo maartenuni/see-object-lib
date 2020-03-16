@@ -166,9 +166,10 @@ tree_insert(
 }
 
 static int
-balanced_insert(
+balanced_insert (
     SeeBST* tree,
-    SeeBSTNode* new_node)
+    SeeBSTNode* new_node
+    )
 {
     // A little housekeeping
     new_node->size = 0;

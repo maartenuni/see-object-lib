@@ -148,7 +148,7 @@ balanced_tree_insert(void)
 {
     SeeError* error = NULL;
     SeeBST* bst = NULL;
-    size_t depth, size;
+    size_t size;
 
     struct key_val_pair {
         const char* key;
@@ -182,9 +182,7 @@ balanced_tree_insert(void)
         SEE_UNIT_HANDLE_ERROR();
     }
 
-    see_bst_depth(bst, &depth);
     see_bst_size(bst, &size);
-    CU_ASSERT_EQUAL(depth, 4);
     CU_ASSERT_EQUAL(size, 7);
 
 fail:
@@ -270,7 +268,7 @@ balanced_tree_insert_in_order(void)
     SeeBST* bst = NULL;
     size_t depth, size;
     const size_t N = 32;
-    double logbase2;
+    double twologbase2;
 
     int ret = see_balanced_tree_new(
         SEE_BALANCED_TREE_REF(&bst),
@@ -292,10 +290,10 @@ balanced_tree_insert_in_order(void)
     see_bst_depth(bst, &depth);
     see_bst_size(bst, &size);
 
-    logbase2 = log(depth) / log(2.0);
+    twologbase2 = 2 * (log(depth) / log(2.0));
     fprintf(stderr, "Depth of tree = %lu\n", depth);
 
-    CU_ASSERT(N <= ceil(logbase2));
+    CU_ASSERT(depth <= ceil(twologbase2));
     CU_ASSERT_EQUAL(size, N);
 
 fail:
